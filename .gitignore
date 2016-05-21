@@ -243,3 +243,14 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/UnitTest/BacklogManager.tlog/link.write.1.tlog
+/UnitTest/BacklogManager.tlog/link.read.1.tlog
+/UnitTest/BacklogManager.tlog/link.command.1.tlog
+/UnitTest/BacklogManager.tlog/CL.write.1.tlog
+/UnitTest/BacklogManager.tlog/CL.read.1.tlog
+/UnitTest/BacklogManager.tlog/CL.command.1.tlog
+/UnitTest/BacklogManager.tlog/BacklogManager.lastbuildstate
+/UnitTest/BacklogManager.exe
+/BacklogManager.vcxproj.filters
+/BacklogManager.vcxproj
+/BacklogManager.sln
