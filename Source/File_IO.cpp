@@ -32,6 +32,7 @@ bool File::create(const std::string &fileName, const std::string &directory) {
 	if (File::exists(fileName, directory) == false) {
 		fs.open(fn, mode);
 		fs.close();
+		isSuccessful = true;
 	}
 
 	return isSuccessful;

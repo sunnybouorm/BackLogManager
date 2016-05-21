@@ -41,9 +41,13 @@ SCENARIO("A line of text is written and read from a file")
 		File::create(fn,dir);
 		WHEN("a line of text is written and read")
 		{
+			bool writeSuccess = false;
+			bool readSuccess  = false;
+
 			THEN("said line of text must match the one initially written")
 			{
-				REQUIRE(false);
+				REQUIRE(writeSuccess == true);
+				REQUIRE(readSuccess == true);
 			}
 		}
 	}
