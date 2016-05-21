@@ -6,5 +6,6 @@ public:
 	File() {};
 
 	static bool exists( const std::string &fileName, const std::string &directory);
+	static bool create( const std::string &fileName, const std::string &directory);
 	static bool destroy(const std::string &fileName, const std::string &directory);
 };

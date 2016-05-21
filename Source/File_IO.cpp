@@ -21,6 +21,14 @@ bool File::exists(const std::string &fileName, const std::string &directory) {
 		return isExist;
 	}
 }
+/*
+ * Creates specified file in specified directory and returns status
+ */
+bool File::create(const std::string &fileName, const std::string &directory) {
+	bool isSuccessful = false;
+	//TODO:
+	return isSuccessful;
+}
 
 /* 
  * Deletes specified file in specified directory and returns status
