@@ -31,3 +31,20 @@ SCENARIO("A file is created and destroyed")
 		}
 	}
 }
+
+SCENARIO("A line of text is written and read from a file")
+{
+	GIVEN("A text file")
+	{
+		std::string fn  = "textFile.txt";
+		std::string dir = "";
+		File::create(fn,dir);
+		WHEN("a line of text is written and read")
+		{
+			THEN("said line of text must match the one initially written")
+			{
+				REQUIRE(false);
+			}
+		}
+	}
+}
