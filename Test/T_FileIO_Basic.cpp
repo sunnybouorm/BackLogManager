@@ -98,3 +98,28 @@ SCENARIO("Multiple lines of text are written and read from a file")
 		file.destroy();
 	}
 }
+
+SCENARIO("A line of text is read and EOF is reached") {
+	GIVEN("a text file")
+	{
+		std::string fn = "textFile.txt";
+		std::string dir = "";
+		File file(fn, dir);
+		file.destroy();
+		file.create();
+		std::string output = "123";
+		std::string input;
+		file.write(output);
+
+		WHEN("EOF is reached") {
+			file.read_line(&input);
+			THEN("Whatever text was before EOF must be read and i_flags must be correct") {
+				REQUIRE(input==output);
+				REQUIRE(file.i_flags.isEof  == true);
+				REQUIRE(file.i_flags.isGood == false);
+				REQUIRE(file.i_flags.isBad  == false);
+			}
+		}
+		file.destroy();
+	}
+}

@@ -25,7 +25,7 @@ public:
 	bool create();
 	bool destroy();
 
-	void clear_io_flags();
+	void clear_i_flags();
 
 	void write(const std::string &text);
 	void read_line(std::string *output);
