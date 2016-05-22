@@ -14,7 +14,7 @@ private:
 	std::istream::streampos ipos; //current file input pointer position
 public:
 	std::string test;
-	IO_FLAGS io_flags;
+	IO_FLAGS i_flags;//flags relating to input filestream
 	File(const std::string &filename, const std::string &directory);
 
 	static bool exists( const std::string &fileName, const std::string &directory);
