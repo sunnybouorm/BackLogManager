@@ -43,7 +43,12 @@ bool Database::open_connection(const int &flags) {
 	if (status == 0) {
 		isSuccessful = true;
 	}
-	return isSuccessful;
+	else {
+		std::cerr << "failed to establish connection to database: %s\n", sqlite3_errmsg(this->db);
+		std::cerr.flush();
+	}
+	
+return		isSuccessful;
 }
 
 bool Database::close_connection() {
@@ -51,6 +56,9 @@ bool Database::close_connection() {
 	int status = sqlite3_close_v2(this->db);
 	if (status == SQLITE_OK) {
 		isSuccessful = true;
+	} else {
+		std::cerr << "failed to close connection to database: %s\n", sqlite3_errmsg(this->db);
+		std::cerr.flush();
 	}
 	return isSuccessful;
 }
@@ -65,6 +73,12 @@ bool Database::exterminate() {
 	bool isSuccessful = false;
 	isSuccessful = File::destroy(DB_NAME, this->DB_DIR);
 
+	if (isSuccessful == false) {
+		std::cerr << "failed to exterminate database: " << sqlite3_errmsg(this->db);
+		std::cerr << "\n";
+		std::cerr.flush();
+	}
+
 	return isSuccessful;
 }
 
@@ -75,13 +89,14 @@ bool Database::exterminate() {
 bool Database::importSQL(const std::string &fileName, const std::string &fileDir)
 {
 	bool isSuccessful = false;
-	//TODO:
-	//open file with read only permission
-	//process file
-		//parse line and prepare SQL statement
-		//process SQL statement
-		//repeat until EoF or error
-	//close SQL text file
-	//return status
+	File file(fileName, fileDir);
+
+	this->open_connection();
+	std::string SQL_line;
+	//while (SQL_line != ) {
+	//	SQL_line = file.read_line();
+	//}
+	this->close_connection();
+
 	return isSuccessful;
 }
