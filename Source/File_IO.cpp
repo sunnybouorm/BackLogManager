@@ -4,7 +4,7 @@
 File::File(const std::string &fileName, const std::string &directory) {
 	this->fileName  = fileName;
 	this->directory = directory;
-	this->pos = 0;
+	this->ipos = 0;
 }
 
 /*
@@ -86,9 +86,21 @@ void File::write(const std::string &text) {
 	}
 }
 
-std::string File::read_line() {
-	std::string text;
+/*
+ * Resets io_flags struct to default settings
+ */
+void File::clear_io_flags() {
+	this->io_flags.isBad  = false;
+	this->io_flags.isEof  = false;
+	this->io_flags.isGood = true;
+}
 
+/*
+ * reads line in current File instance
+ * bool* isEoF serves as a container for identifying when end of file is reached
+ * returns text read from file in std::string format
+ */
+void File::read_line(std::string *output) {
 	std::fstream fs;
 	int mode = std::fstream::in;
 	const char* filename = nullptr;
@@ -96,15 +108,26 @@ std::string File::read_line() {
 	filename = (path).c_str();
 
 	if ( (this->exists()) == true) {
-		fs.clear();//clear error flags
+		//clear error flags
+		fs.clear();
+		this->clear_io_flags();
+
 		fs.open(path, mode);
-		fs.seekg(this->pos);
-		getline(fs, text);
-		this->pos = fs.tellg();
+		fs.seekg(this->ipos);
+		getline(fs, *output);
+
+		//check stream status and raise flags where required
+		if(fs.good()){
+			this->io_flags.isGood = true;
+		} else if (fs.bad()) {
+			this->io_flags.isBad  = true;
+		} else if (fs.eof()) {
+			this->io_flags.isEof  = true;
+		}
+
+		this->ipos = fs.tellg();
 		fs.close();
 	}
-
-	return text;
 }
 
 void File::clear() {
