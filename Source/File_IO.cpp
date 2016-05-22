@@ -33,7 +33,7 @@ bool File::create(const std::string &fileName, const std::string &directory) {
 	bool isSuccessful = false;
 	std::fstream fs;
 	const char* fn = nullptr;
-	std::string path = fileName + directory;
+	std::string path = directory + fileName;
 
 	fn = path.c_str();
 	int mode = std::fstream::out;
@@ -67,20 +67,37 @@ bool File::destroy(const std::string &fileName, const std::string &directory) {
 	return isSuccessful;
 }
 
-bool File::exists()  { return File::exists(this->fileName, this->directory);  }
-bool File::create()  { return File::create(this->fileName, this->directory);  }
+bool File::exists()  { return File::exists( this->fileName, this->directory); }
+bool File::create()  { return File::create( this->fileName, this->directory); }
 bool File::destroy() { return File::destroy(this->fileName, this->directory); }
 
 void File::write(const std::string &text) {
 	std::fstream fs;
-	int mode = std::fstream::out;
-	char* filename = nullptr;
-	fileName = (this->fileName).c_str();
-
+	int mode = std::fstream::out | std::fstream::app;
+	const char* filename = nullptr;
+	std::string path = this->directory + this->fileName;
+	filename = (path).c_str();
+	
+	if (this->exists() == true) {
+		fs.open(fileName, mode);
+		fs << text;
+		fs.close();
+	}
 }
 
 std::string File::read_line() {
 	std::string text;
+
+	std::fstream fs;
+	int mode = std::fstream::in;
+	const char* filename = nullptr;
+	std::string path = this->directory + this->fileName;
+	filename = (path).c_str();
+
+	fs.open(path,mode);
+	getline(fs,text);
+	fs.close();
+
 	return text;
 }
 

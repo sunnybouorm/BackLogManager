@@ -38,26 +38,32 @@ SCENARIO("A line of text is written and read from a file")
 	{
 		std::string fn  = "textFile.txt";
 		std::string dir = "";
-		File::create(fn,dir);
 		File file(fn,dir);
+
 		WHEN("a line of text is written and read")
 		{
-			bool writeSuccess = false;
-			bool readSuccess  = false;
-
+			file.create();
+			std::string output = "test 1 2 3";
+			std::string input;
+			file.write(output + "\n");
+			input = file.read_line();
+			
 			THEN("said line of text must match the one initially written")
 			{
-				REQUIRE(writeSuccess == true);
-				REQUIRE(readSuccess == true);
+				REQUIRE(input == output);
 			}
 		}
-		WHEN("the file is cleared")
+		AND_WHEN("the file is cleared of content")
 		{
-			bool clearSuccess = false;
-			THEN("no contents in the file must exist")
+			file.clear();
+			std::string input;
+			input = file.read_line();
+			THEN("no contents in the file must exist and the file must exist")
 			{
-				REQUIRE(clearSuccess == true);
+				REQUIRE(file.exists() == true);
+				REQUIRE(input == "");
 			}
+			file.destroy();
 		}
 	}
 }
