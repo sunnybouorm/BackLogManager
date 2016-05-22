@@ -5,6 +5,7 @@ class File {
 private:
 	std::string fileName;
 	std::string directory;
+	std::istream::streampos pos;
 public:
 	std::string test;
 	File(const std::string &filename, const std::string &directory);

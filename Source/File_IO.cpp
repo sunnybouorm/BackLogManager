@@ -4,6 +4,7 @@
 File::File(const std::string &fileName, const std::string &directory) {
 	this->fileName  = fileName;
 	this->directory = directory;
+	this->pos = 0;
 }
 
 /*
@@ -94,9 +95,14 @@ std::string File::read_line() {
 	std::string path = this->directory + this->fileName;
 	filename = (path).c_str();
 
-	fs.open(path,mode);
-	getline(fs,text);
-	fs.close();
+	if ( (this->exists()) == true) {
+		fs.clear();//clear error flags
+		fs.open(path, mode);
+		fs.seekg(this->pos);
+		getline(fs, text);
+		this->pos = fs.tellg();
+		fs.close();
+	}
 
 	return text;
 }

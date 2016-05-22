@@ -39,10 +39,11 @@ SCENARIO("A line of text is written and read from a file")
 		std::string fn  = "textFile.txt";
 		std::string dir = "";
 		File file(fn,dir);
+		file.destroy();
+		file.create();
 
 		WHEN("a line of text is written and read")
 		{
-			file.create();
 			std::string output = "test 1 2 3";
 			std::string input;
 			file.write(output + "\n");
@@ -52,19 +53,19 @@ SCENARIO("A line of text is written and read from a file")
 			{
 				REQUIRE(input == output);
 			}
-		}
-		AND_WHEN("the file is cleared of content")
-		{
-			file.clear();
-			std::string input;
-			input = file.read_line();
-			THEN("no contents in the file must exist and the file must exist")
+			AND_WHEN("the file is cleared of content")
 			{
-				REQUIRE(file.exists() == true);
-				REQUIRE(input == "");
+				file.clear();
+				std::string input;
+				input = file.read_line();
+				THEN("no contents in the file must exist and the file must exist")
+				{
+					REQUIRE(file.exists() == true);
+					REQUIRE(input == "");
+				}
 			}
-			file.destroy();
 		}
+		file.destroy();
 	}
 }
 
@@ -72,12 +73,29 @@ SCENARIO("Multiple lines of text are written and read from a file")
 {
 	GIVEN("a text file")
 	{
+		std::string fn = "textFile.txt";
+		std::string dir = "";
+		File file(fn, dir);
+		file.destroy();
+		file.create();
+		
 		WHEN("2 lines of text are written and read")
 		{
+			std::string output_1 = "123";
+			std::string output_2 = "456";
+			std::string input_1, input_2;
+			file.write(output_1 + "\n");
+			file.write(output_2 + "\n");
+			input_1 = file.read_line();
+			input_2 = file.read_line();
+
+
 			THEN("the text read must match the text written")
 			{
-				REQUIRE(false);
+				REQUIRE(input_1 == output_1);
+				REQUIRE(input_2 == output_2);
 			}
 		}
+		file.destroy();
 	}
 }
