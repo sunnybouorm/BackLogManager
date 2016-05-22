@@ -39,6 +39,7 @@ SCENARIO("A line of text is written and read from a file")
 		std::string fn  = "textFile.txt";
 		std::string dir = "";
 		File::create(fn,dir);
+		File file(fn,dir);
 		WHEN("a line of text is written and read")
 		{
 			bool writeSuccess = false;
@@ -48,6 +49,28 @@ SCENARIO("A line of text is written and read from a file")
 			{
 				REQUIRE(writeSuccess == true);
 				REQUIRE(readSuccess == true);
+			}
+		}
+		WHEN("the file is cleared")
+		{
+			bool clearSuccess = false;
+			THEN("no contents in the file must exist")
+			{
+				REQUIRE(clearSuccess == true);
+			}
+		}
+	}
+}
+
+SCENARIO("Multiple lines of text are written and read from a file")
+{
+	GIVEN("a text file")
+	{
+		WHEN("2 lines of text are written and read")
+		{
+			THEN("the text read must match the text written")
+			{
+				REQUIRE(false);
 			}
 		}
 	}
