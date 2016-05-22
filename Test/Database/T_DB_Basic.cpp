@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "T_DB_Basic.h"
 
-const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused test directory\\";
+const std::string dir = "D:\\Development\\VS2015\\C++\\SQLite\\BacklogManager\\BacklogManager\\Database_Files\\";
 
 SCENARIO("A connection to the database is established")
 {
