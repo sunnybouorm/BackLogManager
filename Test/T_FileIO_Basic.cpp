@@ -111,13 +111,27 @@ SCENARIO("A line of text is read and EOF is reached") {
 		std::string input;
 		file.write(output);
 
-		WHEN("EOF is reached") {
+		WHEN("EOF is reached") 
+		{
 			file.read_line(&input);
-			THEN("Whatever text was before EOF must be read and i_flags must be correct") {
+			THEN("Whatever text was before EOF must be read and i_flags must be correct")
+			{
 				REQUIRE(input==output);
 				REQUIRE(file.i_flags.isEof  == true);
 				REQUIRE(file.i_flags.isGood == false);
 				REQUIRE(file.i_flags.isBad  == false);
+				AND_WHEN("another line is read without reaching EOF")
+				{
+					file.write(output + "\n");
+					file.read_line(&input);
+					THEN("the text and i_flags must be correct")
+					{
+						REQUIRE(input==output);
+						REQUIRE(file.i_flags.isEof  == false);
+						REQUIRE(file.i_flags.isGood == true);
+						REQUIRE(file.i_flags.isBad  == false);
+					}
+				}
 			}
 		}
 		file.destroy();
