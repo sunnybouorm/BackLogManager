@@ -42,6 +42,8 @@ bool File::Create(const std::string &filename, const std::string &directory) {
 		fs.open(fn, mode);
 		fs.close();
 		is_successful = true;
+	} else {
+		std::cerr << "file_io Warning: attempted to create a file that already exists\n";
 	}
 
 	return is_successful;
@@ -63,6 +65,9 @@ bool File::Destroy(const std::string &filename, const std::string &directory) {
 	int status = std::remove(path);
 	if (status == 0) {
 		is_successful = true;
+	} else {
+		std::cerr << "file_io Warning: failed to destroy file<" << filename << ">, " 
+			      << "in directory<" << directory << ">" << "\n";
 	}
 
 	return is_successful;
@@ -83,6 +88,10 @@ void File::Write(const std::string &text) {
 		fs.open(path, mode);
 		fs << text;
 		fs.close();
+	} else {
+		std::cerr << "file_io Warning: attempted to write to a file that does not exist, "
+			      << "filename<"  << this->filename_ << ">, " 
+				  << "directory<" << this->directory_ << ">" << "\n";
 	}
 }
 
@@ -147,6 +156,11 @@ void File::ReadLine(std::string &output) {
 
 		this->ipos_ = fs.tellg();
 		fs.close();
+	} else {
+		std::cerr   << "file_io Warning: "
+					<< "attempted to ReadLine from a file that does not exist, "
+					<< "filename<" << this->filename_ << ">, directory<" << this->directory_
+					<< ">" << "\n";
 	}
 }
 
