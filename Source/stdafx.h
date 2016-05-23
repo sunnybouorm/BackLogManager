@@ -3,7 +3,8 @@
 // are changed infrequently
 //
 
-#pragma once
+#ifndef BACKLOGMANAGER_SOURCE_STDAFX_H_
+#define BACKLOGMANAGER_SOURCE_STDAFX_H_
 
 #include "targetver.h"
 
@@ -13,3 +14,5 @@
 #include <iostream>
 #include <algorithm>
 #include <stdlib.h>
+
+#endif // BACKLOGMANAGER_SOURCE_STDAFX_H_

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef BACKLOGMANAGER_DATABASE_DATABASE_H_
+#define BACKLOGMANAGER_DATABASE_DATABASE_H_
+
 #include "sqlite3.h"
 #include "../File_IO.h"
 
@@ -34,3 +36,5 @@ public :
 	bool importSQL(const std::string &fileName, const std::string &fileDir);
 	bool execSQL(const std::string &statement);
 };
+
+#endif // BACKLOGMANAGER_DATABASE_DATABASE_H_

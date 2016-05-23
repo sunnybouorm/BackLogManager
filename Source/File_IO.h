@@ -1,4 +1,6 @@
-#pragma once
+#ifndef BACKLOGMANAGER_SOURCE_FILEIO_H_
+#define BACKLOGMANAGER_SOURCE_FILEIO_H_
+
 #include <fstream>
 
 typedef struct IO_FLAG_STRUCT {
@@ -35,3 +37,5 @@ public:
 	void read_line(std::string &output);
 	void clear();//clears file by destroying and recreating it
 };
+
+#endif // !BACKLOGMANAGER_SOURCE_FILEIO_H_
