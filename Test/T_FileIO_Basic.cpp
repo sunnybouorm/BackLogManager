@@ -47,7 +47,7 @@ SCENARIO("A line of text is written and read from a file")
 			std::string output = "test 1 2 3";
 			std::string input;
 			file.write(output + "\n");
-			file.read_line(&input);
+			file.read_line(input);
 			
 			THEN("said line of text must match the one initially written")
 			{
@@ -57,7 +57,7 @@ SCENARIO("A line of text is written and read from a file")
 			{
 				file.clear();
 				std::string input;
-				file.read_line(&input);
+				file.read_line(input);
 				THEN("no contents in the file must exist and the file must exist")
 				{
 					REQUIRE(file.exists() == true);
@@ -86,8 +86,8 @@ SCENARIO("Multiple lines of text are written and read from a file")
 			std::string input_1, input_2;
 			file.write(output_1 + "\n");
 			file.write(output_2 + "\n");
-			file.read_line(&input_1);
-			file.read_line(&input_2);
+			file.read_line(input_1);
+			file.read_line(input_2);
 
 			THEN("the text read must match the text written")
 			{
@@ -113,7 +113,7 @@ SCENARIO("A line of text is read and EOF is reached") {
 
 		WHEN("EOF is reached") 
 		{
-			file.read_line(&input);
+			file.read_line(input);
 			THEN("Whatever text was before EOF must be read and i_flags must be correct")
 			{
 				REQUIRE(input==output);
@@ -123,7 +123,7 @@ SCENARIO("A line of text is read and EOF is reached") {
 				AND_WHEN("another line is read without reaching EOF")
 				{
 					file.write(output + "\n");
-					file.read_line(&input);
+					file.read_line(input);
 					THEN("the text and i_flags must be correct")
 					{
 						REQUIRE(input==output);

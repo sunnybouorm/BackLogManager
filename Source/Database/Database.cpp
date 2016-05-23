@@ -7,7 +7,6 @@ std::string Database::DB_DIR_URI;
 
 //Constructors
 Database::Database() {
-	//TODO: Any required initialization routines
 }
 
 /* 
@@ -75,6 +74,10 @@ bool Database::exterminate() {
 bool Database::importSQL(const std::string &fileName, const std::string &fileDir)
 {
 	bool isSuccessful = false;
+	File file(fileName,fileDir);
+	std::string sql;
+	file.read_line(sql);
+
 	//TODO:
 	//open file with read only permission
 	//process file

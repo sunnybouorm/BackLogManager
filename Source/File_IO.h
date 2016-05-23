@@ -28,6 +28,6 @@ public:
 	void clear_i_flags();
 
 	void write(const std::string &text);
-	void read_line(std::string *output);
+	void read_line(std::string &output);
 	void clear();
 };

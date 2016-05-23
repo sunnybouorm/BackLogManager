@@ -42,7 +42,7 @@ SCENARIO("an SQL text file is read")
 		{
 			THEN("The commands must be executed correctly")
 			{
-				//TODO:
+				REQUIRE(false);
 			}
 		}
 	}

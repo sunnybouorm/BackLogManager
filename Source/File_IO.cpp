@@ -100,7 +100,7 @@ void File::clear_i_flags() {
  * bool* isEoF serves as a container for identifying when end of file is reached
  * returns text read from file in std::string format
  */
-void File::read_line(std::string *output) {
+void File::read_line(std::string &output) {
 	std::fstream fs;
 	int mode = std::fstream::in;
 	const char* filename = nullptr;
@@ -114,7 +114,7 @@ void File::read_line(std::string *output) {
 
 		fs.open(path, mode);
 		fs.seekg(this->ipos);
-		getline(fs, *output);
+		getline(fs, output);
 
 		//check stream status and raise flags where required
 		if(fs.good()){
