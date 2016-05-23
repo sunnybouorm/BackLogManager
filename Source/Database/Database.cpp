@@ -21,12 +21,9 @@ static int statement_callback(void *db_object, int argc, char **argv, char **azC
 	return 0;
 }
 
-//static string class member declarations
-std::string Database::DB_DIR;
-std::string Database::DB_DIR_URI;
-
 //Constructors
-Database::Database() {
+Database::Database(const std::string &dir) {
+	this->DB_DIR = dir;
 }
 
 /* 
@@ -98,11 +95,8 @@ bool Database::execSQL(const std::string &statement) {
 
 	//TODO: do a database isOpen check
 	const char* sql = statement.c_str();
-
-	std::cout << "\ncheckpoint1\n";
+	std::cout << "\ncheckpoint\n";
 	status = sqlite3_exec(this->db, sql, statement_callback, (void*)this_db, &zErrMsg);
-	std::cout << "\ncheckpoint2\n";
-
 	if (status == SQLITE_OK) {
 		isSuccessful = true;
 	}else {

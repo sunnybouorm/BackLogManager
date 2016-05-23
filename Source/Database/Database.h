@@ -5,16 +5,28 @@
 //Database model file
 const std::string DB_NAME("db.db3");
 
+typedef struct DATABASE_CONNECTION_STATUS_FLAGS{
+	bool isConnected    = false;
+	bool isDisconnected = true;
+	bool isExist        = false;
+} DB_CSF;
+
 class Database {
 private:
 	//directory configuration
-	static std::string DB_DIR;
-	static std::string DB_DIR_URI;
-
+	std::string DB_DIR;
+	std::string DB_DIR_URI;
+	DB_CSF db_csf;
 	const static int defaultFlags = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
 	sqlite3 *db;
+
+	void reset_csf();
+	void set_csf_connected();
+	void set_csf_disconnected();
+	void set_csf_deleted();
+
 public :
-	Database();
+	Database(const std::string &dir="");
 	bool set_directory(const std::string &dir);
 	bool open_connection(const int &flags=defaultFlags);
 	bool close_connection();

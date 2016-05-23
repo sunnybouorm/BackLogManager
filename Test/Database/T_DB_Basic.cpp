@@ -34,21 +34,23 @@ SCENARIO("A connection to the database is established")
 	}
 }
 
-SCENARIO("an SQL text file is read")
+SCENARIO("an SQL statement is executed")
 {
-	Database database;
-	database.set_directory(dir);
-	database.open_connection();
-	database.execSQL("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
-	database.exterminate();
-	GIVEN("An initialized set of Data")
+	GIVEN("A database")
 	{
-		WHEN("The file is read")
+		Database database;
+		database.set_directory(dir);
+		WHEN("an sql statement is executed")
 		{
-			THEN("The commands must be executed correctly")
+			database.open_connection();
+			database.execSQL("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
+			database.close_connection();
+			database.exterminate();
+			THEN("The command must be registered by the database")
 			{
 				REQUIRE(false);
 			}
 		}
+		database.close_connection();
 	}
 }

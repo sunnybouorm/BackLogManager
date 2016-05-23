@@ -89,10 +89,26 @@ void File::write(const std::string &text) {
 /*
  * Resets io_flags struct to default settings
  */
-void File::clear_i_flags() {
+void File::reset_i_flags() {
 	this->i_flags.isBad  = false;
 	this->i_flags.isEof  = false;
 	this->i_flags.isGood = true;
+}
+
+void File::set_i_flags_good() {
+	this->i_flags.isGood = true;
+	this->i_flags.isBad  = false;
+	this->i_flags.isEof  = false;
+}
+void File::set_i_flags_bad() {
+	this->i_flags.isGood = false;
+	this->i_flags.isBad  = true;
+	this->i_flags.isEof  = false;
+}
+void File::set_i_flags_eof() {
+	this->i_flags.isGood = false;
+	this->i_flags.isBad  = false;
+	this->i_flags.isEof  = true;
 }
 
 /*
@@ -110,7 +126,7 @@ void File::read_line(std::string &output) {
 	if ( (this->exists()) == true) {
 		//clear error flags
 		fs.clear();
-		this->clear_i_flags();
+		this->reset_i_flags();
 
 		fs.open(path, mode);
 		fs.seekg(this->ipos);
@@ -118,17 +134,11 @@ void File::read_line(std::string &output) {
 
 		//check stream status and raise flags where required
 		if(fs.good()){
-			this->i_flags.isGood = true;
-			this->i_flags.isBad  = false;
-			this->i_flags.isEof  = false;
+			set_i_flags_good();
 		} else if (fs.bad()) {
-			this->i_flags.isGood = false;
-			this->i_flags.isBad  = true;
-			this->i_flags.isEof  = false;
+			set_i_flags_bad();
 		} else if (fs.eof()) {
-			this->i_flags.isGood = false;
-			this->i_flags.isBad  = false;
-			this->i_flags.isEof  = true;
+			set_i_flags_eof();
 		}
 
 		this->ipos = fs.tellg();

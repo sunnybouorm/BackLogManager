@@ -12,6 +12,12 @@ private:
 	std::string fileName;
 	std::string directory;
 	std::istream::streampos ipos; //current file input pointer position
+
+	void reset_i_flags();//reverts input stream flags to default
+	void set_i_flags_good();
+	void set_i_flags_bad();
+	void set_i_flags_eof();
+
 public:
 	std::string test;
 	IO_FLAGS i_flags;//flags relating to input filestream
@@ -24,8 +30,6 @@ public:
 	bool exists();
 	bool create();
 	bool destroy();
-
-	void clear_i_flags();//reverts input stream flags to default
 
 	void write(const std::string &text);
 	void read_line(std::string &output);
