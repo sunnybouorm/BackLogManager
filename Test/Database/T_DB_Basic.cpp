@@ -51,6 +51,5 @@ SCENARIO("an SQL statement is executed")
 				REQUIRE(false);
 			}
 		}
-		database.CloseConnection();
 	}
 }

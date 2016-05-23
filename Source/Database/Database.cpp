@@ -87,7 +87,8 @@ bool Database::CloseConnection() {
 	bool is_successful = false;
 	int status = sqlite3_close_v2(this->db_);
 	if (status == SQLITE_OK) {
-		is_successful = true;
+		is_successful       = true;
+		this->is_connected_ = false;
 	}
 
 	return is_successful;
