@@ -29,7 +29,7 @@ Database::Database(const std::string &dir) {
 /* 
  * Sets database model file directory
  */
-bool Database::set_directory(const std::string &dir) {
+bool Database::SetDirectory(const std::string &dir) {
 	bool is_successful = true;
 	this->db_dir_ = dir;
 	this->db_dir_uri_ = "file:///" + dir;
@@ -45,13 +45,13 @@ bool Database::set_directory(const std::string &dir) {
  *			https://www.sqlite.org/c3ref/open.html
  *-----------------------------------------------------------------------------------------------
  * NOTE: 
- * > ensure every open_connection() is followed by a corresponding close_connection()
- *	before a second open_connection() request is issued
+ * > ensure every OpenConnection() is followed by a corresponding CloseConnection()
+ *	before a second OpenConnection() request is issued
  *-----------------------------------------------------------------------------------------------
  */
-bool Database::open_connection(const int &flags) {
+bool Database::OpenConnection(const int &flags) {
 	bool is_successful = false;
-	std::string path = this->db_dir_uri_ + db_name;
+	std::string path = this->db_dir_uri_ + kDbName;
 	const char *filename = path.c_str();
 	const char *zvfs = nullptr ;
 
@@ -62,7 +62,7 @@ bool Database::open_connection(const int &flags) {
 	return is_successful;
 }
 
-bool Database::close_connection() {
+bool Database::CloseConnection() {
 	bool is_successful = false;
 	int status = sqlite3_close_v2(this->db_);
 	if (status == SQLITE_OK) {
@@ -77,9 +77,9 @@ bool Database::close_connection() {
 *-----------------------------------------------------------------------------------------------
 * !!!CAUTION!!!: use only when necessary, specified database is DELETED and CANNOT be recovered
 */
-bool Database::exterminate() {
+bool Database::Exterminate() {
 	bool is_successful = false;
-	is_successful = File::destroy(db_name, this->db_dir_);
+	is_successful = File::Destroy(kDbName, this->db_dir_);
 
 	return is_successful;
 }
@@ -87,7 +87,7 @@ bool Database::exterminate() {
 /*
  * Executes a single SQL statement and returns status
  */
-bool Database::execSQL(const std::string &statement) {
+bool Database::ExecuteSql(const std::string &statement) {
 	bool is_successful = false;
 	int status;
 	char *z_err_msg = 0;
@@ -111,12 +111,12 @@ bool Database::execSQL(const std::string &statement) {
  * Reads a text file containing SQL syntax and processes it line by line until EoF or an error
  * is raised
  */
-bool Database::importSQL(const std::string &filename, const std::string &filedir)
+bool Database::ImportSql(const std::string &filename, const std::string &filedir)
 {
 	bool is_successful = false;
 	File file(filename,filedir);
 	std::string sql;
-	file.read_line(sql);
+	file.ReadLine(sql);
 
 	//TODO:
 	return is_successful;

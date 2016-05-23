@@ -11,18 +11,18 @@ SCENARIO("A file is created and destroyed using static members")
 		bool is_exist = false;
 		WHEN("A file is created")
 		{
-			File::create(filename, dir);
+			File::Create(filename, dir);
 			THEN("It must exist")
 			{
-				is_exist = File::exists(filename, dir);
+				is_exist = File::Exists(filename, dir);
 				REQUIRE(is_exist == true);
 			} AND_WHEN("the file is removed")
 			{
 				is_exist = true;//to ensure function is setting to false
-				File::destroy(filename, dir);
+				File::Destroy(filename, dir);
 				THEN("It must seize to exist")
 				{
-					is_exist = File::exists(filename, dir);
+					is_exist = File::Exists(filename, dir);
 					REQUIRE(is_exist == false);
 				}
 			}
@@ -41,18 +41,18 @@ SCENARIO("A file is created and destroyed using non-static members")
 		bool is_exist = false;
 		WHEN("A file is created")
 		{
-			file.create();
+			file.Create();
 			THEN("It must exist")
 			{
-				is_exist = File::exists(filename, dir);
+				is_exist = File::Exists(filename, dir);
 				REQUIRE(is_exist == true);
 			} AND_WHEN("A file is removed")
 			{
 				is_exist = true;//to ensure function is setting to false
-				file.destroy();
+				file.Destroy();
 				THEN("It must seize to exist")
 				{
-					is_exist = File::exists(filename, dir);
+					is_exist = File::Exists(filename, dir);
 					REQUIRE(is_exist == false);
 				}
 			}
@@ -67,15 +67,15 @@ SCENARIO("A line of text is written and read from a file")
 		std::string fn  = "textFile.txt";
 		std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 		File file(fn,dir);
-		file.destroy();
-		file.create();
+		file.Destroy();
+		file.Create();
 
 		WHEN("a line of text is written and read")
 		{
 			std::string output = "test 1 2 3";
 			std::string input;
-			file.write(output + "\n");
-			file.read_line(input);
+			file.Write(output + "\n");
+			file.ReadLine(input);
 			REQUIRE(file.i_flags_.is_bad == false);
 			
 			THEN("said line of text must match the one initially written")
@@ -84,19 +84,19 @@ SCENARIO("A line of text is written and read from a file")
 			}
 			AND_WHEN("the file is cleared of content")
 			{
-				file.clear();
+				file.Clear();
 				std::string input;
-				file.read_line(input);
+				file.ReadLine(input);
 				REQUIRE(file.i_flags_.is_bad == false);
 
 				THEN("no contents in the file must exist and the file must exist")
 				{
-					REQUIRE(file.exists() == true);
+					REQUIRE(file.Exists() == true);
 					REQUIRE(input == "");
 				}
 			}
 		}
-		file.destroy();
+		file.Destroy();
 	}
 }
 
@@ -107,21 +107,21 @@ SCENARIO("Multiple lines of text are written and read from a file")
 		std::string fn = "textFile.txt";
 		std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 		File file(fn, dir);
-		file.destroy();
-		file.create();
+		file.Destroy();
+		file.Create();
 		
 		WHEN("2 lines of text are written and read")
 		{
 			std::string output_1 = "123";
 			std::string output_2 = "456";
 			std::string input_1, input_2;
-			file.write(output_1 + "\n");
-			file.write(output_2 + "\n");
+			file.Write(output_1 + "\n");
+			file.Write(output_2 + "\n");
 
-			file.read_line(input_1);
+			file.ReadLine(input_1);
 			REQUIRE(file.i_flags_.is_bad == false);
 
-			file.read_line(input_2);
+			file.ReadLine(input_2);
 			REQUIRE(file.i_flags_.is_bad == false);
 
 			THEN("the text read must match the text written")
@@ -130,7 +130,7 @@ SCENARIO("Multiple lines of text are written and read from a file")
 				REQUIRE(input_2 == output_2);
 			}
 		}
-		file.destroy();
+		file.Destroy();
 	}
 }
 
@@ -140,15 +140,15 @@ SCENARIO("A line of text is read and EOF is reached") {
 		std::string fn = "textFile.txt";
 		std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 		File file(fn, dir);
-		file.destroy();
-		file.create();
+		file.Destroy();
+		file.Create();
 		std::string output = "123";
 		std::string input;
-		file.write(output);
+		file.Write(output);
 
 		WHEN("EOF is reached") 
 		{
-			file.read_line(input);
+			file.ReadLine(input);
 			REQUIRE(file.i_flags_.is_bad == false);
 			THEN("Whatever text was before EOF must be read and i_flags must be correct")
 			{
@@ -158,8 +158,8 @@ SCENARIO("A line of text is read and EOF is reached") {
 				REQUIRE(file.i_flags_.is_bad  == false);
 				AND_WHEN("another line is read without reaching EOF")
 				{
-					file.write(output + "\n");
-					file.read_line(input);
+					file.Write(output + "\n");
+					file.ReadLine(input);
 					REQUIRE(file.i_flags_.is_bad == false);
 					THEN("the text and i_flags must be correct")
 					{
@@ -171,6 +171,6 @@ SCENARIO("A line of text is read and EOF is reached") {
 				}
 			}
 		}
-		file.destroy();
+		file.Destroy();
 	}
 }

@@ -11,12 +11,12 @@ SCENARIO("A connection to the database is established")
 		bool is_disconnected = false;
 		bool is_deleted		 = false;
 		Database database;
-		database.set_directory(dir);
+		database.SetDirectory(dir);
 		
 		WHEN("A Connection request is made followed by a disconnection request")
 		{
-			is_connected = database.open_connection();
-			is_disconnected = database.close_connection();
+			is_connected = database.OpenConnection();
+			is_disconnected = database.CloseConnection();
 			THEN("A connection and disconnection must be established successfully")
 			{
 				REQUIRE(is_connected == true);
@@ -25,7 +25,7 @@ SCENARIO("A connection to the database is established")
 		}
 		WHEN("An extermination request is made")
 		{
-			is_deleted = database.exterminate();
+			is_deleted = database.Exterminate();
 			THEN("The database file specified must be deleted")
 			{
 				REQUIRE(is_deleted == true);
@@ -39,18 +39,18 @@ SCENARIO("an SQL statement is executed")
 	GIVEN("A database")
 	{
 		Database database;
-		database.set_directory(dir);
+		database.SetDirectory(dir);
 		WHEN("an sql statement is executed")
 		{
-			database.open_connection();
-			database.execSQL("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
-			database.close_connection();
-			database.exterminate();
+			database.OpenConnection();
+			database.ExecuteSql("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
+			database.CloseConnection();
+			database.Exterminate();
 			THEN("The command must be registered by the database")
 			{
 				REQUIRE(false);
 			}
 		}
-		database.close_connection();
+		database.CloseConnection();
 	}
 }

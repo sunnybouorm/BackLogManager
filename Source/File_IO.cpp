@@ -8,13 +8,13 @@ File::File(const std::string &filename, const std::string &directory) {
 }
 
 /*
- * Checks whether a specified file exists in the specified directory
+ * Checks whether a specified file Exists in the specified directory
  */
-bool File::exists(const std::string &filename, const std::string &directory) {
+bool File::Exists(const std::string &filename, const std::string &directory) {
 	bool is_exist = false;
 	std::fstream file;
 	const std::string path = directory + filename;
-	file.open(path, std::fstream::out | std::fstream::in);//does not create file
+	file.open(path, std::fstream::out | std::fstream::in);//does not Create file
 
 	if (file.is_open()) {
 		file.close();
@@ -30,15 +30,15 @@ bool File::exists(const std::string &filename, const std::string &directory) {
 /*
  * Creates specified file in specified directory and returns status
  */
-bool File::create(const std::string &filename, const std::string &directory) {
+bool File::Create(const std::string &filename, const std::string &directory) {
 	bool is_successful = false;
 	std::fstream fs;
 	const char* fn = nullptr;
 	std::string path = directory + filename;
-
 	fn = path.c_str();
+
 	int mode = std::fstream::out;
-	if (File::exists(filename, directory) == false) {
+	if (File::Exists(filename, directory) == false) {
 		fs.open(fn, mode);
 		fs.close();
 		is_successful = true;
@@ -55,7 +55,7 @@ bool File::create(const std::string &filename, const std::string &directory) {
  * > filename must contain file extension
  * ----------------------------------------------------------------------------------------------
  */
-bool File::destroy(const std::string &filename, const std::string &directory) {
+bool File::Destroy(const std::string &filename, const std::string &directory) {
 	bool is_successful = false;
 
 	std::string temp = directory + filename;
@@ -68,18 +68,18 @@ bool File::destroy(const std::string &filename, const std::string &directory) {
 	return is_successful;
 }
 
-bool File::exists()  { return (File::exists ( this->filename_, this->directory_)  ); }
-bool File::create()  { return (File::create ( this->filename_, this->directory_)  ); }
-bool File::destroy() { return (File::destroy( this->filename_, this->directory_)  ); }
+bool File::Exists()  { return (File::Exists ( this->filename_, this->directory_)  ); }
+bool File::Create()  { return (File::Create ( this->filename_, this->directory_)  ); }
+bool File::Destroy() { return (File::Destroy( this->filename_, this->directory_)  ); }
 
-void File::write(const std::string &text) {
+void File::Write(const std::string &text) {
 	std::fstream fs;
 	int mode = std::fstream::out | std::fstream::app;
 	const char* path = nullptr;
 	std::string temp = (this->directory_) + (this->filename_);
 	path = (temp).c_str();
 	
-	if (this->exists() == true) {
+	if (this->Exists() == true) {
 		fs.open(path, mode);
 		fs << text;
 		fs.close();
@@ -89,23 +89,23 @@ void File::write(const std::string &text) {
 /*
  * Resets io_flags struct to default settings
  */
-void File::reset_i_flags() {
+void File::ResetInputFlags() {
 	this->i_flags_.is_bad  = false;
 	this->i_flags_.is_eof  = false;
 	this->i_flags_.is_good = true;
 }
 
-void File::set_i_flags_good() {
+void File::SetInputFlagsGood() {
 	this->i_flags_.is_good = true;
 	this->i_flags_.is_bad  = false;
 	this->i_flags_.is_eof  = false;
 }
-void File::set_i_flags_bad() {
+void File::SetInputFlagsBad() {
 	this->i_flags_.is_good = false;
 	this->i_flags_.is_bad  = true;
 	this->i_flags_.is_eof  = false;
 }
-void File::set_i_flags_eof() {
+void File::SetInputFlagsEof() {
 	this->i_flags_.is_good = false;
 	this->i_flags_.is_bad  = false;
 	this->i_flags_.is_eof  = true;
@@ -116,17 +116,17 @@ void File::set_i_flags_eof() {
  * bool* isEoF serves as a container for identifying when end of file is reached
  * returns text read from file in std::string format
  */
-void File::read_line(std::string &output) {
+void File::ReadLine(std::string &output) {
 	std::fstream fs;
 	int mode = std::fstream::in;
 	const char* filename = nullptr;
 	std::string path = this->directory_ + this->filename_;
 	filename = (path).c_str();
 
-	if ( (this->exists()) == true) {
-		//clear error flags
+	if ( (this->Exists()) == true) {
+		//Clear error flags
 		fs.clear();
-		this->reset_i_flags();
+		this->ResetInputFlags();
 
 		fs.open(path, mode);
 		fs.seekg(this->ipos_);
@@ -134,11 +134,11 @@ void File::read_line(std::string &output) {
 
 		//check stream status and raise flags where required
 		if(fs.good()){
-			set_i_flags_good();
+			SetInputFlagsGood();
 		} else if (fs.bad()) {
-			set_i_flags_bad();
+			SetInputFlagsBad();
 		} else if (fs.eof()) {
-			set_i_flags_eof();
+			SetInputFlagsEof();
 		}
 
 		this->ipos_ = fs.tellg();
@@ -146,7 +146,7 @@ void File::read_line(std::string &output) {
 	}
 }
 
-void File::clear() {
-	this->destroy();
-	this->create();
+void File::Clear() {
+	this->Destroy();
+	this->Create();
 }
