@@ -28,7 +28,7 @@ bool File::Exists(const std::string &filename, const std::string &directory) {
 	}
 }
 /*
- * Creates specified file in specified directory and returns status
+ * Creates specified file in specified directory and returns success status
  */
 bool File::Create(const std::string &filename, const std::string &directory) {
 	bool is_successful = false;
@@ -48,7 +48,7 @@ bool File::Create(const std::string &filename, const std::string &directory) {
 }
 
 /* 
- * Deletes specified file in specified directory and returns status
+ * Deletes specified file in specified directory and returns success status
  * ----------------------------------------------------------------------------------------------
  * NOTE: 
  * > This function is not secure and may delete the file even if it is in use
@@ -112,9 +112,13 @@ void File::SetInputFlagsEof() {
 }
 
 /*
- * reads line in current File instance
- * bool* isEoF serves as a container for identifying when end of file is reached
- * returns text read from file in std::string format
+ * reads a line in the current File instance
+ * output serves as a container for the text read
+ *------------------------------------------------
+ * Note:
+ * > after ReadLine() is called, the input stream file pointer ipos is updated to where
+ *  getline has read. A second call of ReadLine() will continue from the position
+ *  determined by ipos.
  */
 void File::ReadLine(std::string &output) {
 	std::fstream fs;
@@ -124,7 +128,7 @@ void File::ReadLine(std::string &output) {
 	filename = (path).c_str();
 
 	if ( (this->Exists()) == true) {
-		//Clear error flags
+		//clear error flags
 		fs.clear();
 		this->ResetInputFlags();
 
@@ -132,7 +136,7 @@ void File::ReadLine(std::string &output) {
 		fs.seekg(this->ipos_);
 		getline(fs, output);
 
-		//check stream status and raise flags where required
+		//check stream status and raise flags as necessary
 		if(fs.good()){
 			SetInputFlagsGood();
 		} else if (fs.bad()) {

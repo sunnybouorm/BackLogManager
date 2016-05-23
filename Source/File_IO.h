@@ -29,7 +29,7 @@ public:
 	static bool Create( const std::string &filename, const std::string &directory);
 	static bool Destroy(const std::string &filename, const std::string &directory);
 
-	bool Exists();
+	bool Exists();//checks if the file exists
 	bool Create();
 	bool Destroy();
 

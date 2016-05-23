@@ -21,6 +21,13 @@ static int statement_callback(void *db_object, int argc, char **argv, char **az_
 	return 0;
 }
 
+/*
+ * checks whether database file exists, returns true if the file exists
+ */
+bool Database::is_exist(){
+	return File::Exists(kDbName, this->db_dir_);
+}
+
 //Constructors
 Database::Database(const std::string &dir) {
 	this->db_dir_ = dir;
@@ -55,10 +62,17 @@ bool Database::OpenConnection(const int &flags) {
 	const char *filename = path.c_str();
 	const char *zvfs = nullptr ;
 
-	int status = sqlite3_open_v2(filename, &(this->db_), flags, zvfs);
-	if (status == 0) {
-		is_successful = true;
+	if (this->is_connected == false) {
+
+		int status = sqlite3_open_v2(filename, &(this->db_), flags, zvfs);
+		if (status == 0) {
+			is_successful      = true;
+			this->is_connected = true;
+		}
+	} else {
+		std::cerr << "Warning: attempting to connect a database is already connected\n";
 	}
+
 	return is_successful;
 }
 
@@ -68,6 +82,7 @@ bool Database::CloseConnection() {
 	if (status == SQLITE_OK) {
 		is_successful = true;
 	}
+
 	return is_successful;
 }
 
@@ -79,7 +94,14 @@ bool Database::CloseConnection() {
 */
 bool Database::Exterminate() {
 	bool is_successful = false;
-	is_successful = File::Destroy(kDbName, this->db_dir_);
+
+	if (this->is_connected == false) {
+		is_successful = File::Destroy(kDbName, this->db_dir_);
+	}
+	else {
+		std::cerr   << "Warning: attempting to exterminate database that is already connected"
+					<< ", close the database connection first\n";
+	}
 
 	return is_successful;
 }
@@ -93,15 +115,17 @@ bool Database::ExecuteSql(const std::string &statement) {
 	char *z_err_msg = 0;
 	Database *this_db = this;
 
-	//TODO: do a database isOpen check
-	const char* sql = statement.c_str();
-	std::cout << "\ncheckpoint\n";
-	status = sqlite3_exec(this->db_, sql, statement_callback, (void*)this_db, &z_err_msg);
-	if (status == SQLITE_OK) {
-		is_successful = true;
-	}else {
-		is_successful = false;
-		std::cerr << "SQL error: " << z_err_msg << "\n";
+	if (this->is_connected == true) {
+		const char* sql = statement.c_str();
+		std::cout << "\ncheckpoint\n";
+		status = sqlite3_exec(this->db_, sql, statement_callback, (void*)this_db, &z_err_msg);
+		if (status == SQLITE_OK) {
+			is_successful = true;
+		}
+		else {
+			is_successful = false;
+			std::cerr << "SQL error: " << z_err_msg << "\n";
+		}
 	}
 
 	return is_successful;
