@@ -15,11 +15,14 @@ private:
 	std::string db_dir_uri_;
 	const static int default_flags_ = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
 	sqlite3 *db_;
+	std::string statement_buffer_;//processed SQL query result container
+	std::istream *socket_; //used to recieve input when connected to an output stream
 
 	bool is_exist();//checks if this instance's database file exists
+	void Listen(std::ostream &source);//recieves input from signal stream
 
 public :
-	Database(const std::string &dir="");
+	Database(const std::string &dir = "");
 	bool IsConnected();
 	bool SetDirectory(const std::string &dir);
 	bool OpenConnection(const int &flags= default_flags_ );

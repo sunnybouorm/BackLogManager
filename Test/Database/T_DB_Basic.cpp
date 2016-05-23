@@ -34,7 +34,7 @@ SCENARIO("A connection to the database is established")
 	}
 }
 
-SCENARIO("an SQL statement is executed")
+SCENARIO("an SQL statement is executed and registered by the system successfully")
 {
 	GIVEN("A database")
 	{
@@ -42,8 +42,31 @@ SCENARIO("an SQL statement is executed")
 		database.SetDirectory(dir);
 		WHEN("an sql statement is executed")
 		{
+			bool status;
+			database.OpenConnection();
+			status = database.ExecuteSql("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
+			database.CloseConnection();
+			database.Exterminate();
+			THEN("The command must be registered by the database")
+			{
+				REQUIRE(status == true );
+			}
+		}
+	}
+}
+
+SCENARIO("SQL statements are executed and read for a simple single column table")
+{
+	GIVEN("A database")
+	{
+		Database database;
+		database.SetDirectory(dir);
+		WHEN("sql statements are executed")
+		{
 			database.OpenConnection();
 			database.ExecuteSql("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
+			database.ExecuteSql("INSERT INTO Activity (Name) VALUES ('SlowJoe')");
+			database.ExecuteSql("SELECT * FROM Activity");
 			database.CloseConnection();
 			database.Exterminate();
 			THEN("The command must be registered by the database")

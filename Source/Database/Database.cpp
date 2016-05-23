@@ -3,33 +3,33 @@
 
 /*
 * Call back function that returns SQL query result
-* db_object, pointer to the Database class instance that called it
-* argc, The number of columns in row
-* argv, An array of strings representing fields in the row
-* az_col_name, An array of strings representing column names
+* db_object	:	pointer to the Database class instance that called it
+* count		:	The number of result segments to iterate through
+* data		:	An array of strings representing fields in the row
+* col_names	:	An array of strings representing column names
 */
-static int statement_callback(void *db_object, int argc, char **argv, char **az_col_name) {
+static int StatementCallback(void *db_object, int count, char **data, char **az_col_name) {
 	int i;
 	Database *this_db = static_cast <Database *> (db_object);
-	
-	//for (i = 0; i < argc; i++) {
-	//	printf("%s = %s\n", az_col_name[i], argv[i] ? argv[i] : "NULL");
-	//}
-	//printf("\n");
+	for (i = 0; i < count; i++) {
+		printf("%s = %s\n", az_col_name[i], data[i] ? data[i] : "NULL");
+	}
+	printf("\n");
 
 	return 0;
 }
 
-/*
- * checks whether database file exists, returns true if the file exists
- */
-bool Database::is_exist(){
-	return File::Exists(kDbName, this->db_dir_);
-}
 
 //Constructors
 Database::Database(const std::string &dir) {
 	this->db_dir_ = dir;
+}
+
+/*
+* checks whether database file exists, returns true if the file exists
+*/
+bool Database::is_exist() {
+	return File::Exists(kDbName, this->db_dir_);
 }
 
 /* 
@@ -125,7 +125,7 @@ bool Database::ExecuteSql(const std::string &statement) {
 	if ( this->is_connected_ == true) {
 		const char* sql = statement.c_str();
 
-		status = sqlite3_exec(this->db_, sql, statement_callback, (void*)this_db, &z_err_msg);
+		status = sqlite3_exec(this->db_, sql, StatementCallback, (void*)this_db, &z_err_msg);
 		if (status == SQLITE_OK) {
 			is_successful = true;
 		}
