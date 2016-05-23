@@ -45,6 +45,13 @@ bool Database::SetDirectory(const std::string &dir) {
 }
 
 /*
+* checks database connection status, returns true if connected
+*/
+bool Database::IsConnected() {
+	return this->is_connected_;
+}
+
+/*
  * Connects to a given database model file, creates a new database file if file specified
  * does not exist
  * flags  : flags relating to file open operation
@@ -62,12 +69,12 @@ bool Database::OpenConnection(const int &flags) {
 	const char *filename = path.c_str();
 	const char *zvfs = nullptr ;
 
-	if (this->is_connected == false) {
+	if (this->is_connected_ == false) {
 
 		int status = sqlite3_open_v2(filename, &(this->db_), flags, zvfs);
 		if (status == 0) {
 			is_successful      = true;
-			this->is_connected = true;
+			this->is_connected_ = true;
 		}
 	} else {
 		std::cerr << "Warning: attempting to connect a database is already connected\n";
@@ -95,7 +102,7 @@ bool Database::CloseConnection() {
 bool Database::Exterminate() {
 	bool is_successful = false;
 
-	if (this->is_connected == false) {
+	if (this->is_connected_ == false) {
 		is_successful = File::Destroy(kDbName, this->db_dir_);
 	}
 	else {
@@ -115,7 +122,7 @@ bool Database::ExecuteSql(const std::string &statement) {
 	char *z_err_msg = 0;
 	Database *this_db = this;
 
-	if (this->is_connected == true) {
+	if ( this->is_connected_ == true) {
 		const char* sql = statement.c_str();
 		std::cout << "\ncheckpoint\n";
 		status = sqlite3_exec(this->db_, sql, statement_callback, (void*)this_db, &z_err_msg);
