@@ -8,24 +8,20 @@ SCENARIO("A file is created and destroyed using static members")
 		const std::string filename = "test_file.txt";
 		const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 
-		bool is_exist = false;
-		WHEN("A file is created")
+		WHEN("A file is created then destroyed")
 		{
+			bool is_created = false;
+			bool is_destroyed = false;
 			File::Create(filename, dir);
-			THEN("It must exist")
+			is_created = File::Exists(filename, dir);
+			File::Destroy(filename, dir);
+			is_destroyed = File::Exists(filename, dir);
+
+			THEN("the result of checking if the file exists must correlate")
 			{
-				is_exist = File::Exists(filename, dir);
-				REQUIRE(is_exist == true);
-			} AND_WHEN("the file is removed")
-			{
-				is_exist = true;//to ensure function is setting to false
-				File::Destroy(filename, dir);
-				THEN("It must seize to exist")
-				{
-					is_exist = File::Exists(filename, dir);
-					REQUIRE(is_exist == false);
-				}
-			}
+				REQUIRE(is_created   == true);
+				REQUIRE(is_destroyed == false);
+			} 
 		}
 	}
 }
@@ -37,24 +33,21 @@ SCENARIO("A file is created and destroyed using non-static members")
 		const std::string filename = "test_file.txt";
 		const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 		File file(filename,dir);
+		if (file.Exists() == true) { file.Destroy(); }
 
-		bool is_exist = false;
-		WHEN("A file is created")
+		WHEN("A file is created then destroyed")
 		{
+			bool is_created   = false;
+			bool is_destroyed = false;
 			file.Create();
-			THEN("It must exist")
+			is_created   = File::Exists(filename, dir);
+			file.Destroy();
+			is_destroyed = File::Exists(filename, dir);
+
+			THEN("the result of checking if the file exists must correlate")
 			{
-				is_exist = File::Exists(filename, dir);
-				REQUIRE(is_exist == true);
-			} AND_WHEN("A file is removed")
-			{
-				is_exist = true;//to ensure function is setting to false
-				file.Destroy();
-				THEN("It must seize to exist")
-				{
-					is_exist = File::Exists(filename, dir);
-					REQUIRE(is_exist == false);
-				}
+				REQUIRE(is_created   == true);
+				REQUIRE(is_destroyed == false);
 			}
 		}
 	}
@@ -67,7 +60,7 @@ SCENARIO("A line of text is written and read from a file")
 		std::string fn  = "textFile.txt";
 		std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 		File file(fn,dir);
-		file.Destroy();
+		if(file.Exists() == true){ file.Destroy(); }
 		file.Create();
 
 		WHEN("a line of text is written and read")
@@ -107,11 +100,12 @@ SCENARIO("Multiple lines of text are written and read from a file")
 		std::string fn = "textFile.txt";
 		std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 		File file(fn, dir);
-		file.Destroy();
-		file.Create();
+		if (file.Exists() == true) { file.Destroy(); }
+		
 		
 		WHEN("2 lines of text are written and read")
 		{
+			file.Create();
 			std::string output_1 = "123";
 			std::string output_2 = "456";
 			std::string input_1, input_2;
@@ -128,9 +122,9 @@ SCENARIO("Multiple lines of text are written and read from a file")
 			{
 				REQUIRE(input_1 == output_1);
 				REQUIRE(input_2 == output_2);
+				file.Destroy();
 			}
 		}
-		file.Destroy();
 	}
 }
 
@@ -140,16 +134,15 @@ SCENARIO("A line of text is read and EOF is reached") {
 		std::string fn = "textFile.txt";
 		std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 		File file(fn, dir);
-		file.Destroy();
-		file.Create();
-		std::string output = "123";
-		std::string input;
-		file.Write(output);
+		if (file.Exists() == true) { file.Destroy(); }
 
 		WHEN("EOF is reached") 
 		{
+			file.Create();
+			std::string output = "123";
+			std::string input;
+			file.Write(output);
 			file.ReadLine(input);
-			REQUIRE(file.i_flags_.is_bad == false);
 			THEN("Whatever text was before EOF must be read and i_flags must be correct")
 			{
 				REQUIRE(input==output);
