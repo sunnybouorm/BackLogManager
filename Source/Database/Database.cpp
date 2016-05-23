@@ -1,6 +1,26 @@
 #include "stdafx.h"
 #include "Database.h"
 
+/*
+* Call back function that returns SQL query result
+* db_object, pointer to the Database class instance that called it
+* argc, The number of columns in row
+* argv, An array of strings representing fields in the row
+* azColName, An array of strings representing column names
+*/
+static int statement_callback(void *db_object, int argc, char **argv, char **azColName) {
+	printf("\ncheckpoint3\n");
+	int i;
+	Database *this_db = static_cast <Database *> (db_object);
+	
+	//for (i = 0; i < argc; i++) {
+	//	printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+	//}
+	//printf("\n");
+
+	return 0;
+}
+
 //static string class member declarations
 std::string Database::DB_DIR;
 std::string Database::DB_DIR_URI;
@@ -68,6 +88,32 @@ bool Database::exterminate() {
 }
 
 /*
+ * Executes a single SQL statement and returns status
+ */
+bool Database::execSQL(const std::string &statement) {
+	bool isSuccessful = false;
+	int status;
+	char *zErrMsg = 0;
+	Database *this_db = this;
+
+	//TODO: do a database isOpen check
+	const char* sql = statement.c_str();
+
+	std::cout << "\ncheckpoint1\n";
+	status = sqlite3_exec(this->db, sql, statement_callback, (void*)this_db, &zErrMsg);
+	std::cout << "\ncheckpoint2\n";
+
+	if (status == SQLITE_OK) {
+		isSuccessful = true;
+	}else {
+		isSuccessful = false;
+		std::cerr << "SQL error: " << zErrMsg << "\n";
+	}
+
+	return isSuccessful;
+}
+
+/*
  * Reads a text file containing SQL syntax and processes it line by line until EoF or an error
  * is raised
  */
@@ -79,12 +125,5 @@ bool Database::importSQL(const std::string &fileName, const std::string &fileDir
 	file.read_line(sql);
 
 	//TODO:
-	//open file with read only permission
-	//process file
-		//parse line and prepare SQL statement
-		//process SQL statement
-		//repeat until EoF or error
-	//close SQL text file
-	//return status
 	return isSuccessful;
 }

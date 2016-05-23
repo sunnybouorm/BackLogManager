@@ -25,9 +25,9 @@ public:
 	bool create();
 	bool destroy();
 
-	void clear_i_flags();
+	void clear_i_flags();//reverts input stream flags to default
 
 	void write(const std::string &text);
 	void read_line(std::string &output);
-	void clear();
+	void clear();//clears file by destroying and recreating it
 };

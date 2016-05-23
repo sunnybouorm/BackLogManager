@@ -68,19 +68,19 @@ bool File::destroy(const std::string &fileName, const std::string &directory) {
 	return isSuccessful;
 }
 
-bool File::exists()  { return File::exists( this->fileName, this->directory); }
-bool File::create()  { return File::create( this->fileName, this->directory); }
-bool File::destroy() { return File::destroy(this->fileName, this->directory); }
+bool File::exists()  { return (File::exists ( this->fileName, this->directory)  ); }
+bool File::create()  { return (File::create ( this->fileName, this->directory)  ); }
+bool File::destroy() { return (File::destroy( this->fileName, this->directory)  ); }
 
 void File::write(const std::string &text) {
 	std::fstream fs;
 	int mode = std::fstream::out | std::fstream::app;
-	const char* filename = nullptr;
-	std::string path = this->directory + this->fileName;
-	filename = (path).c_str();
+	const char* path = nullptr;
+	std::string temp = (this->directory) + (this->fileName);
+	path = (temp).c_str();
 	
 	if (this->exists() == true) {
-		fs.open(fileName, mode);
+		fs.open(path, mode);
 		fs << text;
 		fs.close();
 	}

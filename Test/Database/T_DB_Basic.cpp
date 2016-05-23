@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "T_DB_Basic.h"
 
-const std::string dir = "D:\\Development\\VS2015\\C++\\SQLite\\BacklogManager\\BacklogManager\\Database_Files\\";
+const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 
 SCENARIO("A connection to the database is established")
 {
@@ -36,6 +36,11 @@ SCENARIO("A connection to the database is established")
 
 SCENARIO("an SQL text file is read")
 {
+	Database database;
+	database.set_directory(dir);
+	database.open_connection();
+	database.execSQL("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
+	database.exterminate();
 	GIVEN("An initialized set of Data")
 	{
 		WHEN("The file is read")
