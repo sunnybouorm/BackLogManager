@@ -9,7 +9,6 @@
 * az_col_name, An array of strings representing column names
 */
 static int statement_callback(void *db_object, int argc, char **argv, char **az_col_name) {
-	printf("\ncheckpoint3\n");
 	int i;
 	Database *this_db = static_cast <Database *> (db_object);
 	
@@ -77,7 +76,7 @@ bool Database::OpenConnection(const int &flags) {
 			this->is_connected_ = true;
 		}
 	} else {
-		std::cerr << "Warning: attempting to connect a database is already connected\n";
+		std::cerr << "Database Warning: attempting to connect a database is already connected\n";
 	}
 
 	return is_successful;
@@ -107,7 +106,7 @@ bool Database::Exterminate() {
 		is_successful = File::Destroy(kDbName, this->db_dir_);
 	}
 	else {
-		std::cerr   << "Warning: attempting to exterminate database that is already connected"
+		std::cerr   << "Database Warning: attempting to exterminate database that is already connected"
 					<< ", close the database connection first\n";
 	}
 
@@ -125,7 +124,7 @@ bool Database::ExecuteSql(const std::string &statement) {
 
 	if ( this->is_connected_ == true) {
 		const char* sql = statement.c_str();
-		std::cout << "\ncheckpoint\n";
+
 		status = sqlite3_exec(this->db_, sql, statement_callback, (void*)this_db, &z_err_msg);
 		if (status == SQLITE_OK) {
 			is_successful = true;
