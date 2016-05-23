@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Database.h"
+#include "database.h"
 
 /*
 * Call back function that returns SQL query result

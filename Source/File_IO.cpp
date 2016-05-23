@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "File_IO.h"
+#include "file_io.h"
 
 File::File(const std::string &fileName, const std::string &directory) {
 	this->fileName  = fileName;
