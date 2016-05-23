@@ -5,22 +5,22 @@
 #include "../File_IO.h"
 
 //Database model file
-const std::string DB_NAME("db.db3");
+const std::string db_name("db.db3");
 
 typedef struct DATABASE_CONNECTION_STATUS_FLAGS{
-	bool isConnected    = false;
-	bool isDisconnected = true;
-	bool isExist        = false;
+	bool is_connected    = false;
+	bool is_disconnected = true;
+	bool is_exist        = false;
 } DB_CSF;
 
 class Database {
 private:
 	//directory configuration
-	std::string DB_DIR;
-	std::string DB_DIR_URI;
-	DB_CSF db_csf;
-	const static int defaultFlags = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
-	sqlite3 *db;
+	std::string db_dir_;
+	std::string db_dir_uri_;
+	DB_CSF db_csf_;
+	const static int default_flags_ = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
+	sqlite3 *db_;
 
 	void reset_csf();
 	void set_csf_connected();
@@ -30,10 +30,10 @@ private:
 public :
 	Database(const std::string &dir="");
 	bool set_directory(const std::string &dir);
-	bool open_connection(const int &flags=defaultFlags);
+	bool open_connection(const int &flags= default_flags_ );
 	bool close_connection();
 	bool exterminate();
-	bool importSQL(const std::string &fileName, const std::string &fileDir);
+	bool importSQL(const std::string &filename, const std::string &filedir);
 	bool execSQL(const std::string &statement);
 };
 

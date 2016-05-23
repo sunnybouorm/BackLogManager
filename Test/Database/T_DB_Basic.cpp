@@ -7,28 +7,28 @@ SCENARIO("A connection to the database is established")
 {
 	GIVEN("An initialized set of data")
 	{
-		bool isConnected    = false;
-		bool isDisconnected = false;
-		bool isDeleted		= false;
+		bool is_connected    = false;
+		bool is_disconnected = false;
+		bool is_deleted		 = false;
 		Database database;
 		database.set_directory(dir);
 		
 		WHEN("A Connection request is made followed by a disconnection request")
 		{
-			isConnected = database.open_connection();
-			isDisconnected = database.close_connection();
+			is_connected = database.open_connection();
+			is_disconnected = database.close_connection();
 			THEN("A connection and disconnection must be established successfully")
 			{
-				REQUIRE(isConnected == true);
-				REQUIRE(isDisconnected == true);
+				REQUIRE(is_connected == true);
+				REQUIRE(is_disconnected == true);
 			}
 		}
 		WHEN("An extermination request is made")
 		{
-			isDeleted = database.exterminate();
+			is_deleted = database.exterminate();
 			THEN("The database file specified must be deleted")
 			{
-				REQUIRE(isDeleted == true);
+				REQUIRE(is_deleted == true);
 			}
 		}
 	}

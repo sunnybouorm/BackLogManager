@@ -5,25 +5,25 @@ SCENARIO("A file is created and destroyed using static members")
 {
 	GIVEN("An initialized set of data")
 	{
-		const std::string filename = "testFile.txt";
+		const std::string filename = "test_file.txt";
 		const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 
-		bool isExist = false;
+		bool is_exist = false;
 		WHEN("A file is created")
 		{
 			File::create(filename, dir);
 			THEN("It must exist")
 			{
-				isExist = File::exists(filename, dir);
-				REQUIRE(isExist == true);
+				is_exist = File::exists(filename, dir);
+				REQUIRE(is_exist == true);
 			} AND_WHEN("the file is removed")
 			{
-				isExist = true;//to ensure function is setting to false
+				is_exist = true;//to ensure function is setting to false
 				File::destroy(filename, dir);
 				THEN("It must seize to exist")
 				{
-					isExist = File::exists(filename, dir);
-					REQUIRE(isExist == false);
+					is_exist = File::exists(filename, dir);
+					REQUIRE(is_exist == false);
 				}
 			}
 		}
@@ -34,26 +34,26 @@ SCENARIO("A file is created and destroyed using non-static members")
 {
 	GIVEN("An initialized set of data")
 	{
-		const std::string filename = "testFile.txt";
+		const std::string filename = "test_file.txt";
 		const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
 		File file(filename,dir);
 
-		bool isExist = false;
+		bool is_exist = false;
 		WHEN("A file is created")
 		{
 			file.create();
 			THEN("It must exist")
 			{
-				isExist = File::exists(filename, dir);
-				REQUIRE(isExist == true);
+				is_exist = File::exists(filename, dir);
+				REQUIRE(is_exist == true);
 			} AND_WHEN("A file is removed")
 			{
-				isExist = true;//to ensure function is setting to false
+				is_exist = true;//to ensure function is setting to false
 				file.destroy();
 				THEN("It must seize to exist")
 				{
-					isExist = File::exists(filename, dir);
-					REQUIRE(isExist == false);
+					is_exist = File::exists(filename, dir);
+					REQUIRE(is_exist == false);
 				}
 			}
 		}
@@ -76,7 +76,7 @@ SCENARIO("A line of text is written and read from a file")
 			std::string input;
 			file.write(output + "\n");
 			file.read_line(input);
-			REQUIRE(file.i_flags.isBad == false);
+			REQUIRE(file.i_flags_.is_bad == false);
 			
 			THEN("said line of text must match the one initially written")
 			{
@@ -87,7 +87,7 @@ SCENARIO("A line of text is written and read from a file")
 				file.clear();
 				std::string input;
 				file.read_line(input);
-				REQUIRE(file.i_flags.isBad == false);
+				REQUIRE(file.i_flags_.is_bad == false);
 
 				THEN("no contents in the file must exist and the file must exist")
 				{
@@ -119,10 +119,10 @@ SCENARIO("Multiple lines of text are written and read from a file")
 			file.write(output_2 + "\n");
 
 			file.read_line(input_1);
-			REQUIRE(file.i_flags.isBad == false);
+			REQUIRE(file.i_flags_.is_bad == false);
 
 			file.read_line(input_2);
-			REQUIRE(file.i_flags.isBad == false);
+			REQUIRE(file.i_flags_.is_bad == false);
 
 			THEN("the text read must match the text written")
 			{
@@ -149,24 +149,24 @@ SCENARIO("A line of text is read and EOF is reached") {
 		WHEN("EOF is reached") 
 		{
 			file.read_line(input);
-			REQUIRE(file.i_flags.isBad == false);
+			REQUIRE(file.i_flags_.is_bad == false);
 			THEN("Whatever text was before EOF must be read and i_flags must be correct")
 			{
 				REQUIRE(input==output);
-				REQUIRE(file.i_flags.isEof  == true);
-				REQUIRE(file.i_flags.isGood == false);
-				REQUIRE(file.i_flags.isBad  == false);
+				REQUIRE(file.i_flags_.is_eof  == true);
+				REQUIRE(file.i_flags_.is_good == false);
+				REQUIRE(file.i_flags_.is_bad  == false);
 				AND_WHEN("another line is read without reaching EOF")
 				{
 					file.write(output + "\n");
 					file.read_line(input);
-					REQUIRE(file.i_flags.isBad == false);
+					REQUIRE(file.i_flags_.is_bad == false);
 					THEN("the text and i_flags must be correct")
 					{
 						REQUIRE(input==output);
-						REQUIRE(file.i_flags.isEof  == false);
-						REQUIRE(file.i_flags.isGood == true);
-						REQUIRE(file.i_flags.isBad  == false);
+						REQUIRE(file.i_flags_.is_eof  == false);
+						REQUIRE(file.i_flags_.is_good == true);
+						REQUIRE(file.i_flags_.is_bad  == false);
 					}
 				}
 			}
