@@ -14,7 +14,10 @@ bool operator==(const SqlRowResult &res1, const SqlRowResult &res2) {
 	}
 	return true;
 }
-bool operator!=(const SqlRowResult &res1, const SqlRowResult &res2) { return !(res1 == res2); }
+bool operator!=(const SqlRowResult &res1, const SqlRowResult &res2) {
+	if (res1 == res2) { return false; }
+	else { return true; }
+}
 
 bool operator==(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2) {
 	if (res1.size() != res2.size()) { return false; }
@@ -24,7 +27,10 @@ bool operator==(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowR
 		}
 	}
 }
-bool operator!=(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2) { return !(res1==res2); }
+bool operator!=(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2) {
+	if (res1 == res2) { return false; }
+	else { return true; }
+}
 //------------------------------------------------------------------------------------------------
 
 /*

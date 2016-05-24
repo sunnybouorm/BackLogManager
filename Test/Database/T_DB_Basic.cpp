@@ -74,6 +74,7 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 		std::vector<std::vector<std::string>> data =	{		{ "1"	, "Sam"	, "Fish"	},
 																{ "2"	, "Jan"	, "Ganer"	}
 														};
+
 		//TODO: this method of testing is too convoluted and messy, simplify it
 		/*
 		 * emulate database to generate an expected value to serve as a basis of comparison 
@@ -119,7 +120,10 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 			result = database.read_result_buffer();
 			THEN("The commands must be registered by the database correctly")
 			{
-				REQUIRE(result==expected);
+				REQUIRE(expected == expected);
+				REQUIRE(result	 == result);
+				REQUIRE(expected == result);
+				REQUIRE(result	 == expected);
 			}
 		}
 	}
