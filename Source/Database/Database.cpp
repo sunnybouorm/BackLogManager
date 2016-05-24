@@ -1,6 +1,7 @@
 #include "../stdafx.h"
 #include "database.h"
 
+
 /*
 * Call back function that returns SQL query result
 * db_object	:	pointer to the Database class instance that called it
@@ -140,8 +141,7 @@ bool Database::ExecuteSql(const std::string &statement) {
 		status = sqlite3_exec(this->db_, sql, StatementCallback, (void*)this_db, &z_err_msg);
 		if (status == SQLITE_OK) {
 			is_successful = true;
-		}
-		else {
+		} else {
 			is_successful = false;
 			std::cerr << "SQL error: " << z_err_msg << "\n";
 		}
@@ -163,4 +163,33 @@ bool Database::ImportSql(const std::string &filename, const std::string &filedir
 
 	//TODO:
 	return is_successful;
+}
+
+/*
+ * Processes and displays the resulting table of the latest sql query
+ */
+void Database::PrintResultBuffer() {
+	std::cout
+		<< "----------------------\n"
+		<< "SQL query result:\n"
+		<< "Database<" << this->db_dir_uri_ << ">" << "\n"
+		<< "----------------------\n";
+	if (this->result_buffer_.empty() == false) {
+		for (auto row = result_buffer_.begin(); row != result_buffer_.end(); row++) {
+			for (auto col = row->row_result.begin(); col != row->row_result.end(); col++) {
+				std::cout
+					<< "<" << col->column_name	<< ">"
+					<< "<" << col->column_data	<< ">"	<< "\n";
+			}
+			std::cout << "\n";
+		}
+	}
+	else {
+		std::cout << "result buffer empty\n";
+	}
+
+	std::cout
+		<< "______________________\n"
+		<< "QUERY END"
+		<< "\n\n";
 }

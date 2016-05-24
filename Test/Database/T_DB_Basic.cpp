@@ -34,26 +34,26 @@ SCENARIO("A connection to the database is established")
 	}
 }
 
-//SCENARIO("an SQL statement is executed and registered by the system successfully")
-//{
-//	GIVEN("A database")
-//	{
-//		Database database;
-//		database.SetDirectory(dir);
-//		WHEN("an sql statement is executed")
-//		{
-//			bool status;
-//			database.OpenConnection();
-//			status = database.ExecuteSql("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
-//			database.CloseConnection();
-//			database.Exterminate();
-//			THEN("The command must be registered by the database")
-//			{
-//				REQUIRE(status == true );
-//			}
-//		}
-//	}
-//}
+SCENARIO("an SQL statement is executed and registered by the system successfully")
+{
+	GIVEN("A database")
+	{
+		Database database;
+		database.SetDirectory(dir);
+		WHEN("an sql statement is executed")
+		{
+			bool status;
+			database.OpenConnection();
+			status = database.ExecuteSql("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
+			database.CloseConnection();
+			database.Exterminate();
+			THEN("The command must be registered by the database")
+			{
+				REQUIRE(status == true );
+			}
+		}
+	}
+}
 
 SCENARIO("SQL statements are executed and read for a simple single column table")
 {
@@ -81,3 +81,31 @@ SCENARIO("SQL statements are executed and read for a simple single column table"
 		}
 	}
 }
+
+//SCENARIO("SQL statements are executed and read for a multiple column table with multiple values")
+//{
+//	GIVEN("A database")
+//	{
+//		Database database;
+//		database.SetDirectory(dir);
+//		SqlRowResult person1, person2, result1, result2;
+//
+//		WHEN("sql statements are executed")
+//		{
+//			database.OpenConnection();
+//			database.ExecuteSql("CREATE TABLE PERSON(ID INT PRIMARY KEY, Name VARCHAR(255), Surname VARCHAR(255));");
+//			database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (1,'Sam','Fish')");
+//			database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (2,'Jan','Ganer')");
+//			database.ExecuteSql("SELECT * FROM PERSON");
+//			database.CloseConnection();
+//			database.Exterminate();
+//			result1 = *database.read_result_buffer().begin();
+//			result2 = *database.read_result_buffer().end();
+//			THEN("The commands must be registered by the database correctly")
+//			{
+//				REQUIRE(person1 == result1);//TODO
+//				REQUIRE(person2 == result2);
+//			}
+//		}
+//	}
+//}
