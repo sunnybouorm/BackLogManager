@@ -55,33 +55,6 @@ SCENARIO("an SQL statement is executed and registered by the system successfully
 	}
 }
 
-//SCENARIO("SQL statements are executed and read for a simple single column table")
-//{
-//	GIVEN("A database")
-//	{
-//		Database database;
-//		database.SetDirectory(dir);
-//		WHEN("sql statements are executed")
-//		{
-//			database.OpenConnection();
-//			database.ExecuteSql("CREATE TABLE PERSON(ID INT PRIMARY KEY, Name VARCHAR(255), Surname VARCHAR(255));");
-//			database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (1,'Sam','Fish')");
-//			database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (2,'Jan','Ganer')");
-//			database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (3,'Joe','Slow')");
-//			database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (4,'Tek','snap')");
-//			database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (5,'Xia','Xiao')");
-//			database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (6,'Dre','Bad')");
-//			database.ExecuteSql("SELECT * FROM PERSON");
-//			database.CloseConnection();
-//			database.Exterminate();
-//			THEN("The command must be registered by the database")
-//			{
-//				REQUIRE(false);
-//			}
-//		}
-//	}
-//}
-
 SCENARIO("SQL statements are executed and read for a multiple column table with multiple values")
 {
 	GIVEN("A database with some data entries inserted")
@@ -149,22 +122,5 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 				REQUIRE(result==expected);
 			}
 		}
-
-		//WHEN("sql statements are executed")
-		//{
-		//	database.OpenConnection();
-		//	database.ExecuteSql("CREATE TABLE PERSON(ID INT PRIMARY KEY, Name VARCHAR(255), Surname VARCHAR(255));");
-		//	database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (1,'Sam','Fish')");
-		//	database.ExecuteSql("INSERT INTO PERSON (ID,Name,Surname) VALUES (2,'Jan','Ganer')");
-		//	database.ExecuteSql("SELECT * FROM PERSON");
-		//	database.CloseConnection();
-		//	database.Exterminate();
-		//	result = *database.read_result_buffer().begin();
-		//	THEN("The commands must be registered by the database correctly")
-		//	{
-		//		REQUIRE(person1 == result1);//TODO
-		//		REQUIRE(person2 == result2);
-		//	}
-		//}
 	}
 }
