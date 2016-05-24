@@ -1,6 +1,31 @@
 #include "../stdafx.h"
 #include "database.h"
 
+/*overloaded operators*/
+//------------------------------------------------------------------------------------------------
+bool operator==(const SqlRowResult &res1, const SqlRowResult &res2) {
+	if (res1.row_result.size() != res2.row_result.size()) { return false; }
+	else {
+		for (std::vector<SqlColumnResult>::size_type i = 0; i!= res1.row_result.size() ; i++){
+
+			if (res1.row_result[i].column_data != res2.row_result[i].column_data) { return false; }
+			if (res1.row_result[i].column_name != res2.row_result[i].column_name) { return false; }
+		}
+	}
+	return true;
+}
+bool operator!=(const SqlRowResult &res1, const SqlRowResult &res2) { return !(res1 == res2); }
+
+bool operator==(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2) {
+	if (res1.size() != res2.size()) { return false; }
+	else {
+		for (std::vector<SqlRowResult>::size_type i = 0; i != res1.size(); i++) {
+			if (res1[i] != res2[i]) { return false; }
+		}
+	}
+}
+bool operator!=(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2) { return !(res1==res2); }
+//------------------------------------------------------------------------------------------------
 
 /*
 * Call back function that returns SQL query result

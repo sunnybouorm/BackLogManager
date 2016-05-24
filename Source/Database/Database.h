@@ -13,7 +13,10 @@ typedef struct SqlRowResultStruct {//stores one entire row of a returned table
 	std::vector<SqlColumnResult> row_result;
 } SqlRowResult;
 
-//inline bool operator==(const SqlRowResult &res1, const SqlRowResult res2);
+bool operator==(const SqlRowResult &res1, const SqlRowResult &res2);
+bool operator!=(const SqlRowResult &res1, const SqlRowResult &res2);
+bool operator==(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2);
+bool operator!=(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2);
 
 //Database model file
 const std::string kDbName("db.db3");
@@ -26,7 +29,6 @@ private:
 	std::string db_dir_uri_;
 	const static int default_flags_ = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
 	sqlite3 *db_;
-	//std::vector<SqlRowResult> result_buffer_;//processed SQL query result container
 	std::vector<SqlRowResult> result_buffer_;
 
 	bool is_exist();//checks if this instance's database file exists
@@ -44,7 +46,7 @@ public :
 
 	void push_to_result_buffer(SqlRowResult value) {this->result_buffer_.push_back(value); }
 	void clear_result_buffer() { this->result_buffer_.clear(); }
-//	std::vector<SqlColumnResult> read_result_buffer() { return this->result_buffer_; }
+	std::vector<SqlRowResult> read_result_buffer() { return this->result_buffer_; }
 
 	//Tools
 	void PrintResultBuffer();
