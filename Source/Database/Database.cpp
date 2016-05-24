@@ -1,20 +1,25 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "database.h"
 
 /*
 * Call back function that returns SQL query result
 * db_object	:	pointer to the Database class instance that called it
-* count		:	The number of result segments to iterate through
+* count		:	The number of columns in the table
 * data		:	An array of strings representing fields in the row
 * col_names	:	An array of strings representing column names
 */
 static int StatementCallback(void *db_object, int count, char **data, char **az_col_name) {
 	int i;
 	Database *this_db = static_cast <Database *> (db_object);
+	SqlColumnResult col_res;
+	SqlRowResult row_res;
 	for (i = 0; i < count; i++) {
-		printf("%s = %s\n", az_col_name[i], data[i] ? data[i] : "NULL");
+		col_res.column_name = az_col_name[i];
+		col_res.column_data = data[i] ? data[i] : "NULL";// if data[i] then data[i] else "NULL"
+		row_res.row_result.push_back(col_res);
 	}
-	printf("\n");
+	//append row result data to database instance that requested the callback
+	this_db->push_to_result_buffer(row_res);
 
 	return 0;
 }
@@ -95,7 +100,6 @@ bool Database::CloseConnection() {
 
 /*
 * Deletes database model file specified
-* filename: must include file extension
 *-----------------------------------------------------------------------------------------------
 * !!!CAUTION!!!: use only when necessary, specified database is DELETED and CANNOT be recovered
 */
@@ -106,8 +110,8 @@ bool Database::Exterminate() {
 		is_successful = File::Destroy(kDbName, this->db_dir_);
 	}
 	else {
-		std::cerr   << "Database Warning: attempting to exterminate database that is already connected"
-					<< ", close the database connection first\n";
+		std::cerr   << "Database Warning: attempting to exterminate database that is already" 
+			        << "connected, close the database connection first\n";
 	}
 
 	return is_successful;
@@ -115,12 +119,20 @@ bool Database::Exterminate() {
 
 /*
  * Executes a single SQL statement and returns status
+ * NOTE:
+ * ---------------------------------------------------
+ * > The sql result_buffer_ is cleared with every call of this function,
+ *		hence any data from result_buffer_ required by user must be processed before making
+ *		another call to ExecuteSql()
  */
 bool Database::ExecuteSql(const std::string &statement) {
 	bool is_successful = false;
 	int status;
 	char *z_err_msg = 0;
 	Database *this_db = this;
+
+	//clear the result_buffer_ prior to StatementCallback() call
+	this->clear_result_buffer();
 
 	if ( this->is_connected_ == true) {
 		const char* sql = statement.c_str();

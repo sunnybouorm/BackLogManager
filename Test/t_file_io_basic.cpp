@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../Source/stdafx.h"
 #include "t_file_io_basic.h"
 
 SCENARIO("A file is created and destroyed using static members") 
