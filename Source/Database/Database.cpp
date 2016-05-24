@@ -4,7 +4,7 @@
 /*overloaded operators*/
 //------------------------------------------------------------------------------------------------
 bool operator==(const SqlRowResult &res1, const SqlRowResult &res2) {
-	if (res1.row_result.size() != res2.row_result.size()) { return false; }
+	if (res1.row_result.size() != res2.row_result.size()) {return false; }
 	else {
 		for (std::vector<SqlColumnResult>::size_type i = 0; i!= res1.row_result.size() ; i++){
 

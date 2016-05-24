@@ -84,44 +84,55 @@ SCENARIO("an SQL statement is executed and registered by the system successfully
 
 SCENARIO("SQL statements are executed and read for a multiple column table with multiple values")
 {
-	GIVEN("A database")
+	GIVEN("A database with some data entries inserted")
 	{
 		Database database;
 		database.SetDirectory(dir);
 
-		SqlColumnResult temp;
+		SqlColumnResult temp_CR;
+		SqlRowResult    temp_RR;
 		std::string temp_str_insert, temp_str_cols, temp_str_data;
-		SqlRowResult expected, result;
+		std::vector<SqlRowResult> expected, result;
 		std::vector<std::string> insert_statements;
 		std::string table_name = "PERSON";
 
 		std::string col_names[]					   =			{ "ID"	, "Name", "Surname"	};
 		int cols = col_names->size();
-		std::vector<std::vector<std::string>> data =	{		{ "1"	, "'Sam'"	, "'Fish'"	},
-																{ "2"	, "'Jan'"	, "'Ganer'"	}
+		std::vector<std::vector<std::string>> data =	{		{ "1"	, "Sam"	, "Fish"	},
+																{ "2"	, "Jan"	, "Ganer"	}
 														};
+		//TODO: this method of testing is too convoluted and messy, simplify it
+		/*
+		 * emulate database to generate an expected value to serve as a basis of comparison 
+		 * with the actual database this code also generates strings for insert statements for
+		 * convenience
+		 */
+		//-----------------------------------------------------------------------------------------
 		std::vector<std::string> d_row;
 		for (std::vector<std::vector<std::string>>::size_type row = 0; row != data.size(); row++){
 			d_row = data[row];
 			temp_str_data = "";
+			temp_RR.row_result.clear();
 
 			for (int col = 0; col <= col_names->size(); col++) {
-				temp.column_name = col_names[col];
-				temp.column_data = d_row[col];
-				expected.row_result.push_back(temp);
+				temp_CR.column_name = col_names[col];
+				temp_CR.column_data = d_row[col];
+				temp_RR.row_result.push_back(temp_CR);
 
 				if ( (row == 0)) { temp_str_cols += col_names[col]; }
 				if ( (row == 0) && (col != col_names->size())){temp_str_cols += ",";	}
 
-				temp_str_data += d_row[col];
+				temp_str_data += "'" + d_row[col] + "'";
 				if (col != col_names->size()) { temp_str_data += ","; }
 
 			}
+			expected.push_back(temp_RR);
+
 			temp_str_insert = "INSERT INTO " + table_name + "(" + temp_str_cols + ") " +\
 				"VALUES(" + temp_str_data + ")";
 			insert_statements.push_back(temp_str_insert);
+		//-----------------------------------------------------------------------------------------
 		}
-		std::cout << "statement: <" << insert_statements[0] << ">\n";
 
 		WHEN("sql statements are executed")
 		{
@@ -132,11 +143,10 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 			database.ExecuteSql("SELECT * FROM PERSON");
 			database.CloseConnection();
 			database.Exterminate();
-			result = *database.read_result_buffer().begin();
+			result = database.read_result_buffer();
 			THEN("The commands must be registered by the database correctly")
 			{
-				if ((result == expected)	  == false) { database.PrintResultBuffer(); }
-				REQUIRE( (result==expected)   == true);
+				REQUIRE(result==expected);
 			}
 		}
 
