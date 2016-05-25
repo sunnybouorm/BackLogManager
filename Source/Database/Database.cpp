@@ -188,11 +188,29 @@ bool Database::ExecuteSql(const std::string &statement) {
 bool Database::ImportSql(const std::string &filename, const std::string &filedir)
 {
 	bool is_successful = false;
-	File file(filename,filedir);
+	bool status = false;
+	File file(filename, filedir);
 	std::string sql;
-	file.ReadLine(sql);
 
-	//TODO:
+	while (file.i_flags_.is_good == true) {//loop until EoF reached or bad file operation
+		file.ReadLine(sql);
+		status = this->ExecuteSql(sql);
+		if (status == false) { exit; }
+	}
+
+	//if sql execution fails or a bad file read operation then return failure
+	if ( (status = false) || (file.i_flags_.is_bad == true) ) {
+		is_successful = false; 
+		std::cerr << "Database Warning: failed to import SQL file\n";
+	} else { is_successful = true; }
+
+	return is_successful;
+}
+
+bool Database::ImportSql(File file) {
+	bool is_successful = false;
+	is_successful = this->ImportSql(file.get_filename(),file.get_directory());
+
 	return is_successful;
 }
 

@@ -42,6 +42,7 @@ public :
 	bool CloseConnection();
 	bool Exterminate();
 	bool ImportSql(const std::string &filename, const std::string &filedir);
+	bool ImportSql(File file);
 	bool ExecuteSql(const std::string &statement);
 
 	void push_to_result_buffer(SqlRowResult value) {this->result_buffer_.push_back(value); }

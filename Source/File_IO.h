@@ -33,6 +33,9 @@ public:
 	bool Create();
 	bool Destroy();
 
+	std::string get_filename () { return this->filename_; }
+	std::string get_directory() { return this->directory_; }
+
 	void Write(const std::string &text);
 	void ReadLine(std::string &output);
 	void Clear();//clears file by destroying and recreating it
