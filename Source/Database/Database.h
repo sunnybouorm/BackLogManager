@@ -22,7 +22,10 @@ bool operator!=(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowR
 const std::string kDbName("db.db3");
 
 class Database {
+
 private:
+	friend static int StatementCallback(void *db_object, int count, char **data, char **az_col_name);
+
 	//directory configuration
 	bool is_connected_ = false;
 	std::string db_dir_;
@@ -32,9 +35,15 @@ private:
 	std::vector<SqlRowResult> result_buffer_;
 	File db_file;
 
-public :
+	void push_to_result_buffer(SqlRowResult value) { this->result_buffer_.push_back(value); }
+	void clear_result_buffer() { this->result_buffer_.clear(); }
 
-	Database(const std::string &dir);
+public :
+	Database();
+	Database(const std::string &directory);
+
+	void SetDirectory(const std::string &directory);
+
 	bool IsConnected();
 	bool OpenConnection(const int &flags= default_flags_ );
 	bool CloseConnection();
@@ -43,8 +52,6 @@ public :
 	bool ImportSql(File file);
 	bool ExecuteSql(const std::string &statement);
 
-	void push_to_result_buffer(SqlRowResult value) {this->result_buffer_.push_back(value); }
-	void clear_result_buffer() { this->result_buffer_.clear(); }
 	std::vector<SqlRowResult> read_result_buffer() { return this->result_buffer_; }
 
 	bool is_exist();//checks if this instance's database file exists

@@ -11,30 +11,33 @@ SCENARIO("An activity is added and deleted")
 		File sql_file(sql_filename, db_dir);
 
 		Database database(db_dir);
-		if (database.is_exist() == true) { database.Exterminate(); }
+		Core core(database);
+		if (core.database.is_exist() == true) { core.database.Exterminate(); }
 
-		database.OpenConnection();
-		database.ImportSql(sql_file);
-		database.CloseConnection();
+		core.database.OpenConnection();
+		core.database.ImportSql(sql_file);
+		core.database.CloseConnection();
 
 		WHEN("an activity is added")
 		{
+			std::string activityName = "Movies";
 			bool creation_is_success = false;
-			//TODO: add activity
+			creation_is_success = core.AddActivity(activityName);
+
 			THEN("it must be registered by the database successfully")
 			{
 				REQUIRE(creation_is_success == true);
 				AND_WHEN("the activity is deleted")
 				{
 					bool deletion_is_success = false;
-					//TODO: delete activity
+					deletion_is_success = core.DeleteActivity(activityName);
 					THEN("it must be removed from the database")
 					{
-						REQUIRE(deletion_is_success);
+						REQUIRE(deletion_is_success == true);
 					}
 				}
-			} 
+			}
 		}
-		if (database.is_exist() == true) { database.Exterminate(); }
+		if (core.database.is_exist() == true) { core.database.Exterminate(); }
 	}
 }

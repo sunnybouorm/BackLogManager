@@ -56,12 +56,22 @@ static int StatementCallback(void *db_object, int count, char **data, char **az_
 	return 0;
 }
 
-
 //Constructors
-Database::Database(const std::string &dir) {
-	this->db_dir_		= dir;
-	this->db_dir_uri_	= "file:///" + dir;
-	File file(kDbName, dir);
+Database::Database() {
+	this->SetDirectory("");
+}
+
+Database::Database(const std::string &directory) {
+	this->SetDirectory(directory);
+}
+
+/*
+ * Set the directory of the database file
+ */
+void Database::SetDirectory(const std::string &directory) {
+	this->db_dir_ = directory;
+	this->db_dir_uri_ = "file:///" + directory;
+	File file(kDbName, directory);
 	this->db_file = file;
 }
 
