@@ -23,7 +23,7 @@ private:
 public:
 	std::string test_;
 	IoFlags i_flags_;//flags relating to input filestream
-	File(const std::string &filename, const std::string &directory);
+	File(const std::string &filename="", const std::string &directory="");
 
 	static bool Exists( const std::string &filename, const std::string &directory);
 	static bool Create( const std::string &filename, const std::string &directory);

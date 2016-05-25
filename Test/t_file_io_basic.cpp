@@ -1,3 +1,6 @@
+/*
+ * Unit test for File object
+ */
 #include "../Source/stdafx.h"
 #include "t_file_io_basic.h"
 

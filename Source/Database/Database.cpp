@@ -59,7 +59,10 @@ static int StatementCallback(void *db_object, int count, char **data, char **az_
 
 //Constructors
 Database::Database(const std::string &dir) {
-	this->db_dir_ = dir;
+	this->db_dir_		= dir;
+	this->db_dir_uri_	= "file:///" + dir;
+	File file(kDbName, dir);
+	this->db_file = file;
 }
 
 /*
@@ -67,17 +70,6 @@ Database::Database(const std::string &dir) {
 */
 bool Database::is_exist() {
 	return File::Exists(kDbName, this->db_dir_);
-}
-
-/* 
- * Sets database model file directory
- */
-bool Database::SetDirectory(const std::string &dir) {
-	bool is_successful = true;
-	this->db_dir_ = dir;
-	this->db_dir_uri_ = "file:///" + dir;
-
-	return is_successful;
 }
 
 /*

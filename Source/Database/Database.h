@@ -30,14 +30,12 @@ private:
 	const static int default_flags_ = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
 	sqlite3 *db_;
 	std::vector<SqlRowResult> result_buffer_;
-
-	bool is_exist();//checks if this instance's database file exists
+	File db_file;
 
 public :
 
-	Database(const std::string &dir = "");
+	Database(const std::string &dir);
 	bool IsConnected();
-	bool SetDirectory(const std::string &dir);
 	bool OpenConnection(const int &flags= default_flags_ );
 	bool CloseConnection();
 	bool Exterminate();
@@ -48,6 +46,8 @@ public :
 	void push_to_result_buffer(SqlRowResult value) {this->result_buffer_.push_back(value); }
 	void clear_result_buffer() { this->result_buffer_.clear(); }
 	std::vector<SqlRowResult> read_result_buffer() { return this->result_buffer_; }
+
+	bool is_exist();//checks if this instance's database file exists
 
 	//Tools
 	void PrintResultBuffer();
