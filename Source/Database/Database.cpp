@@ -187,27 +187,30 @@ bool Database::ExecuteSql(const std::string &statement) {
 /*
  * Sends an sql INSERT query based on table data given
  */
-bool Insert(TableContainer table) {
+bool Database::Insert(const TableContainer &table) {
 	bool is_successful = false;
-	std::string sql, columns, values;
+	std::string sql, column_names, values;
 
 	for (std::vector<string>::size_type i = 0; i != table.columns.size(); i++ ) {
-		columns += "'";
-		columns += "'";
+		column_names += table.columns[i].column_name;
+		if ( i!= table.columns.size() - 1) { column_names += ","; }
 
 		values	+= "'";
+		values	+= table.columns[i].column_data;
 		values	+= "'";
+		if (i != table.columns.size() - 1) { column_names += ","; }
 	}
 
-	//sql  = "INSERT INTO ";
-	//sql += table.table_name;
-	//sql += "(";
-	//sql += columns;
-	//sql += ") ";
-	//sql += ;
-	//sql += "VALUES(";
-	//sql += values;
-	//sql += ")";
+	sql  = "INSERT INTO ";
+	sql += table.table_name;
+	sql += "(";
+	sql += column_names;
+	sql += ") ";
+	sql += "VALUES(";
+	sql += values;
+	sql += ")";
+
+	is_successful = this->ExecuteSql(sql);
 
 	return is_successful;
 }
@@ -215,16 +218,33 @@ bool Insert(TableContainer table) {
 /*
 * Sends an sql DELETE query based on table data given
 */
-bool Delete(TableContainer table) {
+bool Database::Delete(const TableContainer &table) {
 	bool is_successful = false;
-	//TODO
+	std::string sql, values;
+
+	for (std::vector<string>::size_type i = 0; i != table.columns.size(); i++) {
+		values += table.columns[i].column_name;
+		values += "=";
+		values += "'";
+		values += table.columns[i].column_data;
+		values += "'";
+		if (i != table.columns.size() - 1) { values += " AND "; }
+	}
+
+	sql = "DELETE FROM ";
+	sql += table.table_name;
+	sql += " WHERE ";
+	sql += values;
+
+	is_successful = this->ExecuteSql(sql);
+
 	return is_successful;
 }
 
 /*
-* Sends an sql DELETE query based on table data given
+* Sends an sql UPDATE query based on table data given
 */
-bool Update() {
+bool Update(const TableContainer &table) {
 	bool is_successful = false;
 	//TODO
 	return is_successful;

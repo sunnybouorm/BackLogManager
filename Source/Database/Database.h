@@ -57,9 +57,9 @@ public :
 	bool ImportSql(File file);
 	bool ExecuteSql(const std::string &statement);
 
-	bool Insert(TableContainer table);
-	bool Delete(TableContainer table);
-	bool Update();
+	bool Insert(const TableContainer &table);
+	bool Delete(const TableContainer &table);
+	bool Update(const TableContainer &table);
 
 	std::vector<SqlRowResult> read_result_buffer() { return this->result_buffer_; }
 

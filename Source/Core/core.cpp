@@ -9,8 +9,15 @@ bool Core::AddActivity(const std::string &activity_name) {
 	bool is_successful = true;
 	std::string sql;
 
-	sql = "INSERT INTO Activity VALUES('" + activity_name + "')\n";
-	is_successful &= this->database_.ExecuteSql(sql);
+	TableContainer to_table;
+	ColumnContainer column;
+
+	to_table.table_name		= "Activity";
+	column.column_name		= "Name";
+	column.column_data		= activity_name;
+	to_table.columns.push_back(column);
+
+	is_successful = this->database_.Insert(to_table);
 
 	return is_successful;
 }
@@ -19,8 +26,15 @@ bool Core::DeleteActivity(const std::string &activity_name) {
 	bool is_successful = true;
 	std::string sql;
 
-	sql = "DELETE FROM Activity WHERE Name='" + activity_name + "'\n";
-	is_successful &= this->database_.ExecuteSql(sql);
+	TableContainer from_table;
+	ColumnContainer column;
+
+	from_table.table_name	= "Activity";
+	column.column_name		= "Name";
+	column.column_data		= activity_name;
+	from_table.columns.push_back(column);
+
+	is_successful = this->database_.Delete(from_table);
 
 	return is_successful;
 }
@@ -44,10 +58,13 @@ bool Core::DeleteActivity(const std::string &activity_name) {
 
 bool Core::DeleteListing(int lid) {
 	bool is_successful = true;
-	std::string sql;
 
-	sql = "DELETE FROM Listing WHERE LID=" + std::to_string(lid) + "\n";
-	is_successful &= this->database_.ExecuteSql(sql);
+	TableContainer table;
+	table.table_name = "Listing";
+	table.columns[0].column_name = "LID";
+	table.columns[0].column_data = std::to_string(lid);
+
+	is_successful = this->database_.Insert(table);
 
 	return is_successful;
 }

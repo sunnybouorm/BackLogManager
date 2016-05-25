@@ -16,8 +16,6 @@ public:
 	Core(Database &db);
 	Database database_;
 
-	bool SqlInsert(std::string table_name);
-
 	bool AddActivity(const std::string &activity_name);
 	bool DeleteActivity(const std::string &activity_name);
 
