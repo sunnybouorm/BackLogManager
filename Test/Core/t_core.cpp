@@ -11,6 +11,7 @@ SCENARIO("An activity is added and deleted")
 		File sql_file(sql_filename, db_dir);
 
 		Database database(db_dir);
+		if (database.is_exist() == true) { database.Exterminate(); }
 
 		database.OpenConnection();
 		database.ImportSql(sql_file);
@@ -18,16 +19,22 @@ SCENARIO("An activity is added and deleted")
 
 		WHEN("an activity is added")
 		{
+			bool creation_is_success = false;
+			//TODO: add activity
 			THEN("it must be registered by the database successfully")
 			{
-				REQUIRE(false);
-			} AND_WHEN("the activity is deleted")
-			{
-				THEN("it must be removed from the database")
+				REQUIRE(creation_is_success == true);
+				AND_WHEN("the activity is deleted")
 				{
-					REQUIRE(false);
+					bool deletion_is_success = false;
+					//TODO: delete activity
+					THEN("it must be removed from the database")
+					{
+						REQUIRE(deletion_is_success);
+					}
 				}
-			}
+			} 
 		}
+		if (database.is_exist() == true) { database.Exterminate(); }
 	}
 }

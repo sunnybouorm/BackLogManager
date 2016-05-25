@@ -15,6 +15,7 @@ SCENARIO("A connection to the database is established")
 		bool is_disconnected = false;
 		bool is_deleted		 = false;
 		Database database(dir);
+		if (database.is_exist() == true) { database.Exterminate(); }
 		
 		WHEN("A Connection request is made followed by a disconnection request")
 		{
@@ -24,14 +25,15 @@ SCENARIO("A connection to the database is established")
 			{
 				REQUIRE(is_connected == true);
 				REQUIRE(is_disconnected == true);
-			}
-		}
-		WHEN("An extermination request is made")
-		{
-			is_deleted = database.Exterminate();
-			THEN("The database file specified must be deleted")
-			{
-				REQUIRE(is_deleted == true);
+
+				AND_WHEN("An extermination request is made")
+				{
+					is_deleted = database.Exterminate();
+					THEN("The database file specified must be deleted")
+					{
+						REQUIRE(is_deleted == true);
+					}
+				}
 			}
 		}
 	}
@@ -42,6 +44,8 @@ SCENARIO("an SQL statement is executed and registered by the system successfully
 	GIVEN("A database")
 	{
 		Database database(dir);
+		if (database.is_exist() == true) { database.Exterminate(); }
+
 		WHEN("an sql statement is executed")
 		{
 			bool status;
@@ -62,6 +66,7 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 	GIVEN("A database with some data entries inserted")
 	{
 		Database database(dir);
+		if (database.is_exist() == true) { database.Exterminate(); }
 
 		SqlColumnResult temp_CR;
 		SqlRowResult    temp_RR;
@@ -142,6 +147,7 @@ SCENARIO("An SQL text file is imported into database")
 	GIVEN("A database and SQL text file")
 	{
 		Database database(dir);
+		if (database.is_exist() == true) { database.Exterminate(); }
 		bool status = false;
 
 		std::string filename = "sql_test_file.sql";
