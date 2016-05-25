@@ -36,7 +36,7 @@ SCENARIO("An activity is added and deleted")
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
-			core.database_.ExecuteSql("SELECT * FROM Activity\n");
+			core.database_.SqlCommand("SELECT * FROM Activity\n");
 			std::vector<SqlRowResult> result = core.database_.read_result_buffer();
 
 			REQUIRE( (expected==result) == true );
@@ -49,7 +49,7 @@ SCENARIO("An activity is added and deleted")
 					bool deletion_is_success = false;
 					deletion_is_success = core.DeleteActivity(activityName);
 
-					core.database_.ExecuteSql("SELECT * FROM Activity\n");
+					core.database_.SqlCommand("SELECT * FROM Activity\n");
 					std::vector<SqlRowResult> result = core.database_.read_result_buffer();
 
 					THEN("it must be removed from the database_")

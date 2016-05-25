@@ -158,9 +158,9 @@ bool Database::Exterminate() {
  * ---------------------------------------------------
  * > The sql result_buffer_ is cleared with every call of this function,
  *		hence any data from result_buffer_ required by user must be processed before making
- *		another call to ExecuteSql()
+ *		another call to SqlCommand()
  */
-bool Database::ExecuteSql(const std::string &statement) {
+bool Database::SqlCommand(const std::string &statement) {
 	bool is_successful = false;
 	int status;
 	char *z_err_msg = 0;
@@ -210,7 +210,7 @@ bool Database::Insert(const TableContainer &table) {
 	sql += values;
 	sql += ")";
 
-	is_successful = this->ExecuteSql(sql);
+	is_successful = this->SqlCommand(sql);
 
 	return is_successful;
 }
@@ -236,7 +236,7 @@ bool Database::Delete(const TableContainer &table) {
 	sql += " WHERE ";
 	sql += values;
 
-	is_successful = this->ExecuteSql(sql);
+	is_successful = this->SqlCommand(sql);
 
 	return is_successful;
 }
@@ -263,7 +263,7 @@ bool Database::ImportSql(const std::string &filename, const std::string &filedir
 
 	while (file.i_flags_.is_good == true) {//loop until EoF reached or bad file operation
 		file.ReadLine(sql);
-		status = this->ExecuteSql(sql);
+		status = this->SqlCommand(sql);
 		if (status == false) { exit; }
 	}
 

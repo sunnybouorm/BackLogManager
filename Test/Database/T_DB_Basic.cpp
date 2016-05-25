@@ -54,7 +54,7 @@ SCENARIO("an SQL statement is executed and registered by the system successfully
 		{
 			bool status;
 			database.OpenConnection();
-			status = database.ExecuteSql("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
+			status = database.SqlCommand("CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);");
 			database.CloseConnection();
 			database.Exterminate();
 			THEN("The command must be registered by the database")
@@ -124,12 +124,12 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 		WHEN("sql statements are executed")
 		{
 			database.OpenConnection();
-			database.ExecuteSql("CREATE TABLE PERSON(ID INT PRIMARY KEY, Name VARCHAR(255), Surname VARCHAR(255));");
-			database.ExecuteSql(insert_statements[0]);
-			database.ExecuteSql(insert_statements[1]);
-			database.ExecuteSql(insert_statements[2]);
-			database.ExecuteSql(insert_statements[3]);
-			database.ExecuteSql("SELECT * FROM PERSON");
+			database.SqlCommand("CREATE TABLE PERSON(ID INT PRIMARY KEY, Name VARCHAR(255), Surname VARCHAR(255));");
+			database.SqlCommand(insert_statements[0]);
+			database.SqlCommand(insert_statements[1]);
+			database.SqlCommand(insert_statements[2]);
+			database.SqlCommand(insert_statements[3]);
+			database.SqlCommand("SELECT * FROM PERSON");
 			database.CloseConnection();
 			database.Exterminate();
 			result = database.read_result_buffer();

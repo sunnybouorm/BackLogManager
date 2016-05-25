@@ -55,7 +55,7 @@ public :
 	bool Exterminate();
 	bool ImportSql(const std::string &filename, const std::string &filedir);
 	bool ImportSql(File file);
-	bool ExecuteSql(const std::string &statement);
+	bool SqlCommand(const std::string &statement);
 
 	bool Insert(const TableContainer &table);
 	bool Delete(const TableContainer &table);
