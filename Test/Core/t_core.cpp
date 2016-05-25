@@ -24,16 +24,42 @@ SCENARIO("An activity is added and deleted")
 			bool creation_is_success = false;
 			creation_is_success = core.AddActivity(activityName);
 
-			THEN("it must be registered by the database successfully")
+			//generate expected result as a basis of comparison
+			//-------------------------------------------------
+			SqlColumnResult col_res;
+			col_res.column_name = "Name";
+			col_res.column_data = activityName;
+			SqlRowResult row_res;
+			row_res.row_result.push_back(col_res);
+
+			std::vector<SqlRowResult> expected;
+			expected.push_back(row_res);
+			//-------------------------------------------------
+
+			core.database.OpenConnection();
+			core.database.ExecuteSql("SELECT * FROM Activity\n");
+			std::vector<SqlRowResult> result = core.database.read_result_buffer();
+			core.database.CloseConnection();
+
+			REQUIRE( (expected==result) == true );
+
+			THEN("it must be registered by the database correctly")
 			{
 				REQUIRE(creation_is_success == true);
 				AND_WHEN("the activity is deleted")
 				{
 					bool deletion_is_success = false;
 					deletion_is_success = core.DeleteActivity(activityName);
+
+					core.database.OpenConnection();
+					core.database.ExecuteSql("SELECT * FROM Activity\n");
+					std::vector<SqlRowResult> result = core.database.read_result_buffer();
+					core.database.CloseConnection();
+
 					THEN("it must be removed from the database")
 					{
 						REQUIRE(deletion_is_success == true);
+						REQUIRE(result.empty() == true);
 					}
 				}
 			}

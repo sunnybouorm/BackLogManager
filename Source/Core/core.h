@@ -8,7 +8,7 @@
 class Core {
 
 public:
-	Core(Database db);
+	Core(Database &db);
 	Database database;
 
 	bool AddActivity(const std::string &activityName);

@@ -1,7 +1,7 @@
 #include "../stdafx.h"
 #include "core.h"
 
-Core::Core(Database db) {
+Core::Core(Database &db) {
 	this->database = db;
 }
 
