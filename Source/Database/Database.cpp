@@ -114,8 +114,6 @@ bool Database::OpenConnection(const int &flags) {
 			is_successful      = true;
 			this->is_connected_ = true;
 		}
-	} else {
-		std::cerr << "Database Warning: attempting to connect a database is already connected\n";
 	}
 
 	return is_successful;
