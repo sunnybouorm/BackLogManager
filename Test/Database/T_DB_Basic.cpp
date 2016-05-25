@@ -15,7 +15,8 @@ SCENARIO("A connection to the database is established")
 		bool is_disconnected = false;
 		bool is_deleted		 = false;
 		Database database(dir);
-		if (database.is_exist() == true) { database.Exterminate(); }
+		if (database.IsConnected()	== true) { database.CloseConnection(); }
+		if (database.is_exist()		== true) { database.Exterminate(); }
 		
 		WHEN("A Connection request is made followed by a disconnection request")
 		{
@@ -36,6 +37,8 @@ SCENARIO("A connection to the database is established")
 				}
 			}
 		}
+		if (database.IsConnected()	== true) { database.CloseConnection(); }
+		if (database.is_exist()		== true) { database.Exterminate(); }
 	}
 }
 
@@ -44,7 +47,8 @@ SCENARIO("an SQL statement is executed and registered by the system successfully
 	GIVEN("A database")
 	{
 		Database database(dir);
-		if (database.is_exist() == true) { database.Exterminate(); }
+		if (database.IsConnected()	== true) { database.CloseConnection(); }
+		if (database.is_exist()		== true) { database.Exterminate(); }
 
 		WHEN("an sql statement is executed")
 		{
@@ -58,6 +62,8 @@ SCENARIO("an SQL statement is executed and registered by the system successfully
 				REQUIRE(status == true );
 			}
 		}
+		if (database.IsConnected()	== true) { database.CloseConnection(); }
+		if (database.is_exist()		== true) { database.Exterminate(); }
 	}
 }
 
@@ -66,23 +72,22 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 	GIVEN("A database with some data entries inserted")
 	{
 		Database database(dir);
-		if (database.is_exist() == true) { database.Exterminate(); }
+		if (database.IsConnected()	== true) { database.CloseConnection(); }
+		if (database.is_exist()		== true) { database.Exterminate(); }
 
-		SqlColumnResult temp_CR;
+		ColumnContainer temp_CR;
 		SqlRowResult    temp_RR;
 		std::string temp_str_insert, temp_str_cols, temp_str_data;
 		std::vector<SqlRowResult> expected, result;
 		std::vector<std::string> insert_statements;
 		std::string table_name = "PERSON";
 
-		std::string col_names[]					   =			{ "ID"	, "Name", "Surname"	};
-		int cols = col_names->size();
+		std::vector<std::string> col_names		   =			{ "ID"	, "Name", "Surname"	};
 		std::vector<std::vector<std::string>> data =	{		{ "1"	, "Sam"	, "Fish"	},
 																{ "2"	, "Jan"	, "Ganer"	},
 																{ "3"	, "Jay"	, "Ganer"	},
 																{ "4"	, "Dre"	, "Flint"	}
 														};
-
 		//TODO: this method of testing is too convoluted and messy, simplify it
 		/*
 		 * emulate database to generate an expected value to serve as a basis of comparison 
@@ -96,16 +101,16 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 			temp_str_data = "";
 			temp_RR.row_result.clear();
 
-			for (int col = 0; col <= col_names->size(); col++) {
+			for (std::vector<std::string>::size_type col = 0; col != col_names.size(); col++) {
 				temp_CR.column_name = col_names[col];
 				temp_CR.column_data = d_row[col];
 				temp_RR.row_result.push_back(temp_CR);
 
 				if ( (row == 0)) { temp_str_cols += col_names[col]; }
-				if ( (row == 0) && (col != col_names->size())){temp_str_cols += ",";	}
+				if ( (row == 0) && (col != col_names.size()-1)){temp_str_cols += ",";	}
 
 				temp_str_data += "'" + d_row[col] + "'";
-				if (col != col_names->size()) { temp_str_data += ","; }
+				if (col != col_names.size()-1) { temp_str_data += ","; }
 
 			}
 			expected.push_back(temp_RR);
@@ -139,6 +144,8 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 				REQUIRE(result	 == expected);
 			}
 		}
+		if (database.IsConnected()	== true) { database.CloseConnection(); }
+		if (database.is_exist()		== true) { database.Exterminate(); }
 	}
 }
 
@@ -147,7 +154,8 @@ SCENARIO("An SQL text file is imported into database")
 	GIVEN("A database and SQL text file")
 	{
 		Database database(dir);
-		if (database.is_exist() == true) { database.Exterminate(); }
+		if (database.IsConnected()	== true) { database.CloseConnection(); }
+		if (database.is_exist()		== true) { database.Exterminate(); }
 		bool status = false;
 
 		std::string filename = "sql_test_file.sql";
@@ -192,6 +200,8 @@ SCENARIO("An SQL text file is imported into database")
 				REQUIRE(status == true);
 			}
 		}
+		if (database.IsConnected()	== true) { database.CloseConnection(); }
+		if (database.is_exist()		== true) { database.Exterminate(); }
 	}
 
 }

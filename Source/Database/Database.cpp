@@ -1,12 +1,14 @@
 #include "../stdafx.h"
 #include "database.h"
 
+using namespace std;
+
 /*overloaded operators*/
 //------------------------------------------------------------------------------------------------
 bool operator==(const SqlRowResult &res1, const SqlRowResult &res2) {
 	if (res1.row_result.size() != res2.row_result.size()) {return false; }
 	else {
-		for (std::vector<SqlColumnResult>::size_type i = 0; i!= res1.row_result.size() ; i++){
+		for (std::vector<ColumnContainer>::size_type i = 0; i!= res1.row_result.size() ; i++){
 
 			if (res1.row_result[i].column_data != res2.row_result[i].column_data) { return false; }
 			if (res1.row_result[i].column_name != res2.row_result[i].column_name) { return false; }
@@ -43,7 +45,7 @@ bool operator!=(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowR
 static int StatementCallback(void *db_object, int count, char **data, char **az_col_name) {
 	int i;
 	Database *this_db = static_cast <Database *> (db_object);
-	SqlColumnResult col_res;
+	ColumnContainer col_res;
 	SqlRowResult row_res;
 	for (i = 0; i < count; i++) {
 		col_res.column_name = az_col_name[i];
@@ -72,7 +74,7 @@ void Database::SetDirectory(const std::string &directory) {
 	this->db_dir_ = directory;
 	this->db_dir_uri_ = "file:///" + directory;
 	File file(kDbName, directory);
-	this->db_file = file;
+	this->db_file_ = file;
 }
 
 /*
@@ -98,22 +100,22 @@ bool Database::IsConnected() {
  *-----------------------------------------------------------------------------------------------
  * NOTE: 
  * > ensure every OpenConnection() is followed by a corresponding CloseConnection()
- *	before a second OpenConnection() request is issued
  *-----------------------------------------------------------------------------------------------
  */
 bool Database::OpenConnection(const int &flags) {
 	bool is_successful = false;
-	std::string path = this->db_dir_uri_ + kDbName;
-	const char *filename = path.c_str();
-	const char *zvfs = nullptr ;
 
-	if (this->is_connected_ == false) {
+	if(this->IsConnected() == false) {
+		std::string path = this->db_dir_uri_ + kDbName;
+		const char *filename = path.c_str();
+		const char *zvfs = nullptr;
 
 		int status = sqlite3_open_v2(filename, &(this->db_), flags, zvfs);
 		if (status == 0) {
-			is_successful      = true;
+			is_successful = true;
 			this->is_connected_ = true;
-		}
+
+		} else { return is_successful = true; }//already connected
 	}
 
 	return is_successful;
@@ -121,9 +123,10 @@ bool Database::OpenConnection(const int &flags) {
 
 bool Database::CloseConnection() {
 	bool is_successful = false;
+
 	int status = sqlite3_close_v2(this->db_);
 	if (status == SQLITE_OK) {
-		is_successful       = true;
+		is_successful = true;
 		this->is_connected_ = false;
 	}
 
@@ -178,6 +181,52 @@ bool Database::ExecuteSql(const std::string &statement) {
 		}
 	}
 
+	return is_successful;
+}
+
+/*
+ * Sends an sql INSERT query based on table data given
+ */
+bool Insert(TableContainer table) {
+	bool is_successful = false;
+	std::string sql, columns, values;
+
+	for (std::vector<string>::size_type i = 0; i != table.columns.size(); i++ ) {
+		columns += "'";
+		columns += "'";
+
+		values	+= "'";
+		values	+= "'";
+	}
+
+	//sql  = "INSERT INTO ";
+	//sql += table.table_name;
+	//sql += "(";
+	//sql += columns;
+	//sql += ") ";
+	//sql += ;
+	//sql += "VALUES(";
+	//sql += values;
+	//sql += ")";
+
+	return is_successful;
+}
+
+/*
+* Sends an sql DELETE query based on table data given
+*/
+bool Delete(TableContainer table) {
+	bool is_successful = false;
+	//TODO
+	return is_successful;
+}
+
+/*
+* Sends an sql DELETE query based on table data given
+*/
+bool Update() {
+	bool is_successful = false;
+	//TODO
 	return is_successful;
 }
 

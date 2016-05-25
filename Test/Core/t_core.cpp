@@ -5,18 +5,18 @@ std::string db_dir = "D:\\Development\\Projects\\BacklogManager\\Database\\";
 
 SCENARIO("An activity is added and deleted") 
 {
-	GIVEN("a clean database") 
+	GIVEN("a clean database_") 
 	{
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, db_dir);
 
-		Database database(db_dir);
-		Core core(database);
-		if (core.database.is_exist() == true) { core.database.Exterminate(); }
+		Database database_(db_dir);
+		Core core(database_);
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()	== true) { core.database_.Exterminate(); }
 
-		core.database.OpenConnection();
-		core.database.ImportSql(sql_file);
-		core.database.CloseConnection();
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
 
 		WHEN("an activity is added")
 		{
@@ -26,7 +26,7 @@ SCENARIO("An activity is added and deleted")
 
 			//generate expected result as a basis of comparison
 			//-------------------------------------------------
-			SqlColumnResult col_res;
+			ColumnContainer col_res;
 			col_res.column_name = "Name";
 			col_res.column_data = activityName;
 			SqlRowResult row_res;
@@ -36,14 +36,12 @@ SCENARIO("An activity is added and deleted")
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
-			core.database.OpenConnection();
-			core.database.ExecuteSql("SELECT * FROM Activity\n");
-			std::vector<SqlRowResult> result = core.database.read_result_buffer();
-			core.database.CloseConnection();
+			core.database_.ExecuteSql("SELECT * FROM Activity\n");
+			std::vector<SqlRowResult> result = core.database_.read_result_buffer();
 
 			REQUIRE( (expected==result) == true );
 
-			THEN("it must be registered by the database correctly")
+			THEN("it must be registered by the database_ correctly")
 			{
 				REQUIRE(creation_is_success == true);
 				AND_WHEN("the activity is deleted")
@@ -51,12 +49,10 @@ SCENARIO("An activity is added and deleted")
 					bool deletion_is_success = false;
 					deletion_is_success = core.DeleteActivity(activityName);
 
-					core.database.OpenConnection();
-					core.database.ExecuteSql("SELECT * FROM Activity\n");
-					std::vector<SqlRowResult> result = core.database.read_result_buffer();
-					core.database.CloseConnection();
+					core.database_.ExecuteSql("SELECT * FROM Activity\n");
+					std::vector<SqlRowResult> result = core.database_.read_result_buffer();
 
-					THEN("it must be removed from the database")
+					THEN("it must be removed from the database_")
 					{
 						REQUIRE(deletion_is_success == true);
 						REQUIRE(result.empty() == true);
@@ -64,6 +60,7 @@ SCENARIO("An activity is added and deleted")
 				}
 			}
 		}
-		if (core.database.is_exist() == true) { core.database.Exterminate(); }
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()	== true) { core.database_.Exterminate(); }
 	}
 }

@@ -4,13 +4,18 @@
 #include "sqlite3.h"
 #include "../File_IO.h"
 
-typedef struct SqlColumnResultStruct {//stores a single column element of a returned table
+typedef struct ColumnStruct {//stores a single column element
 	std::string column_name;
 	std::string column_data;
-} SqlColumnResult;
+} ColumnContainer;
+
+typedef struct TableStruct {
+	std::string table_name;
+	std::vector<ColumnContainer> columns;
+} TableContainer;
 
 typedef struct SqlRowResultStruct {//stores one entire row of a returned table
-	std::vector<SqlColumnResult> row_result;
+	std::vector<ColumnContainer> row_result;
 } SqlRowResult;
 
 bool operator==(const SqlRowResult &res1, const SqlRowResult &res2);
@@ -33,7 +38,7 @@ private:
 	const static int default_flags_ = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
 	sqlite3 *db_;
 	std::vector<SqlRowResult> result_buffer_;
-	File db_file;
+	File db_file_;
 
 	void push_to_result_buffer(SqlRowResult value) { this->result_buffer_.push_back(value); }
 	void clear_result_buffer() { this->result_buffer_.clear(); }
@@ -51,6 +56,10 @@ public :
 	bool ImportSql(const std::string &filename, const std::string &filedir);
 	bool ImportSql(File file);
 	bool ExecuteSql(const std::string &statement);
+
+	bool Insert(TableContainer table);
+	bool Delete(TableContainer table);
+	bool Update();
 
 	std::vector<SqlRowResult> read_result_buffer() { return this->result_buffer_; }
 
