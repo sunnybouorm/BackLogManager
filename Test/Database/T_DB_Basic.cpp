@@ -80,7 +80,7 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 		std::string temp_str_insert, temp_str_cols, temp_str_data;
 		std::vector<RowResult> expected, result;
 		std::vector<std::string> insert_statements;
-		std::string table_source = "PERSON";
+		std::string table_name = "PERSON";
 
 		std::vector<std::string> col_names		   =			{ "ID"	, "Name", "Surname"	};
 		std::vector<std::vector<std::string>> data =	{		{ "1"	, "Sam"	, "Fish"	},
@@ -115,7 +115,7 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 			}
 			expected.push_back(temp_RR);
 
-			temp_str_insert = "INSERT INTO " + table_source + "(" + temp_str_cols + ") " +\
+			temp_str_insert = "INSERT INTO " + table_name + "(" + temp_str_cols + ") " +\
 				"VALUES(" + temp_str_data + ")";
 			insert_statements.push_back(temp_str_insert);
 		//-----------------------------------------------------------------------------------------

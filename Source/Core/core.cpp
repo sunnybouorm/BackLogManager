@@ -12,7 +12,7 @@ bool Core::AddActivity(const std::string &activity_name) {
 	QueryTableContainer to_table;
 	ColumnContainer column;
 
-	to_table.table_source		= "Activity";
+	to_table.table_name		= "Activity";
 	column.column_name		= "Name";
 	column.column_data		= activity_name;
 	to_table.columns.push_back(column);
@@ -24,15 +24,25 @@ bool Core::AddActivity(const std::string &activity_name) {
 
 bool Core::DeleteActivity(const std::string &activity_name) {
 	bool is_successful = true;
-	std::string sql;
+	std::string where_clause;
 
 	QueryTableContainer from_table;
 	ColumnContainer column;
 
-	from_table.table_source	= "Activity";
+	from_table.table_name	= "Activity";
 	column.column_name		= "Name";
 	column.column_data		= activity_name;
 	from_table.columns.push_back(column);
+
+	for (std::vector<std::string>::size_type i = 0; i != from_table.columns.size(); i++) {
+		where_clause += from_table.columns[i].column_name;
+		where_clause += "=";
+		where_clause += "'";
+		where_clause += from_table.columns[i].column_data;
+		where_clause += "'";
+		if (i != from_table.columns.size() - 1) { where_clause += " AND "; }
+	}
+	from_table.where_clause = where_clause;
 
 	is_successful = this->database_.Delete(from_table);
 
@@ -78,7 +88,7 @@ bool Core::AddListing(std::string title, std::string activity_name) {
 	QueryTableContainer to_table;
 	ColumnContainer column;
 
-	to_table.table_source = "Listing";
+	to_table.table_name = "Listing";
 
 	column.column_name = "LID";
 	column.column_data = std::to_string(lid);
@@ -99,15 +109,25 @@ bool Core::AddListing(std::string title, std::string activity_name) {
 
 bool Core::DeleteListing(int lid) {
 	bool is_successful = true;
-	std::string sql;
+	std::string where_clause;
 
 	QueryTableContainer from_table;
 	ColumnContainer column;
 
-	from_table.table_source	= "Listing";
+	from_table.table_name	= "Listing";
 	column.column_name		= "LID";
 	column.column_data		= std::to_string(lid);
 	from_table.columns.push_back(column);
+
+	for (std::vector<std::string>::size_type i = 0; i != from_table.columns.size(); i++) {
+		where_clause += from_table.columns[i].column_name;
+		where_clause += "=";
+		where_clause += "'";
+		where_clause += from_table.columns[i].column_data;
+		where_clause += "'";
+		if (i != from_table.columns.size() - 1) { where_clause += " AND "; }
+	}
+	from_table.where_clause = where_clause;
 
 	is_successful = this->database_.Delete(from_table);
 
