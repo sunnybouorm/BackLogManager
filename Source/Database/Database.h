@@ -9,19 +9,19 @@ typedef struct ColumnStruct {//stores a single column element
 	std::string column_data;
 } ColumnContainer;
 
-typedef struct TableStruct {
+typedef struct RowResultStruct {//stores a single row of a returned table
+	std::vector<ColumnContainer> row_result;
+} RowResult;
+
+typedef struct QueryTableStruct {
 	std::string table_name;
 	std::vector<ColumnContainer> columns;
-} TableContainer;
+} QueryTableContainer;
 
-typedef struct SqlRowResultStruct {//stores one entire row of a returned table
-	std::vector<ColumnContainer> row_result;
-} SqlRowResult;
-
-bool operator==(const SqlRowResult &res1, const SqlRowResult &res2);
-bool operator!=(const SqlRowResult &res1, const SqlRowResult &res2);
-bool operator==(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2);
-bool operator!=(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2);
+bool operator==(const RowResult &res1, const RowResult &res2);
+bool operator!=(const RowResult &res1, const RowResult &res2);
+bool operator==(const std::vector<RowResult> &res1, const std::vector<RowResult> &res2);
+bool operator!=(const std::vector<RowResult> &res1, const std::vector<RowResult> &res2);
 
 //Database model file
 const std::string kDbName("db.db3");
@@ -37,10 +37,10 @@ private:
 	std::string db_dir_uri_;
 	const static int default_flags_ = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
 	sqlite3 *db_;
-	std::vector<SqlRowResult> result_buffer_;
+	std::vector<RowResult> result_buffer_;
 	File db_file_;
 
-	void push_to_result_buffer(SqlRowResult value) { this->result_buffer_.push_back(value); }
+	void push_to_result_buffer(RowResult value) { this->result_buffer_.push_back(value); }
 	void clear_result_buffer() { this->result_buffer_.clear(); }
 
 public :
@@ -57,11 +57,11 @@ public :
 	bool ImportSql(File file);
 	bool SqlCommand(const std::string &statement);
 
-	bool Insert(const TableContainer &table);
-	bool Delete(const TableContainer &table);
-	bool Update(const TableContainer &table);
+	bool Insert(const QueryTableContainer &table);
+	bool Delete(const QueryTableContainer &table);
+	bool Update(const QueryTableContainer &table);
 
-	std::vector<SqlRowResult> read_result_buffer() { return this->result_buffer_; }
+	std::vector<RowResult> read_result_buffer() { return this->result_buffer_; }
 
 	bool is_exist();//checks if this instance's database file exists
 

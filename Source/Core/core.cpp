@@ -9,7 +9,7 @@ bool Core::AddActivity(const std::string &activity_name) {
 	bool is_successful = true;
 	std::string sql;
 
-	TableContainer to_table;
+	QueryTableContainer to_table;
 	ColumnContainer column;
 
 	to_table.table_name		= "Activity";
@@ -26,7 +26,7 @@ bool Core::DeleteActivity(const std::string &activity_name) {
 	bool is_successful = true;
 	std::string sql;
 
-	TableContainer from_table;
+	QueryTableContainer from_table;
 	ColumnContainer column;
 
 	from_table.table_name	= "Activity";
@@ -51,12 +51,12 @@ int Core::GenerateLid() {
 	this->database_.SqlCommand("SELECT LID FROM Listing ORDER BY LID ASC;");
 
 	//find an unused lid value to occupy
-	std::vector<SqlRowResult> raw_result;
+	std::vector<RowResult> raw_result;
 	int current_lid, previous_lid;
 	previous_lid = 0;
 	raw_result = this->database_.read_result_buffer();
 	if (raw_result.empty() == true) { return (lid = 1); }
-	for (std::vector<SqlRowResult>::iterator i = raw_result.begin(); i != raw_result.end(); ++i) 
+	for (std::vector<RowResult>::iterator i = raw_result.begin(); i != raw_result.end(); ++i) 
 	{
 		for (std::vector<ColumnContainer>::iterator j = i->row_result.begin();\
 			j!=i->row_result.end() ; ++j) 
@@ -75,7 +75,7 @@ bool Core::AddListing(std::string title, std::string activity_name) {
 	bool is_successful = true;
 	std::string sql;
 
-	TableContainer to_table;
+	QueryTableContainer to_table;
 	ColumnContainer column;
 
 	to_table.table_name = "Listing";
@@ -101,7 +101,7 @@ bool Core::DeleteListing(int lid) {
 	bool is_successful = true;
 	std::string sql;
 
-	TableContainer from_table;
+	QueryTableContainer from_table;
 	ColumnContainer column;
 
 	from_table.table_name	= "Listing";

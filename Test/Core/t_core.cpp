@@ -29,15 +29,15 @@ SCENARIO("An activity is added and deleted")
 			ColumnContainer col_res;
 			col_res.column_name = "Name";
 			col_res.column_data = activityName;
-			SqlRowResult row_res;
+			RowResult row_res;
 			row_res.row_result.push_back(col_res);
 
-			std::vector<SqlRowResult> expected;
+			std::vector<RowResult> expected;
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
 			core.database_.SqlCommand("SELECT * FROM Activity\n");
-			std::vector<SqlRowResult> result = core.database_.read_result_buffer();
+			std::vector<RowResult> result = core.database_.read_result_buffer();
 
 			REQUIRE( (expected==result) == true );
 
@@ -50,7 +50,7 @@ SCENARIO("An activity is added and deleted")
 					deletion_is_success = core.DeleteActivity(activityName);
 
 					core.database_.SqlCommand("SELECT * FROM Activity\n");
-					std::vector<SqlRowResult> result = core.database_.read_result_buffer();
+					std::vector<RowResult> result = core.database_.read_result_buffer();
 
 					THEN("it must be removed from the database_")
 					{

@@ -5,7 +5,7 @@ using namespace std;
 
 /*overloaded operators*/
 //------------------------------------------------------------------------------------------------
-bool operator==(const SqlRowResult &res1, const SqlRowResult &res2) {
+bool operator==(const RowResult &res1, const RowResult &res2) {
 	if (res1.row_result.size() != res2.row_result.size()) {return false; }
 	else {
 		for (std::vector<ColumnContainer>::size_type i = 0; i!= res1.row_result.size() ; i++){
@@ -16,20 +16,20 @@ bool operator==(const SqlRowResult &res1, const SqlRowResult &res2) {
 	}
 	return true;
 }
-bool operator!=(const SqlRowResult &res1, const SqlRowResult &res2) {
+bool operator!=(const RowResult &res1, const RowResult &res2) {
 	if (res1 == res2) { return false; }
 	else { return true; }
 }
 
-bool operator==(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2) {
+bool operator==(const std::vector<RowResult> &res1, const std::vector<RowResult> &res2) {
 	if (res1.size() != res2.size()) { return false; }
 	else {
-		for (std::vector<SqlRowResult>::size_type i = 0; i != res1.size(); i++) {
+		for (std::vector<RowResult>::size_type i = 0; i != res1.size(); i++) {
 			if (res1[i] != res2[i]) { return false; }
 		}
 	}
 }
-bool operator!=(const std::vector<SqlRowResult> &res1, const std::vector<SqlRowResult> &res2) {
+bool operator!=(const std::vector<RowResult> &res1, const std::vector<RowResult> &res2) {
 	if (res1 == res2) { return false; }
 	else { return true; }
 }
@@ -46,7 +46,7 @@ static int StatementCallback(void *db_object, int count, char **data, char **az_
 	int i;
 	Database *this_db = static_cast <Database *> (db_object);
 	ColumnContainer col_res;
-	SqlRowResult row_res;
+	RowResult row_res;
 	for (i = 0; i < count; i++) {
 		col_res.column_name = az_col_name[i];
 		col_res.column_data = data[i] ? data[i] : "NULL";// if data[i] then data[i] else "NULL"
@@ -187,7 +187,7 @@ bool Database::SqlCommand(const std::string &statement) {
 /*
  * Sends an sql INSERT query based on table data given
  */
-bool Database::Insert(const TableContainer &table) {
+bool Database::Insert(const QueryTableContainer &table) {
 	bool is_successful = false;
 	std::string sql, column_names, values;
 
@@ -218,7 +218,7 @@ bool Database::Insert(const TableContainer &table) {
 /*
 * Sends an sql DELETE query based on table data given
 */
-bool Database::Delete(const TableContainer &table) {
+bool Database::Delete(const QueryTableContainer &table) {
 	bool is_successful = false;
 	std::string sql, values;
 
@@ -244,7 +244,7 @@ bool Database::Delete(const TableContainer &table) {
 /*
 * Sends an sql UPDATE query based on table data given
 */
-bool Update(const TableContainer &table) {
+bool Update(const QueryTableContainer &table) {
 	bool is_successful = false;
 	//TODO
 	return is_successful;

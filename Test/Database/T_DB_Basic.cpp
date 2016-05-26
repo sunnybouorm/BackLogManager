@@ -76,9 +76,9 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 		if (database.is_exist()		== true) { database.Exterminate(); }
 
 		ColumnContainer temp_CR;
-		SqlRowResult    temp_RR;
+		RowResult    temp_RR;
 		std::string temp_str_insert, temp_str_cols, temp_str_data;
-		std::vector<SqlRowResult> expected, result;
+		std::vector<RowResult> expected, result;
 		std::vector<std::string> insert_statements;
 		std::string table_name = "PERSON";
 
