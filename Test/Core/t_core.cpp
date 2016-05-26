@@ -247,7 +247,7 @@ SCENARIO("Multiple listings are added and deleted")
 		Database database_(db_dir);
 		Core core(database_);
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
+		if (core.database_.is_exist()    == true) { core.database_.Exterminate(); }
 
 		core.database_.OpenConnection();
 		core.database_.ImportSql(sql_file);
@@ -310,17 +310,48 @@ SCENARIO("Multiple listings are added and deleted")
 
 				AND_WHEN("all listings are deleted")
 				{
+					bool is_deleted = true;
+
+					core.database_.SqlCommand("SELECT LID FROM Listing ORDER BY LID ASC");
+					result = core.database_.read_result_buffer();
+					int lid;
+					for (auto i = result.begin(); i != result.end(); ++i) {
+						lid = std::stoi(i->begin()->column_data);
+						is_deleted &= core.DeleteListing(lid);
+					}
 					THEN("all listing records must seize to exist")
 					{
-						REQUIRE(false);//TODO
+						core.database_.SqlCommand("SELECT * FROM Listing");
+						result = core.database_.read_result_buffer();
+
+						REQUIRE(is_deleted == true);
+						REQUIRE(result.empty() == true);
 					}
 				}
 
-				AND_WHEN("all specified listings are deleted")
+				AND_WHEN("specific listings are deleted")
 				{
+					bool is_deleted = true;
+					int lid;
+
+					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityName= 'Movies';");
+					result = core.database_.read_result_buffer();
+					lid = std::stoi(result.begin()->begin()->column_data);
+					core.DeleteListing(lid);
+
+					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityName= 'Sports';");
+					result = core.database_.read_result_buffer();
+					lid = std::stoi(result.begin()->begin()->column_data);
+					core.DeleteListing(lid);
+
+					
+					core.database_.SqlCommand("SELECT ActivityName FROM Listing");
+					result = core.database_.read_result_buffer();
+
 					THEN("only the specified listings must be deleted")
 					{
-						REQUIRE(false);//TODO
+						REQUIRE(result.size() == 1);
+						REQUIRE(result.begin()->begin()->column_data == "Games");
 					}
 				}
 			}

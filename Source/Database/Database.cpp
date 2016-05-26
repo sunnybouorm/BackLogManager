@@ -1,8 +1,6 @@
 #include "../stdafx.h"
 #include "database.h"
 
-using namespace std;
-
 /*overloaded operators*/
 //------------------------------------------------------------------------------------------------
 bool operator==(const RowResult &res1, const RowResult &res2) {
@@ -288,7 +286,7 @@ void Database::PrintResultBuffer() {
 		<< "----------------------\n";
 	if (this->result_buffer_.empty() == false) {
 		for (auto row = result_buffer_.begin(); row != result_buffer_.end(); row++) {
-			std::cout << "row#<"<< to_string(row_count) << ">\n";
+			std::cout << "row#<"<< std::to_string(row_count) << ">\n";
 			row_count++;
 			for (auto col = row->begin(); col != row->end(); col++) {
 				std::cout
