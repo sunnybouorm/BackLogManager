@@ -241,11 +241,72 @@ SCENARIO("Multiple listings are added and deleted")
 {
 	GIVEN("a clean database")
 	{
+		std::string sql_filename = "BacklogManager.sql";
+		File sql_file(sql_filename, db_dir);
+
+		Database database_(db_dir);
+		Core core(database_);
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
+
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
+
 		WHEN("multiple listings are added")
 		{
+			bool creation_is_success = false;
+
+			std::string title1, title2, title3, activity_name1, activity_name2, activity_name3;
+
+			title1 = "The Great Escape";
+			activity_name1 = "Sports";
+			creation_is_success = core.AddListing(title1, activity_name1);
+
+			title2 = "Drackula Souls 3";
+			activity_name2 = "Games";
+			creation_is_success &= core.AddListing(title2, activity_name2);
+
+			title3 = "Ghost Husslers";
+			activity_name3 = "Movies";
+			creation_is_success &= core.AddListing(title3, activity_name3);
+
+			//generate expected result as a basis of comparison
+			//-------------------------------------------------
+			ColumnContainer col_res1, col_res2;
+			RowResult row_res;
+			TableResult expected;
+
+			col_res1.column_name = "Title";
+			col_res2.column_name = "ActivityName";
+
+			col_res1.column_data = title1;
+			row_res.push_back(col_res1);
+			col_res2.column_data = activity_name1;
+			row_res.push_back(col_res2);
+			expected.push_back(row_res);
+			row_res.clear();
+
+			col_res1.column_data = title2;
+			row_res.push_back(col_res1);
+			col_res2.column_data = activity_name2;
+			row_res.push_back(col_res2);
+			expected.push_back(row_res);
+			row_res.clear();
+
+			col_res1.column_data = title3;
+			row_res.push_back(col_res1);
+			col_res2.column_data = activity_name3;
+			row_res.push_back(col_res2);
+			expected.push_back(row_res);
+			//-------------------------------------------------
+
+			core.database_.SqlCommand("SELECT Title,ActivityName FROM Listing\n");
+			TableResult result = core.database_.read_result_buffer();
+
 			THEN("the changes must be regisitered by the database correctly")
 			{
-				REQUIRE(false);//TODO
+				REQUIRE(creation_is_success  == true);
+				REQUIRE(expected == result);
 
 				AND_WHEN("all listings are deleted")
 				{

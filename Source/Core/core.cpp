@@ -82,31 +82,30 @@ bool Core::DeleteActivity(const std::string &activity_name) {
  */
 int Core::GenerateLid() {
 	int lid = 0;
-	//fetch lids by ascending order
+	//fetch occupied lids by ascending order
+	TableResult raw_result;
 	this->database_.SqlCommand("SELECT LID FROM Listing ORDER BY LID ASC;");
+	raw_result = this->database_.read_result_buffer();
 
 	//find an unused lid value to occupy
-	std::vector<RowResult> raw_result;
 	int current_lid, previous_lid;
 	previous_lid = 0;
-	raw_result = this->database_.read_result_buffer();
 	if (raw_result.empty() == true) { return (lid = 1); }
+	else if (raw_result.size() == 1) { return (stoi(raw_result.begin()->begin()->column_data) + 1); }
 	for (std::vector<RowResult>::iterator i = raw_result.begin(); i != raw_result.end(); ++i) 
 	{
-		for (std::vector<ColumnContainer>::iterator j = i->begin();\
-			j!=i->end() ; ++j) 
-		{
-			current_lid = std::stoi(j->column_data);
-			if ((current_lid - previous_lid) > 1) { return (lid = current_lid-1); }//spot found
-			current_lid = previous_lid;
-		}
+		auto j = i->begin();
+		current_lid = std::stoi(j->column_data);
+		if ((current_lid - previous_lid) > 1) { return (lid = current_lid-1); }//spot found
+		previous_lid = current_lid;
 	}
 
-	return lid = current_lid++;//there should be an empty spot after the largest lid found
+	return lid = (current_lid + 1);//there should be an empty spot after the largest lid found
 }
 
 bool Core::AddListing(std::string title, std::string activity_name) {
 	int lid = this->GenerateLid();
+
 	bool is_successful = true;
 	std::string into_clause, column_names, values, value_clause;
 
