@@ -6,6 +6,7 @@
 #include "t_db_basic.h"
 
 const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
+const std::string db_dir = "D:\\Development\\Projects\\BacklogManager\\Database\\";
 
 SCENARIO("A connection to the database is established")
 {

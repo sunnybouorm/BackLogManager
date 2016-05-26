@@ -280,6 +280,7 @@ bool Database::ImportSql(File file) {
  * Processes and displays the resulting table of the latest sql query
  */
 void Database::PrintResultBuffer() {
+	int row_count = 0;
 	std::cout
 		<< "----------------------\n"
 		<< "SQL query result:\n"
@@ -287,6 +288,8 @@ void Database::PrintResultBuffer() {
 		<< "----------------------\n";
 	if (this->result_buffer_.empty() == false) {
 		for (auto row = result_buffer_.begin(); row != result_buffer_.end(); row++) {
+			std::cout << "row#<"<< to_string(row_count) << ">\n";
+			row_count++;
 			for (auto col = row->begin(); col != row->end(); col++) {
 				std::cout
 					<< "<" << col->column_name	<< ">"
