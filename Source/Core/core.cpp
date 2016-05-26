@@ -9,7 +9,7 @@ bool Core::AddActivity(const std::string &activity_name) {
 	bool is_successful = true;
 	std::string into_clause, column_names, values, value_clause;
 
-	QueryTableContainer to_table;
+	QueryContainer to_table;
 	ColumnContainer column;
 
 	to_table.table_name		= "Activity";
@@ -51,7 +51,7 @@ bool Core::DeleteActivity(const std::string &activity_name) {
 	bool is_successful = true;
 	std::string where_clause;
 
-	QueryTableContainer from_table;
+	QueryContainer from_table;
 	ColumnContainer column;
 
 	from_table.table_name	= "Activity";
@@ -110,7 +110,7 @@ bool Core::AddListing(std::string title, std::string activity_name) {
 	bool is_successful = true;
 	std::string into_clause, column_names, values, value_clause;
 
-	QueryTableContainer to_table;
+	QueryContainer to_table;
 	ColumnContainer column;
 
 	to_table.table_name = "Listing";
@@ -149,7 +149,6 @@ bool Core::AddListing(std::string title, std::string activity_name) {
 	value_clause = "(";
 	value_clause += values;
 	value_clause += ")";
-	value_clause += ";";
 	to_table.value_clause = value_clause;
 	
 	is_successful &= this->database_.Insert(to_table);
@@ -161,7 +160,7 @@ bool Core::DeleteListing(int lid) {
 	bool is_successful = true;
 	std::string where_clause;
 
-	QueryTableContainer from_table;
+	QueryContainer from_table;
 	ColumnContainer column;
 
 	from_table.table_name	= "Listing";

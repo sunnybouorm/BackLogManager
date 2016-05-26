@@ -12,7 +12,7 @@ typedef struct ColumnStruct {//stores a single column element
 typedef std::vector <ColumnContainer> RowResult;
 typedef std::vector <RowResult> TableResult;
 
-typedef struct QueryTableStruct {//used to generate an SQL query
+typedef struct QueryStruct {//used to generate an SQL query
 	std::string table_name;
 	std::vector<ColumnContainer> columns;
 
@@ -23,7 +23,7 @@ typedef struct QueryTableStruct {//used to generate an SQL query
 	std::string order_by_clause;
 	std::string into_clause;
 
-} QueryTableContainer;
+} QueryContainer;
 
 bool operator==(const RowResult &res1, const RowResult &res2);
 bool operator!=(const RowResult &res1, const RowResult &res2);
@@ -64,9 +64,9 @@ public :
 	bool ImportSql(File file);
 	bool SqlCommand(const std::string &statement);
 
-	bool Insert(const QueryTableContainer &table);
-	bool Delete(const QueryTableContainer &table);
-	bool Update(const QueryTableContainer &table);
+	bool Insert(const QueryContainer &table);
+	bool Delete(const QueryContainer &table);
+	bool Update(const QueryContainer &table);
 
 	std::vector<RowResult> read_result_buffer() { return this->result_buffer_; }
 

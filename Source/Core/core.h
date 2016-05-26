@@ -22,4 +22,6 @@ public:
 	int  GenerateLid();//finds valid primary key for creating a new Listing entry
 	bool AddListing(std::string title, std::string activity_name);
 	bool DeleteListing(int lid);
+	bool UpdateListing(int lid);//TODO
+	
 };
