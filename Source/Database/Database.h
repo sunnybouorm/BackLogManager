@@ -12,9 +12,13 @@ typedef struct ColumnStruct {//stores a single column element
 typedef std::vector <ColumnContainer> RowResult;
 typedef std::vector <RowResult> TableResult;
 
-typedef struct QueryTableStruct {//used to generate a query
-	std::string table_name;
+typedef struct QueryTableStruct {//used to generate an SQL query
 	std::vector<ColumnContainer> columns;
+
+	std::string table_source;
+	std::string output_clause;
+	std::string search_condition;
+
 } QueryTableContainer;
 
 bool operator==(const RowResult &res1, const RowResult &res2);

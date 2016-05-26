@@ -205,13 +205,14 @@ bool Database::Insert(const QueryTableContainer &table) {
 	}
 
 	sql  = "INSERT INTO ";
-	sql += table.table_name;
+	sql += table.table_source;
 	sql += "(";
 	sql += column_names;
 	sql += ") ";
 	sql += "VALUES(";
 	sql += values;
 	sql += ")";
+	sql += ";";
 
 	is_successful = this->SqlCommand(sql);
 
@@ -235,9 +236,10 @@ bool Database::Delete(const QueryTableContainer &table) {
 	}
 
 	sql = "DELETE FROM ";
-	sql += table.table_name;
+	sql += table.table_source;
 	sql += " WHERE ";
 	sql += values;
+	sql += ";";
 
 	is_successful = this->SqlCommand(sql);
 
@@ -247,9 +249,25 @@ bool Database::Delete(const QueryTableContainer &table) {
 /*
 * Sends an sql UPDATE query based on table data given
 */
-bool Update(const QueryTableContainer &table) {
+bool Database::Update(const QueryTableContainer &table) {//TODO
 	bool is_successful = false;
-	//TODO
+
+	std::string sql, set_values, where_values;
+
+	//for () {
+
+	//}
+	
+	sql  = "UPDATE ";
+	sql += table.table_source;
+	sql += " SET ";
+	sql += set_values;
+	sql += " WHERE ";
+	sql += where_values;
+	sql += ";";
+
+	is_successful = this->SqlCommand(sql);
+
 	return is_successful;
 }
 

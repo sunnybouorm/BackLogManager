@@ -12,7 +12,7 @@ bool Core::AddActivity(const std::string &activity_name) {
 	QueryTableContainer to_table;
 	ColumnContainer column;
 
-	to_table.table_name		= "Activity";
+	to_table.table_source		= "Activity";
 	column.column_name		= "Name";
 	column.column_data		= activity_name;
 	to_table.columns.push_back(column);
@@ -29,7 +29,7 @@ bool Core::DeleteActivity(const std::string &activity_name) {
 	QueryTableContainer from_table;
 	ColumnContainer column;
 
-	from_table.table_name	= "Activity";
+	from_table.table_source	= "Activity";
 	column.column_name		= "Name";
 	column.column_data		= activity_name;
 	from_table.columns.push_back(column);
@@ -78,7 +78,7 @@ bool Core::AddListing(std::string title, std::string activity_name) {
 	QueryTableContainer to_table;
 	ColumnContainer column;
 
-	to_table.table_name = "Listing";
+	to_table.table_source = "Listing";
 
 	column.column_name = "LID";
 	column.column_data = std::to_string(lid);
@@ -104,7 +104,7 @@ bool Core::DeleteListing(int lid) {
 	QueryTableContainer from_table;
 	ColumnContainer column;
 
-	from_table.table_name	= "Listing";
+	from_table.table_source	= "Listing";
 	column.column_name		= "LID";
 	column.column_data		= std::to_string(lid);
 	from_table.columns.push_back(column);
