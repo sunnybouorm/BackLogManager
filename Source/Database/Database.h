@@ -21,6 +21,7 @@ typedef struct QueryTableStruct {//used to generate an SQL query
 	std::string set_clause;
 	std::string where_clause;
 	std::string order_by_clause;
+	std::string into_clause;
 
 } QueryTableContainer;
 

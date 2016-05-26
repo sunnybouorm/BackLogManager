@@ -7,7 +7,7 @@ Core::Core(Database &db) {
 
 bool Core::AddActivity(const std::string &activity_name) {
 	bool is_successful = true;
-	std::string sql;
+	std::string into_clause, column_names, values, value_clause;
 
 	QueryTableContainer to_table;
 	ColumnContainer column;
@@ -16,6 +16,31 @@ bool Core::AddActivity(const std::string &activity_name) {
 	column.column_name		= "Name";
 	column.column_data		= activity_name;
 	to_table.columns.push_back(column);
+
+	for (std::vector<std::string>::size_type i = 0; i != to_table.columns.size(); i++) {
+		column_names += to_table.columns[i].column_name;
+
+		values += "'";
+		values += to_table.columns[i].column_data;
+		values += "'";
+
+		if (i != to_table.columns.size() - 1) {
+			column_names += ",";
+			values += ",";
+		}
+	}
+
+	into_clause = to_table.table_name;
+	into_clause += "(";
+	into_clause += column_names;
+	into_clause += ")";
+	to_table.into_clause = into_clause;
+
+	value_clause = "(";
+	value_clause += values;
+	value_clause += ")";
+	value_clause += ";";
+	to_table.value_clause = value_clause;
 
 	is_successful = this->database_.Insert(to_table);
 
@@ -83,7 +108,7 @@ int Core::GenerateLid() {
 bool Core::AddListing(std::string title, std::string activity_name) {
 	int lid = this->GenerateLid();
 	bool is_successful = true;
-	std::string sql;
+	std::string into_clause, column_names, values, value_clause;
 
 	QueryTableContainer to_table;
 	ColumnContainer column;
@@ -101,6 +126,31 @@ bool Core::AddListing(std::string title, std::string activity_name) {
 	column.column_name = "ActivityName";
 	column.column_data = activity_name;
 	to_table.columns.push_back(column);
+
+	for (std::vector<std::string>::size_type i = 0; i != to_table.columns.size(); i++) {
+		column_names += to_table.columns[i].column_name;
+
+		values += "'";
+		values += to_table.columns[i].column_data;
+		values += "'";
+
+		if (i != to_table.columns.size() - 1) {
+			column_names += ",";
+			values += ",";
+		}
+	}
+
+	into_clause  = to_table.table_name;
+	into_clause += "(";
+	into_clause += column_names;
+	into_clause += ")";
+	to_table.into_clause = into_clause;
+
+	value_clause = "(";
+	value_clause += values;
+	value_clause += ")";
+	value_clause += ";";
+	to_table.value_clause = value_clause;
 	
 	is_successful &= this->database_.Insert(to_table);
 

@@ -187,33 +187,14 @@ bool Database::SqlCommand(const std::string &statement) {
 /*
  * Sends an sql INSERT query based on table data given
  */
-bool Database::Insert(const QueryTableContainer &table) {//TODO:modify
+bool Database::Insert(const QueryTableContainer &table) {
 	bool is_successful = false;
 	std::string sql, column_names, values;
 
-	for (std::vector<string>::size_type i = 0; i != table.columns.size(); i++ ) {
-		column_names += table.columns[i].column_name;
-
-		values	+= "'";
-		values	+= table.columns[i].column_data;
-		values	+= "'";
-
-		if (i != table.columns.size() - 1) {
-			column_names += ",";
-			values += ",";
-		}
-	}
-
 	sql  = "INSERT INTO ";
-	sql += table.table_name;
-	sql += "(";
-	sql += column_names;
-	sql += ") ";
-	sql += "VALUES(";
-	sql += values;
-	sql += ")";
-	sql += ";";
-
+	sql += table.into_clause;
+	sql += " VALUES";
+	sql += table.value_clause;
 	is_successful = this->SqlCommand(sql);
 
 	return is_successful;
@@ -222,7 +203,7 @@ bool Database::Insert(const QueryTableContainer &table) {//TODO:modify
 /*
 * Sends an sql DELETE query based on table data given
 */
-bool Database::Delete(const QueryTableContainer &table) {//TODO: modify
+bool Database::Delete(const QueryTableContainer &table) {
 	bool is_successful = false;
 	std::string sql;
 
