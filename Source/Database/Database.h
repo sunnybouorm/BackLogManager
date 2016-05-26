@@ -9,11 +9,11 @@ typedef struct ColumnStruct {//stores a single column element
 	std::string column_data;
 } ColumnContainer;
 
-typedef struct RowResultStruct {//stores a single row of a returned table
+typedef struct RowResultStruct {//stores a single row of a returned table query
 	std::vector<ColumnContainer> row_result;
 } RowResult;
 
-typedef struct QueryTableStruct {
+typedef struct QueryTableStruct {//used to generate a query
 	std::string table_name;
 	std::vector<ColumnContainer> columns;
 } QueryTableContainer;
