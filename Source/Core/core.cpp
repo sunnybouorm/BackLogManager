@@ -58,8 +58,8 @@ int Core::GenerateLid() {
 	if (raw_result.empty() == true) { return (lid = 1); }
 	for (std::vector<RowResult>::iterator i = raw_result.begin(); i != raw_result.end(); ++i) 
 	{
-		for (std::vector<ColumnContainer>::iterator j = i->row_result.begin();\
-			j!=i->row_result.end() ; ++j) 
+		for (std::vector<ColumnContainer>::iterator j = i->begin();\
+			j!=i->end() ; ++j) 
 		{
 			current_lid = std::stoi(j->column_data);
 			if ((current_lid - previous_lid) > 1) { return (lid = current_lid-1); }//spot found

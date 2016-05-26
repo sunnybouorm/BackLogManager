@@ -99,12 +99,12 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 		for (std::vector<std::vector<std::string>>::size_type row = 0; row != data.size(); row++){
 			d_row = data[row];
 			temp_str_data = "";
-			temp_RR.row_result.clear();
+			temp_RR.clear();
 
 			for (std::vector<std::string>::size_type col = 0; col != col_names.size(); col++) {
 				temp_CR.column_name = col_names[col];
 				temp_CR.column_data = d_row[col];
-				temp_RR.row_result.push_back(temp_CR);
+				temp_RR.push_back(temp_CR);
 
 				if ( (row == 0)) { temp_str_cols += col_names[col]; }
 				if ( (row == 0) && (col != col_names.size()-1)){temp_str_cols += ",";	}

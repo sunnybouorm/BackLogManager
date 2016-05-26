@@ -6,12 +6,12 @@ using namespace std;
 /*overloaded operators*/
 //------------------------------------------------------------------------------------------------
 bool operator==(const RowResult &res1, const RowResult &res2) {
-	if (res1.row_result.size() != res2.row_result.size()) {return false; }
+	if (res1.size() != res2.size()) {return false; }
 	else {
-		for (std::vector<ColumnContainer>::size_type i = 0; i!= res1.row_result.size() ; i++){
+		for (std::vector<ColumnContainer>::size_type i = 0; i!= res1.size() ; i++){
 
-			if (res1.row_result[i].column_data != res2.row_result[i].column_data) { return false; }
-			if (res1.row_result[i].column_name != res2.row_result[i].column_name) { return false; }
+			if (res1[i].column_data != res2[i].column_data) { return false; }
+			if (res1[i].column_name != res2[i].column_name) { return false; }
 		}
 	}
 	return true;
@@ -50,7 +50,7 @@ static int StatementCallback(void *db_object, int count, char **data, char **az_
 	for (i = 0; i < count; i++) {
 		col_res.column_name = az_col_name[i];
 		col_res.column_data = data[i] ? data[i] : "NULL";// if data[i] then data[i] else "NULL"
-		row_res.row_result.push_back(col_res);
+		row_res.push_back(col_res);
 	}
 	//append row result data to database instance that requested the callback
 	this_db->push_to_result_buffer(row_res);
@@ -294,7 +294,7 @@ void Database::PrintResultBuffer() {
 		<< "----------------------\n";
 	if (this->result_buffer_.empty() == false) {
 		for (auto row = result_buffer_.begin(); row != result_buffer_.end(); row++) {
-			for (auto col = row->row_result.begin(); col != row->row_result.end(); col++) {
+			for (auto col = row->begin(); col != row->end(); col++) {
 				std::cout
 					<< "<" << col->column_name	<< ">"
 					<< "<" << col->column_data	<< ">"	<< "\n";

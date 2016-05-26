@@ -9,9 +9,8 @@ typedef struct ColumnStruct {//stores a single column element
 	std::string column_data;
 } ColumnContainer;
 
-typedef struct RowResultStruct {//stores a single row of a returned table query
-	std::vector<ColumnContainer> row_result;
-} RowResult;
+typedef std::vector <ColumnContainer> RowResult;
+typedef std::vector <RowResult> TableResult;
 
 typedef struct QueryTableStruct {//used to generate a query
 	std::string table_name;
@@ -37,7 +36,7 @@ private:
 	std::string db_dir_uri_;
 	const static int default_flags_ = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
 	sqlite3 *db_;
-	std::vector<RowResult> result_buffer_;
+	TableResult result_buffer_;
 	File db_file_;
 
 	void push_to_result_buffer(RowResult value) { this->result_buffer_.push_back(value); }
