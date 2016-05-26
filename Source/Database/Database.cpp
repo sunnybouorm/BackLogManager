@@ -193,12 +193,15 @@ bool Database::Insert(const QueryTableContainer &table) {
 
 	for (std::vector<string>::size_type i = 0; i != table.columns.size(); i++ ) {
 		column_names += table.columns[i].column_name;
-		if ( i!= table.columns.size() - 1) { column_names += ","; }
 
 		values	+= "'";
 		values	+= table.columns[i].column_data;
 		values	+= "'";
-		if (i != table.columns.size() - 1) { column_names += ","; }
+
+		if (i != table.columns.size() - 1) {
+			column_names += ",";
+			values += ",";
+		}
 	}
 
 	sql  = "INSERT INTO ";
