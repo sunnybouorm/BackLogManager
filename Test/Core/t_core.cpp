@@ -65,6 +65,36 @@ SCENARIO("An activity is added and deleted")
 	}
 }
 
+SCENARIO("Multiple activities are added and deleted")
+{
+	GIVEN("a clean database")
+	{
+		WHEN("multiple activities are added")
+		{
+			THEN("the changes must be regisitered by the database correctly")
+			{
+				REQUIRE(false);//TODO
+
+				AND_WHEN("all activities are deleted")
+				{
+					THEN("all activity records must seize to exist")
+					{
+						REQUIRE(false);//TODO
+					}
+				}
+
+				AND_WHEN("all specified activities are deleted")
+				{
+					THEN("only the specified activities must be deleted")
+					{
+						REQUIRE(false);//TODO
+					}
+				}
+			}
+		}
+	}
+}
+
 SCENARIO("An listing is added and deleted")
 {
 	GIVEN("a clean database_")
@@ -134,5 +164,65 @@ SCENARIO("An listing is added and deleted")
 		}
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
+	}
+}
+
+SCENARIO("Multiple listings are added and deleted")
+{
+	GIVEN("a clean database")
+	{
+		WHEN("multiple listings are added")
+		{
+			THEN("the changes must be regisitered by the database correctly")
+			{
+				REQUIRE(false);//TODO
+
+				AND_WHEN("all listings are deleted")
+				{
+					THEN("all listing records must seize to exist")
+					{
+						REQUIRE(false);//TODO
+					}
+				}
+
+				AND_WHEN("all specified listings are deleted")
+				{
+					THEN("only the specified listings must be deleted")
+					{
+						REQUIRE(false);//TODO
+					}
+				}
+			}
+		}
+	}
+}
+
+SCENARIO("A single activity is updated")
+{
+	GIVEN("a database with a single activity")
+	{
+		WHEN("the activity is updated")
+		{
+			bool is_successful = false;
+			THEN("the changes must be registered correctly by the database")
+			{
+				REQUIRE(is_successful == true);
+			}
+		}
+	}
+}
+
+SCENARIO("A single listing is updated")
+{
+	GIVEN("a database with a single listing")
+	{
+		WHEN("the listing is updated")
+		{
+			bool is_successful = false;
+			THEN("the changes must be registered correctly by the database")
+			{
+				REQUIRE(is_successful == true);
+			}
+		}
 	}
 }
