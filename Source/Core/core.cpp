@@ -164,24 +164,19 @@ bool Core::AddListing(const std::string &title, const std::string &activity_id) 
 
 bool Core::DeleteListing(const std::string &lid) {
 	bool is_successful = false;
-	std::string where_clause;
+	std::string where_clause, col_name, col_val;
 
 	QueryContainer from_table;
-	ColumnContainer column;
 
 	from_table.table_name	= "Listing";
-	column.column_name		= "LID";
-	column.column_data		= std::to_string(lid);
-	from_table.columns.push_back(column);
+	col_name				= "LID";
+	col_val					= lid;
 
-	for (std::vector<std::string>::size_type i = 0; i != from_table.columns.size(); i++) {
-		where_clause += from_table.columns[i].column_name;
-		where_clause += "=";
-		where_clause += "'";
-		where_clause += from_table.columns[i].column_data;
-		where_clause += "'";
-		if (i != from_table.columns.size() - 1) { where_clause += " AND "; }
-	}
+	where_clause += col_name;
+	where_clause += "=";
+	where_clause += "'";
+	where_clause += col_val;
+	where_clause += "'";
 	from_table.where_clause = where_clause;
 
 	is_successful = this->database_.Delete(from_table);
