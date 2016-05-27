@@ -218,7 +218,7 @@ SCENARIO("A listing is added and deleted")
 
 					core.database_.SqlCommand("SELECT LID FROM Listing\n");
 					result = core.database_.read_result_buffer();
-					int lid = std::stoi(result.begin()->begin()->column_data);
+					std::string lid = result.begin()->begin()->column_data;
 					deletion_is_success = core.DeleteListing(lid);
 
 					core.database_.SqlCommand("SELECT Title,ActivityName FROM Listing\n");
@@ -314,9 +314,9 @@ SCENARIO("Multiple listings are added and deleted")
 
 					core.database_.SqlCommand("SELECT LID FROM Listing ORDER BY LID ASC");
 					result = core.database_.read_result_buffer();
-					int lid;
+					std::string lid;
 					for (auto i = result.begin(); i != result.end(); ++i) {
-						lid = std::stoi(i->begin()->column_data);
+						lid = i->begin()->column_data;
 						is_deleted &= core.DeleteListing(lid);
 					}
 					THEN("all listing records must seize to exist")
@@ -332,7 +332,7 @@ SCENARIO("Multiple listings are added and deleted")
 				AND_WHEN("specific listings are deleted")
 				{
 					bool is_deleted = true;
-					int lid;
+					std::string lid;
 
 					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityName= 'Movies';");
 					result = core.database_.read_result_buffer();
