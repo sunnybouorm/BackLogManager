@@ -11,17 +11,18 @@
 
 class Core {
 private:
+	int GenerateUniqueIntId(const std::string &table_name, const std::string &id_name);
+	std::string Core::CommaSeparate(std::vector<std::string> &data, const char &character=NULL);
 
 public:
 	Core(Database &db);
 	Database database_;
 
 	bool AddActivity(const std::string &activity_name);
-	bool DeleteActivity(const std::string &activity_name);
+	bool DeleteActivity(const std::string &activity_id);
 
-	int  GenerateLid();//finds valid primary key for creating a new Listing entry
-	bool AddListing(std::string title, std::string activity_name);
+	bool AddListing(std::string title, std::string activity_id);
 	bool DeleteListing(int lid);
-	bool UpdateListing(int lid);//TODO
+	bool UpdateListing(int lid);
 	
 };
