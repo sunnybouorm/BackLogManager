@@ -159,41 +159,13 @@ SCENARIO("An SQL text file is imported into database")
 		if (database.is_exist()		== true) { database.Exterminate(); }
 		bool status = false;
 
-		std::string filename = "sql_test_file.sql";
-		File sql_file(filename, dir);
-		sql_file.Create();
-		std::string sql_container;
-
-		//SQL text file contents
-		//----------------------------------------------------------------------------------------
-		sql_container  = "CREATE TABLE Activity(Name VARCHAR(255) PRIMARY KEY);\n";
-
-		sql_container += "CREATE TABLE Listing(LID INT PRIMARY KEY, Title VARCHAR(255),";
-		sql_container += " ActivityName VARCHAR(255), FOREIGN KEY(ActivityName) REFERENCES"; 
-		sql_container += " Activity(Name));\n";
-
-		sql_container += "CREATE TABLE UserDefinedField(Name VARCHAR(255) PRIMARY KEY,DataType";
-		sql_container += " VARCHAR(255),Description VARCHAR(255));\n";
-
-		sql_container += "CREATE TABLE UDFentry(Data BLOB, UDFname VARCHAR(255),";
-		sql_container += " FOREIGN KEY(UDFname) REFERENCES UserDefinedField(Name));\n";
-
-		sql_container += "CREATE TABLE Listing_UDF(LID INT, UDFname VARCHAR(255),";
-		sql_container += " FOREIGN KEY(LID) REFERENCES Listing(LID), FOREIGN KEY(UDFname)";
-		sql_container += " REFERENCES UserDefinedField(Name));\n";
-
-		sql_container += "CREATE TABLE Listing_UDFentry(LID INT, UDFname VARCHAR(255),";
-		sql_container += " EntryData BLOB, FOREIGN KEY(LID) REFERENCES Listing(LID),"; 
-		sql_container += " FOREIGN KEY(UDFname) REFERENCES UserDefinedField(Name),";
-		sql_container += " FOREIGN KEY(EntryData) REFERENCES UDFentry(Data))\n";
-		//----------------------------------------------------------------------------------------
-		sql_file.Write(sql_container);
+		std::string filename = "BacklogManager.sql";
+		File sql_file(filename, db_dir);
 
 		WHEN("An SQL file is imported") 
 		{
 			database.OpenConnection();
 			status = database.ImportSql(sql_file);
-			sql_file.Destroy();
 			database.CloseConnection();
 			database.Exterminate();
 			THEN("The operation must register as successful")
@@ -204,5 +176,4 @@ SCENARIO("An SQL text file is imported into database")
 		if (database.IsConnected()	== true) { database.CloseConnection(); }
 		if (database.is_exist()		== true) { database.Exterminate(); }
 	}
-
 }
