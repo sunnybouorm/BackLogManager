@@ -21,8 +21,8 @@ public:
 	bool AddActivity(const std::string &activity_name);
 	bool DeleteActivity(const std::string &activity_id);
 
-	bool AddListing(std::string title, std::string activity_id);
-	bool DeleteListing(int lid);
-	bool UpdateListing(int lid);
+	bool AddListing(const std::string &title, const std::string &activity_id);
+	bool DeleteListing(const std::string &lid);
+	bool UpdateListing(const std::string &lid);
 	
 };

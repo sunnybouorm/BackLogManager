@@ -128,7 +128,7 @@ bool Core::DeleteActivity(const std::string &activity_id) {
 	return is_successful;
 }
 
-bool Core::AddListing(std::string title, std::string activity_id) {
+bool Core::AddListing(const std::string &title, const std::string &activity_id) {
 	std::string table_name, col_name_1, col_name_2, col_name_3, into_clause, value_clause;
 	std::vector<std::string> temp_name_vec, temp_val_vec;
 	bool is_successful = false;
@@ -138,9 +138,9 @@ bool Core::AddListing(std::string title, std::string activity_id) {
 	col_name_2 = "Title";
 	col_name_3 = "ActivityID";
 
-	int activity_id = this->GenerateUniqueIntId(table_name, col_name_1);
+	int lid = this->GenerateUniqueIntId(table_name, col_name_1);
 	temp_name_vec = {col_name_1, col_name_2, col_name_3};
-	temp_val_vec  = {activity_id, title, activity_name };
+	temp_val_vec  = {std::to_string(lid), title, activity_id };
 
 	QueryContainer to_table;
 
@@ -162,7 +162,7 @@ bool Core::AddListing(std::string title, std::string activity_id) {
 	return is_successful;
 }
 
-bool Core::DeleteListing(int lid) {
+bool Core::DeleteListing(const std::string &lid) {
 	bool is_successful = false;
 	std::string where_clause;
 
@@ -189,6 +189,6 @@ bool Core::DeleteListing(int lid) {
 	return is_successful;
 }
 
-bool Core::UpdateListing(int lid) {
+bool Core::UpdateListing(const std::string &lid) {
 	return false;
 }
