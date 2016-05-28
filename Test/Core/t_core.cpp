@@ -3,15 +3,15 @@
 
 std::string db_dir = "D:\\Development\\Projects\\BacklogManager\\Database\\";
 
-SCENARIO("An activity is added and deleted") 
+SCENARIO("A single activity is added and deleted") 
 {
-	GIVEN("a clean database_") 
+	GIVEN("a clean database") 
 	{
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, db_dir);
 
-		Database database_(db_dir);
-		Core core(database_);
+		Database database(db_dir);
+		Core core(database);
 		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
 
@@ -37,22 +37,25 @@ SCENARIO("An activity is added and deleted")
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
-			core.database_.SqlCommand("SELECT * FROM Activity\n");
+			core.database_.SqlCommand("SELECT Name FROM Activity\n");
 			TableResult result = core.database_.read_result_buffer();
 
-			THEN("it must be registered by the database_ correctly")
+			THEN("it must be registered by the database correctly")
 			{
-				REQUIRE((expected == result) == true);
+				REQUIRE(expected == result);
 				REQUIRE(creation_is_success == true);
 				AND_WHEN("the activity is deleted")
 				{
 					bool deletion_is_success = false;
-					deletion_is_success = core.DeleteActivity(activity_name);
+					core.database_.SqlCommand("SELECT ActivityID FROM Activity WHERE Name='Movies';");
+					result = core.database_.read_result_buffer();
+					std::string activity_id = result.begin()->begin()->column_data;
+					deletion_is_success = core.DeleteActivity(activity_id);
 
-					core.database_.SqlCommand("SELECT * FROM Activity\n");
+					core.database_.SqlCommand("SELECT * FROM Activity;");
 					TableResult result = core.database_.read_result_buffer();
 
-					THEN("it must be removed from the database_")
+					THEN("it must be removed from the database")
 					{
 						REQUIRE(deletion_is_success == true);
 						REQUIRE(result.empty() == true);
@@ -72,10 +75,10 @@ SCENARIO("Multiple activities are added and deleted")
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, db_dir);
 
-		Database database_(db_dir);
-		Core core(database_);
+		Database database(db_dir);
+		Core core(database);
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
+		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
 
 		core.database_.OpenConnection();
 		core.database_.ImportSql(sql_file);
@@ -117,7 +120,7 @@ SCENARIO("Multiple activities are added and deleted")
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
-			core.database_.SqlCommand("SELECT * FROM Activity\n");
+			core.database_.SqlCommand("SELECT Name FROM Activity\n");
 			TableResult result = core.database_.read_result_buffer();
 
 			THEN("the changes must be regisitered by the database correctly")
@@ -128,11 +131,29 @@ SCENARIO("Multiple activities are added and deleted")
 				AND_WHEN("all activities are deleted")
 				{
 					bool deletion_is_success = false;
-					deletion_is_success  = core.DeleteActivity(activity_name1);
-					deletion_is_success &= core.DeleteActivity(activity_name2);
-					deletion_is_success &= core.DeleteActivity(activity_name3);
+					std::string activity_id_1, activity_id_2, activity_id_3;
+					std::string sql;
 
-					core.database_.SqlCommand("SELECT * FROM Activity\n");
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Games';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_1 = result.begin()->begin()->column_data;
+
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Music';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_2 = result.begin()->begin()->column_data;
+
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Movies';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_3 = result.begin()->begin()->column_data;
+
+					deletion_is_success  = core.DeleteActivity(activity_id_1);
+					deletion_is_success &= core.DeleteActivity(activity_id_2);
+					deletion_is_success &= core.DeleteActivity(activity_id_3);
+
+					core.database_.SqlCommand("SELECT Name FROM Activity\n");
 					TableResult result = core.database_.read_result_buffer();
 					THEN("all activity records must seize to exist")
 					{
@@ -144,10 +165,23 @@ SCENARIO("Multiple activities are added and deleted")
 				AND_WHEN("specific activities are deleted")
 				{
 					bool deletion_is_success = false;
-					deletion_is_success  = core.DeleteActivity(activity_name1);
-					deletion_is_success &= core.DeleteActivity(activity_name3);
+					std::string activity_id_1, activity_id_2;
+					std::string sql;
 
-					core.database_.SqlCommand("SELECT * FROM Activity\n");
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Games';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_1 = result.begin()->begin()->column_data;
+
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Movies';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_2 = result.begin()->begin()->column_data;
+
+					deletion_is_success  = core.DeleteActivity(activity_id_1);
+					deletion_is_success &= core.DeleteActivity(activity_id_2);
+
+					core.database_.SqlCommand("SELECT Name FROM Activity\n");
 					TableResult result = core.database_.read_result_buffer();
 
 					expected.pop_back();
@@ -165,15 +199,15 @@ SCENARIO("Multiple activities are added and deleted")
 	}
 }
 
-SCENARIO("A listing is added and deleted")
+SCENARIO("A single listing is added and deleted")
 {
-	GIVEN("a clean database_")
+	GIVEN("a clean database")
 	{
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, db_dir);
 
-		Database database_(db_dir);
-		Core core(database_);
+		Database database(db_dir);
+		Core core(database);
 		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
 
@@ -184,9 +218,9 @@ SCENARIO("A listing is added and deleted")
 		{
 			bool creation_is_success = false;
 
-			std::string title = "The Great Escape";
-			std::string activity_name = "Sports";
-			creation_is_success =  core.AddListing(title, activity_name);
+			std::string title		= "The Great Escape";
+			std::string activity_id = "1";
+			creation_is_success		=  core.AddListing(title, activity_id);
 
 			//generate expected result as a basis of comparison
 			//-------------------------------------------------
@@ -197,20 +231,20 @@ SCENARIO("A listing is added and deleted")
 			col_res.column_data = title;
 			row_res.push_back(col_res);
 
-			col_res.column_name = "ActivityName";
-			col_res.column_data = activity_name;
+			col_res.column_name = "ActivityID";
+			col_res.column_data = activity_id;
 			row_res.push_back(col_res);
 
 			TableResult expected;
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
-			core.database_.SqlCommand("SELECT Title,ActivityName FROM Listing\n");
+			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing\n");
 			TableResult result = core.database_.read_result_buffer();
 
-			THEN("it must be registered by the database_ correctly")
+			THEN("it must be registered by the database correctly")
 			{
-				REQUIRE((expected == result) == true);
+				REQUIRE(expected == result);
 				REQUIRE(creation_is_success  == true);
 				AND_WHEN("the activity is deleted")
 				{
@@ -221,10 +255,10 @@ SCENARIO("A listing is added and deleted")
 					std::string lid = result.begin()->begin()->column_data;
 					deletion_is_success = core.DeleteListing(lid);
 
-					core.database_.SqlCommand("SELECT Title,ActivityName FROM Listing\n");
+					core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing\n");
 					result = core.database_.read_result_buffer();
 
-					THEN("it must be removed from the database_")
+					THEN("it must be removed from the database")
 					{
 						REQUIRE(deletion_is_success == true);
 						REQUIRE(result.empty() == true);
@@ -244,8 +278,8 @@ SCENARIO("Multiple listings are added and deleted")
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, db_dir);
 
-		Database database_(db_dir);
-		Core core(database_);
+		Database database(db_dir);
+		Core core(database);
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()    == true) { core.database_.Exterminate(); }
 

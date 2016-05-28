@@ -46,7 +46,7 @@ int Core::GenerateUniqueIntId(const std::string &table_name, const std::string &
  * Sepperate given data with commas and enclose by character if specified
  * parameters
  * > data: values to sepperate with commas
- * > character: character used to enclose the values defaults to NULL
+ * > characters: characters used to enclose the values defaults to an empty string
  * Example psuedo code: 
  *  > data = vector<string> {one, two, three};
  *	> char character = ';
@@ -56,14 +56,14 @@ int Core::GenerateUniqueIntId(const std::string &table_name, const std::string &
  * NOTE:
  * > The last element of the output result will not have a comma in front of it.
  */
-std::string Core::CommaSeparate(std::vector<std::string> &data, const char &character) 
+std::string Core::CommaSeparate(std::vector<std::string> &data, const std::string &characters) 
 {
 	std::string result, element;
 	for (std::vector<std::string>::size_type i = 0; i != data.size(); ++i) {
 		element = data[i];
-		result += character;
+		result += characters;
 		result += element;
-		result += character;
+		result += characters;
 
 		if (i != (data.size() - 1)) { result += ","; }
 	}
@@ -96,9 +96,8 @@ bool Core::AddActivity(const std::string &activity_name) {
 	to_table.into_clause = into_clause;
 
 	value_clause = "(";
-	value_clause += this->CommaSeparate(temp_val_vec, '\'');
+	value_clause += this->CommaSeparate(temp_val_vec, "'");
 	value_clause += ")";
-	value_clause += ";";
 	to_table.value_clause = value_clause;
 
 	is_successful = this->database_.Insert(to_table);
@@ -153,7 +152,7 @@ bool Core::AddListing(const std::string &title, const std::string &activity_id) 
 	to_table.into_clause = into_clause;
 
 	value_clause = "(";
-	value_clause += this->CommaSeparate(temp_val_vec,'\'');
+	value_clause += this->CommaSeparate(temp_val_vec,"'");
 	value_clause += ")";
 	to_table.value_clause = value_clause;
 	

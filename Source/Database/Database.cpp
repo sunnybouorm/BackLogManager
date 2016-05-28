@@ -25,7 +25,7 @@ bool operator==(const std::vector<RowResult> &res1, const std::vector<RowResult>
 		for (std::vector<RowResult>::size_type i = 0; i != res1.size(); i++) {
 			if (res1[i] != res2[i]) { return false; }
 		}
-	}
+	} return true;
 }
 bool operator!=(const std::vector<RowResult> &res1, const std::vector<RowResult> &res2) {
 	if (res1 == res2) { return false; }
@@ -177,6 +177,10 @@ bool Database::SqlCommand(const std::string &statement) {
 			is_successful = false;
 			std::cerr << "SQL error: " << z_err_msg << "\n";
 		}
+	} else {
+		std::cerr << "Database Warning: " 
+				  << "attempting to execute SQL command without " 
+				  << "an open connection to a database" <<"\n";
 	}
 
 	return is_successful;
@@ -191,7 +195,7 @@ bool Database::Insert(const QueryContainer &table) {
 
 	sql  = "INSERT INTO ";
 	sql += table.into_clause;
-	sql += " VALUES";
+	sql += " VALUES ";
 	sql += table.value_clause;
 	sql += ";";
 	is_successful = this->SqlCommand(sql);

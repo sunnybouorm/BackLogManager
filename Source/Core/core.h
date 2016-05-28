@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BACKLOGMANAGER_CORE_CORE_H_
+#define BACKLOGMANAGER_CORE_CORE_H_
 #include "../Database/database.h"
 
 /*
@@ -10,19 +11,22 @@
  */
 
 class Core {
-private:
-	int GenerateUniqueIntId(const std::string &table_name, const std::string &id_name);
-	std::string Core::CommaSeparate(std::vector<std::string> &data, const char &character=NULL);
 
 public:
 	Core(Database &db);
-	Database database_;
-
+	
 	bool AddActivity(const std::string &activity_name);
 	bool DeleteActivity(const std::string &activity_id);
 
 	bool AddListing(const std::string &title, const std::string &activity_id);
 	bool DeleteListing(const std::string &lid);
 	bool UpdateListing(const std::string &lid);
+
+	Database database_;
+
+private:
+	int GenerateUniqueIntId(const std::string &table_name, const std::string &id_name);
+	std::string Core::CommaSeparate(std::vector<std::string> &data, const std::string &character="");
 	
 };
+#endif//BACKLOGMANAGER_CORE_CORE_H_ 

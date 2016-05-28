@@ -35,21 +35,6 @@ const std::string kDbName("db.db3");
 
 class Database {
 
-private:
-	friend static int StatementCallback(void *db_object, int count, char **data, char **az_col_name);
-
-	//directory configuration
-	bool is_connected_ = false;
-	std::string db_dir_;
-	std::string db_dir_uri_;
-	const static int default_flags_ = SQLITE_OPEN_URI|SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE;
-	sqlite3 *db_;
-	TableResult result_buffer_;
-	File db_file_;
-
-	void push_to_result_buffer(RowResult value) { this->result_buffer_.push_back(value); }
-	void clear_result_buffer() { this->result_buffer_.clear(); }
-
 public :
 	Database();
 	Database(const std::string &directory);
@@ -72,8 +57,23 @@ public :
 
 	bool is_exist();//checks if this instance's database file exists
 
-	//Tools
+	//Diagnostic
 	void PrintResultBuffer();
+
+private:
+	friend static int StatementCallback(void *db_object, int count, char **data, char **az_col_name);
+
+	void push_to_result_buffer(RowResult value) { this->result_buffer_.push_back(value); }
+	void clear_result_buffer() { this->result_buffer_.clear(); }
+
+	//directory configuration
+	bool is_connected_ = false;
+	std::string db_dir_;
+	std::string db_dir_uri_;
+	const static int default_flags_ = SQLITE_OPEN_URI | SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
+	sqlite3 *db_;
+	TableResult result_buffer_;
+	File db_file_;
 };
 
 #endif // BACKLOGMANAGER_DATABASE_DATABASE_H_
