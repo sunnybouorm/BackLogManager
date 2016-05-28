@@ -290,19 +290,19 @@ SCENARIO("Multiple listings are added and deleted")
 		{
 			bool creation_is_success = false;
 
-			std::string title1, title2, title3, activity_name1, activity_name2, activity_name3;
+			std::string title1, title2, title3, activity_id_1, activity_id_2, activity_id_3;
 
 			title1 = "The Great Escape";
-			activity_name1 = "Sports";
-			creation_is_success = core.AddListing(title1, activity_name1);
+			activity_id_1 = "1";
+			creation_is_success = core.AddListing(title1, activity_id_1);
 
 			title2 = "Drackula Souls 3";
-			activity_name2 = "Games";
-			creation_is_success &= core.AddListing(title2, activity_name2);
+			activity_id_2 = "2";
+			creation_is_success &= core.AddListing(title2, activity_id_2);
 
 			title3 = "Ghost Husslers";
-			activity_name3 = "Movies";
-			creation_is_success &= core.AddListing(title3, activity_name3);
+			activity_id_3 = "3";
+			creation_is_success &= core.AddListing(title3, activity_id_3);
 
 			//generate expected result as a basis of comparison
 			//-------------------------------------------------
@@ -311,30 +311,30 @@ SCENARIO("Multiple listings are added and deleted")
 			TableResult expected;
 
 			col_res1.column_name = "Title";
-			col_res2.column_name = "ActivityName";
+			col_res2.column_name = "ActivityID";
 
 			col_res1.column_data = title1;
 			row_res.push_back(col_res1);
-			col_res2.column_data = activity_name1;
+			col_res2.column_data = activity_id_1;
 			row_res.push_back(col_res2);
 			expected.push_back(row_res);
 			row_res.clear();
 
 			col_res1.column_data = title2;
 			row_res.push_back(col_res1);
-			col_res2.column_data = activity_name2;
+			col_res2.column_data = activity_id_2;
 			row_res.push_back(col_res2);
 			expected.push_back(row_res);
 			row_res.clear();
 
 			col_res1.column_data = title3;
 			row_res.push_back(col_res1);
-			col_res2.column_data = activity_name3;
+			col_res2.column_data = activity_id_3;
 			row_res.push_back(col_res2);
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
-			core.database_.SqlCommand("SELECT Title,ActivityName FROM Listing\n");
+			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing\n");
 			TableResult result = core.database_.read_result_buffer();
 
 			THEN("the changes must be regisitered by the database correctly")
@@ -368,24 +368,24 @@ SCENARIO("Multiple listings are added and deleted")
 					bool is_deleted = true;
 					std::string lid;
 
-					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityName= 'Movies';");
+					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityID= '1';");
 					result = core.database_.read_result_buffer();
-					lid = std::stoi(result.begin()->begin()->column_data);
-					core.DeleteListing(lid);
+					lid = result.begin()->begin()->column_data;
+					REQUIRE(core.DeleteListing(lid) == true);
 
-					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityName= 'Sports';");
+					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityID= '3';");
 					result = core.database_.read_result_buffer();
-					lid = std::stoi(result.begin()->begin()->column_data);
-					core.DeleteListing(lid);
+					lid = result.begin()->begin()->column_data;
+					REQUIRE(core.DeleteListing(lid) == true);
 
 					
-					core.database_.SqlCommand("SELECT ActivityName FROM Listing");
+					core.database_.SqlCommand("SELECT ActivityID FROM Listing");
 					result = core.database_.read_result_buffer();
 
 					THEN("only the specified listings must be deleted")
 					{
 						REQUIRE(result.size() == 1);
-						REQUIRE(result.begin()->begin()->column_data == "Games");
+						REQUIRE(result.begin()->begin()->column_data == "2");
 					}
 				}
 			}
