@@ -173,8 +173,8 @@ bool Core::DeleteActivity(const RowResult &row) {
 
 	activity_id = row.begin()->column_data;
 	table.table_name	= "Activity";
-	col_name				= "ActivityID";
-	col_val					= activity_id;
+	col_name			= "ActivityID";
+	col_val				= activity_id;
 
 	where_clause  = col_name;
 	where_clause += "=";
@@ -276,6 +276,7 @@ bool Core::AddListing(const RowResult &row) {
 	bool is_successful = false;
 
 	if (row.size() != 2) {
+		std::cerr << "EXIT_1\n";//TODO: delete me
 		std::cerr << err_msg_1;
 		return is_successful = false;
 	}
