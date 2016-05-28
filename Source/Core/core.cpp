@@ -276,7 +276,6 @@ bool Core::AddListing(const RowResult &row) {
 	bool is_successful = false;
 
 	if (row.size() != 2) {
-		std::cerr << "EXIT_1\n";//TODO: delete me
 		std::cerr << err_msg_1;
 		return is_successful = false;
 	}
@@ -353,9 +352,10 @@ bool Core::DeleteListing(const RowResult &row) {
 		return is_successful = false;
 	}
 
+	lid = row.begin()->column_data;
 	table.table_name	= "Listing";
-	col_name				= "LID";
-	col_val					= lid;
+	col_name			= "LID";
+	col_val				= lid;
 
 	where_clause += col_name;
 	where_clause += "=";

@@ -301,7 +301,7 @@ SCENARIO("A single listing is added and deleted")
 			{
 				REQUIRE(expected == result);
 				REQUIRE(creation_is_success  == true);
-				AND_WHEN("the activity is deleted")
+				AND_WHEN("the listing is deleted")
 				{
 					bool deletion_is_success = false;
 
@@ -313,8 +313,9 @@ SCENARIO("A single listing is added and deleted")
 					row.clear();
 					row.push_back(column);
 					deletion_is_success = core.DeleteListing(row);
+					REQUIRE(deletion_is_success == true);
 
-					core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing\n");
+					core.database_.SqlCommand("SELECT * FROM Listing\n");
 					result = core.database_.read_result_buffer();
 
 					THEN("it must be removed from the database")
