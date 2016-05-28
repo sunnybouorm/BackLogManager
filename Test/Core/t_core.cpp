@@ -331,179 +331,186 @@ SCENARIO("A single listing is added and deleted")
 	}
 }
 
-//SCENARIO("Multiple listings are added and deleted")
-//{
-//	GIVEN("a clean database")
-//	{
-//		std::string sql_filename = "BacklogManager.sql";
-//		File sql_file(sql_filename, db_dir);
-//
-//		Database database(db_dir);
-//		Core core(database);
-//		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-//		if (core.database_.is_exist()    == true) { core.database_.Exterminate(); }
-//
-//		core.database_.OpenConnection();
-//		core.database_.ImportSql(sql_file);
-//
-//		WHEN("multiple listings are added")
-//		{
-//			ColumnContainer column;
-//			RowResult row;
-//			row.clear();
-//			bool creation_is_success = false;
-//
-//			std::string title1, title2, title3, activity_id_1, activity_id_2, activity_id_3;
-//
-//			title1 = "The Great Escape";
-//			activity_id_1 = "1";
-//
-//			column.column_name = "Title";
-//			column.column_data = title1;
-//			row.push_back(column);
-//
-//			column.column_name = "Activity_ID";
-//			column.column_data = activity_id_1;
-//			row.push_back(column);
-//
-//			creation_is_success = core.AddListing(row);
-//
-//			title2 = "Drackula Souls 3";
-//			activity_id_2 = "2";
-//
-//			column.column_name = "Title";
-//			column.column_data = title2;
-//			row.push_back(column);
-//
-//			column.column_name = "Activity_ID";
-//			column.column_data = activity_id_2;
-//			row.push_back(column);
-//
-//			creation_is_success &= core.AddListing(row);
-//
-//			title3 = "Ghost Husslers";
-//			activity_id_3 = "3";
-//
-//			column.column_name = "Title";
-//			column.column_data = title3;
-//			row.push_back(column);
-//
-//			column.column_name = "Activity_ID";
-//			column.column_data = activity_id_3;
-//			row.push_back(column);
-//
-//			creation_is_success &= core.AddListing(row);
-//
-//			//generate expected result as a basis of comparison
-//			//-------------------------------------------------
-//			ColumnContainer col_res1, col_res2;
-//			RowResult row_res;
-//			TableResult expected;
-//
-//			col_res1.column_name = "Title";
-//			col_res2.column_name = "ActivityID";
-//
-//			col_res1.column_data = title1;
-//			row_res.push_back(col_res1);
-//			col_res2.column_data = activity_id_1;
-//			row_res.push_back(col_res2);
-//			expected.push_back(row_res);
-//			row_res.clear();
-//
-//			col_res1.column_data = title2;
-//			row_res.push_back(col_res1);
-//			col_res2.column_data = activity_id_2;
-//			row_res.push_back(col_res2);
-//			expected.push_back(row_res);
-//			row_res.clear();
-//
-//			col_res1.column_data = title3;
-//			row_res.push_back(col_res1);
-//			col_res2.column_data = activity_id_3;
-//			row_res.push_back(col_res2);
-//			expected.push_back(row_res);
-//			//-------------------------------------------------
-//
-//			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing\n");
-//			TableResult result = core.database_.read_result_buffer();
-//
-//			THEN("the changes must be regisitered by the database correctly")
-//			{
-//				REQUIRE(creation_is_success  == true);
-//				REQUIRE(expected == result);
-//
-//				AND_WHEN("all listings are deleted")
-//				{
-//					row.clear();
-//					bool is_deleted = true;
-//
-//					core.database_.SqlCommand("SELECT LID FROM Listing ORDER BY LID ASC");
-//					result = core.database_.read_result_buffer();
-//					std::string lid;
-//					for (auto i = result.begin(); i != result.end(); ++i) {
-//						lid = i->begin()->column_data;
-//
-//						row.clear();
-//						column.column_name = "LID";
-//						column.column_data = lid;
-//						is_deleted &= core.DeleteListing(row);
-//					}
-//					THEN("all listing records must seize to exist")
-//					{
-//						core.database_.SqlCommand("SELECT * FROM Listing");
-//						result = core.database_.read_result_buffer();
-//
-//						REQUIRE(is_deleted == true);
-//						REQUIRE(result.empty() == true);
-//					}
-//				}
-//
-//				AND_WHEN("specific listings are deleted")
-//				{
-//					bool is_deleted = true;
-//					std::string lid;
-//					row.clear();
-//
-//					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityID= '1';");
-//					result = core.database_.read_result_buffer();
-//					lid = result.begin()->begin()->column_data;
-//					column.column_name = "LID";
-//					column.column_data = lid;
-//					REQUIRE(core.DeleteListing(row) == true);
-//
-//					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityID= '3';");
-//					result = core.database_.read_result_buffer();
-//					lid = result.begin()->begin()->column_data;
-//					column.column_name = "LID";
-//					column.column_data = lid;
-//					REQUIRE(core.DeleteListing(row) == true);
-//
-//					
-//					core.database_.SqlCommand("SELECT ActivityID FROM Listing");
-//					result = core.database_.read_result_buffer();
-//
-//					THEN("only the specified listings must be deleted")
-//					{
-//						REQUIRE(result.size() == 1);
-//						REQUIRE(result.begin()->begin()->column_data == "2");
-//					}
-//				}
-//			}
-//		}
-//	}
-//}
+SCENARIO("Multiple listings are added and deleted")
+{
+	GIVEN("a clean database")
+	{
+		std::string sql_filename = "BacklogManager.sql";
+		File sql_file(sql_filename, db_dir);
 
-//SCENARIO("A single listing is updated")
-//{
-//	GIVEN("a database with a single listing")
-//	{
-//		WHEN("the listing is updated")
-//		{
-//			bool is_successful = false;
-//			THEN("the changes must be registered correctly by the database")
-//			{
-//				REQUIRE(is_successful == true);
-//			}
-//		}
-//	}
-//}
+		Database database(db_dir);
+		Core core(database);
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()    == true) { core.database_.Exterminate(); }
+
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
+
+		WHEN("multiple listings are added")
+		{
+			ColumnContainer column;
+			RowResult row;
+			row.clear();
+			bool creation_is_success = false;
+
+			std::string title1, title2, title3, activity_id_1, activity_id_2, activity_id_3;
+
+			title1 = "The Great Escape";
+			activity_id_1 = "1";
+
+			column.column_name = "Title";
+			column.column_data = title1;
+			row.push_back(column);
+
+			column.column_name = "ActivityID";
+			column.column_data = activity_id_1;
+			row.push_back(column);
+
+			creation_is_success = core.AddListing(row);
+			row.clear();
+
+			title2 = "Drackula Souls 3";
+			activity_id_2 = "2";
+
+			column.column_name = "Title";
+			column.column_data = title2;
+			row.push_back(column);
+
+			column.column_name = "ActivityID";
+			column.column_data = activity_id_2;
+			row.push_back(column);
+
+			creation_is_success &= core.AddListing(row);
+			row.clear();
+
+			title3 = "Ghost Husslers";
+			activity_id_3 = "3";
+
+			column.column_name = "Title";
+			column.column_data = title3;
+			row.push_back(column);
+
+			column.column_name = "ActivityID";
+			column.column_data = activity_id_3;
+			row.push_back(column);
+
+			creation_is_success &= core.AddListing(row);
+
+			//generate expected result as a basis of comparison
+			//-------------------------------------------------
+			ColumnContainer col_res1, col_res2;
+			RowResult row_res;
+			TableResult expected;
+
+			col_res1.column_name = "Title";
+			col_res2.column_name = "ActivityID";
+
+			col_res1.column_data = title1;
+			row_res.push_back(col_res1);
+			col_res2.column_data = activity_id_1;
+			row_res.push_back(col_res2);
+			expected.push_back(row_res);
+			row_res.clear();
+
+			col_res1.column_data = title2;
+			row_res.push_back(col_res1);
+			col_res2.column_data = activity_id_2;
+			row_res.push_back(col_res2);
+			expected.push_back(row_res);
+			row_res.clear();
+
+			col_res1.column_data = title3;
+			row_res.push_back(col_res1);
+			col_res2.column_data = activity_id_3;
+			row_res.push_back(col_res2);
+			expected.push_back(row_res);
+			//-------------------------------------------------
+
+			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing\n");
+			TableResult result = core.database_.read_result_buffer();
+
+			THEN("the changes must be regisitered by the database correctly")
+			{
+				REQUIRE(creation_is_success  == true);
+				REQUIRE(expected == result);
+
+				AND_WHEN("all listings are deleted")
+				{
+					bool is_deleted = true;
+
+					core.database_.SqlCommand("SELECT LID FROM Listing ORDER BY LID ASC");
+					result = core.database_.read_result_buffer();
+					std::string lid;
+					for (auto i = result.begin(); i != result.end(); ++i) {
+						lid = i->begin()->column_data;
+
+						row.clear();
+						column.column_name = "LID";
+						column.column_data = lid;
+						row.push_back(column);
+						is_deleted &= core.DeleteListing(row);
+					}
+					THEN("all listing records must seize to exist")
+					{
+						core.database_.SqlCommand("SELECT * FROM Listing");
+						result = core.database_.read_result_buffer();
+
+						REQUIRE(is_deleted == true);
+						REQUIRE(result.empty() == true);
+					}
+				}
+
+				AND_WHEN("specific listings are deleted")
+				{
+					bool is_deleted = true;
+					std::string lid;
+					row.clear();
+
+					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityID= '1';");
+					result = core.database_.read_result_buffer();
+					lid = result.begin()->begin()->column_data;
+					column.column_name = "LID";
+					column.column_data = lid;
+					row.push_back(column);
+					REQUIRE(core.DeleteListing(row) == true);
+					row.clear();
+
+					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityID= '3';");
+					result = core.database_.read_result_buffer();
+					lid = result.begin()->begin()->column_data;
+					column.column_name = "LID";
+					column.column_data = lid;
+					row.push_back(column);
+					REQUIRE(core.DeleteListing(row) == true);
+					row.clear();
+
+					core.database_.SqlCommand("SELECT ActivityID FROM Listing");
+					result = core.database_.read_result_buffer();
+
+					THEN("only the specified listings must be deleted")
+					{
+						REQUIRE(result.size() == 1);
+						REQUIRE(result.begin()->begin()->column_data == "2");
+					}
+				}
+			}
+		}
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
+	}
+}
+
+SCENARIO("A single listing is updated")
+{
+	GIVEN("a database with a single listing")
+	{
+		WHEN("the listing is updated")
+		{
+			bool is_successful = false;
+			THEN("the changes must be registered correctly by the database")
+			{
+				REQUIRE(is_successful == true);
+			}
+		}
+	}
+}
