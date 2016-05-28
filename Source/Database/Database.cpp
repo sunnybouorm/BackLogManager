@@ -235,7 +235,7 @@ bool Database::Update(const QueryContainer &table) {//TODO
 	sql  = "UPDATE ";
 	sql += table.table_name;
 	sql += " SET ";
-	sql += table.select_clause;
+	sql += table.set_clause;
 	sql += " WHERE ";
 	sql += table.where_clause;
 	sql += ";";

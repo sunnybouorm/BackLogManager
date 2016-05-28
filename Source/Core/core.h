@@ -14,13 +14,14 @@ class Core {
 
 public:
 	Core(Database &db);
-	
-	bool AddActivity(const std::string &activity_name);
-	bool DeleteActivity(const std::string &activity_id);
 
-	bool AddListing(const std::string &title, const std::string &activity_id);
-	bool DeleteListing(const std::string &lid);
-	bool UpdateListing(const std::string &lid);
+	bool AddActivity   (const RowResult &row);
+	bool DeleteActivity(const RowResult &row);
+	bool UpdateActivity(const RowResult &row);
+
+	bool AddListing   (const RowResult &row);
+	bool DeleteListing(const RowResult &row);
+	bool UpdateListing(const RowResult &row);
 
 	Database database_;
 

@@ -71,66 +71,225 @@ std::string Core::CommaSeparate(std::vector<std::string> &data, const std::strin
 	return result;
 }
 
-bool Core::AddActivity(const std::string &activity_name) {
+/*
+ * Inserts a new activity record into the database
+ *
+ * parameters:
+ * > row contains the column data to insert into the new activity record,
+ * in this case only an activity name is required no need to worry about activity_ID as it is 
+ * automatically generated. Check "Database.h" for more information on RowResult data type
+ *
+ * psuedo code:
+ * > RowResult row = vector< {column_name = "Name", column_data = "[MyactivityName]"} >;
+ * > this.AddActivity(row);
+ *-------------------------------------------------------------
+ * Notes:
+ * > Requires an open connection to database
+ */
+bool Core::AddActivity(const RowResult &row) {
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss << "Core Warning: Attempting to add an activity record "
+		<< "with incompatible data\n";
+	err_msg_1 = ss.str();
+
 	bool is_successful = false;
-	std::string into_clause, value_clause, table_name, col_name_1, col_name_2;
+	std::string into_clause, value_clause, table_name, col_name_1, col_name_2, activity_name;
 	std::vector<std::string> temp_name_vec, temp_val_vec;
+	QueryContainer table;
 
-	QueryContainer to_table;
+	if (row.begin()->column_name != "Name") { 
+		std::cerr << err_msg_1;
+		return is_successful = false;
+	} else if (row.begin()->column_data.empty() == true) {
+		std::cerr << err_msg_1;
+		return is_successful = false;
+	}
+	activity_name = row.begin()->column_data;
 
-	table_name	= "Activity";
-	col_name_1	= "ActivityID";
-	col_name_2	= "Name";
+	table_name = "Activity";
+	col_name_1 = "ActivityID";
+	col_name_2 = "Name";
 
 	int activity_id = this->GenerateUniqueIntId(table_name, col_name_1);
 
-	temp_name_vec	= {col_name_1, col_name_2};
-	temp_val_vec	= {std::to_string(activity_id), activity_name};
+	temp_name_vec = { col_name_1, col_name_2 };
+	temp_val_vec  = { std::to_string(activity_id), activity_name };
 
-	to_table.table_name	= table_name;
+	table.table_name = table_name;
 
-	into_clause = to_table.table_name;
+	into_clause  = table.table_name;
 	into_clause += "(";
 	into_clause += this->CommaSeparate(temp_name_vec);
 	into_clause += ")";
-	to_table.into_clause = into_clause;
+	table.into_clause = into_clause;
 
-	value_clause = "(";
+	value_clause  = "(";
 	value_clause += this->CommaSeparate(temp_val_vec, "'");
 	value_clause += ")";
-	to_table.value_clause = value_clause;
+	table.value_clause = value_clause;
 
-	is_successful = this->database_.Insert(to_table);
+	is_successful = this->database_.Insert(table);
 
 	return is_successful;
 }
 
-bool Core::DeleteActivity(const std::string &activity_id) {
+
+/*
+* Deletes specified activity record from database
+*
+* parameters:
+* > row contains the column data required to identify the record to delete,
+* in this case only an activity ID is required. 
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector< {column_name = "ActivityID", column_data = "[MyactivityID]"} >;
+* > this.DeleteActivity(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::DeleteActivity(const RowResult &row) {
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss	<< "Core Warning: attempting to delete activity record with "
+		<< "incompatible data\n";
+	err_msg_1 = ss.str();
+
 	bool is_successful = false;
-	std::string where_clause, col_name, col_val;
+	std::string where_clause, col_name, col_val, activity_id;
+	QueryContainer table;
 
-	QueryContainer from_table;
+	if (row.begin()->column_name != "ActivityID") { 
+		std::cerr << err_msg_1;
+		return is_successful = false; 
+	} else if (row.begin()->column_data.empty() == true) { 
+		std::cerr << err_msg_1;
+		return is_successful = false; 
+	}
 
-	from_table.table_name	= "Activity";
+	activity_id = row.begin()->column_data;
+	table.table_name	= "Activity";
 	col_name				= "ActivityID";
 	col_val					= activity_id;
 
-	where_clause += col_name;
+	where_clause  = col_name;
 	where_clause += "=";
 	where_clause += "'";
 	where_clause += col_val;
 	where_clause += "'";
-	from_table.where_clause = where_clause;
+	table.where_clause = where_clause;
 
-	is_successful = this->database_.Delete(from_table);
+	is_successful = this->database_.Delete(table);
 
 	return is_successful;
 }
 
-bool Core::AddListing(const std::string &title, const std::string &activity_id) {
+/*
+* Updates specified activity record in database
+*
+* parameters:
+* > row contains the column data required to identify the record to update. In this case
+* all relevant attributes of the entity Activity are required.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector< 
+*	{column_name = "ActivityID",	column_data = "[MyactivityID]"	}
+*	{column_name = "Name"		 ,	column_data = "[MyName]"		}>;
+* > this.UpdateActivity(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::UpdateActivity(const RowResult &row) {//TODO
+	bool is_successful = false;
+
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss << "Core Warning: attempting to update activity record with "
+		<< "incompatible data\n";
+	err_msg_1 = ss.str();
+
+	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
+
+	std::string activity_id, activity_name;
+	for (auto column = row.begin(); column != row.end(); ++column) {
+		if (column->column_name == "ActivityID") { activity_id = column->column_data; }
+		else if (column->column_name == "Name")  { activity_name = column->column_data; }
+		else { std::cerr << err_msg_1;  is_successful = false; };
+	}
+
+	if ((activity_id.empty() == true) || (activity_name.empty() == true)) {
+		std::cerr << err_msg_1;
+		return is_successful = false;
+	}
+
+	std::string set_clause, where_clause;
+	QueryContainer table;
+	table.table_name = "Activity";
+
+	set_clause  = "ActivityID=";
+	set_clause += activity_id;
+	set_clause += ",";
+	set_clause += "Name=";
+	set_clause += activity_name;
+	table.set_clause = set_clause;
+
+	where_clause  = "ActivityID=";
+	where_clause += activity_id;
+	table.where_clause = where_clause;
+
+	is_successful = this->database_.Insert(table);
+
+	return is_successful;
+}
+
+
+/*
+* Inserts a new listing record into the database
+*
+* parameters:
+* > row contains the column data to insert into the new listing record,
+* in this case only a title and associated activity ID are required, no need to worry about
+* the listing ID as it is automatically generated.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector< 
+* {column_name = "Title"		, column_data = "[MyTitle]"		} 
+* {column_name = "ActivityID"	, column_data = "[MyActivityID]"} >;
+* > this.AddActivity(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::AddListing(const RowResult &row) {
+	std::string err_msg_1 = "Core Warning: attempting to add listing with incompatible data\n";
+
 	std::string table_name, col_name_1, col_name_2, col_name_3, into_clause, value_clause;
 	std::vector<std::string> temp_name_vec, temp_val_vec;
 	bool is_successful = false;
+
+	if (row.size() != 2) {
+		std::cerr << err_msg_1;
+		return is_successful = false;
+	}
+
+	std::string title, activity_id;
+	for (auto column = row.begin(); column != row.end(); ++column) {
+		if (column->column_name == "Title") { title = column->column_data; }
+		else if (column->column_name == "ActivityID") { activity_id = column->column_data; }
+	}
+
+	if ((title.empty() == true) || (activity_id.empty() == true)) {
+		std::cerr << err_msg_1;
+		return is_successful = false;
+	}
 
 	table_name = "Listing";
 	col_name_1 = "LID";
@@ -141,33 +300,59 @@ bool Core::AddListing(const std::string &title, const std::string &activity_id) 
 	temp_name_vec = {col_name_1, col_name_2, col_name_3};
 	temp_val_vec  = {std::to_string(lid), title, activity_id };
 
-	QueryContainer to_table;
+	QueryContainer table;
 
-	to_table.table_name = table_name;
+	table.table_name = table_name;
 
-	into_clause  = to_table.table_name;
+	into_clause  = table.table_name;
 	into_clause += "(";
 	into_clause += this->CommaSeparate(temp_name_vec);
 	into_clause += ")";
-	to_table.into_clause = into_clause;
+	table.into_clause = into_clause;
 
 	value_clause = "(";
 	value_clause += this->CommaSeparate(temp_val_vec,"'");
 	value_clause += ")";
-	to_table.value_clause = value_clause;
+	table.value_clause = value_clause;
 	
-	is_successful = this->database_.Insert(to_table);
+	is_successful = this->database_.Insert(table);
 
 	return is_successful;
 }
 
-bool Core::DeleteListing(const std::string &lid) {
+/*
+* Deletes specified listing record from database
+*
+* parameters:
+* > row contains the column data required to identify the record to delete,
+* in this case only a listing ID is required.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector< {column_name = "LID", column_data = "[MyLID]"} >;
+* > this.DeleteActivity(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::DeleteListing(const RowResult &row) {
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss	<< "Core Warning: Attempting to delete a listing record "
+		<< "with incompatible data\n";
+	err_msg_1 = ss.str();
+
 	bool is_successful = false;
-	std::string where_clause, col_name, col_val;
+	std::string where_clause, col_name, col_val, lid;
+	QueryContainer table;
 
-	QueryContainer from_table;
+	if((row.begin()->column_name != "LID") || (row.begin()->column_data.empty() == true)) {
+		std::cerr << err_msg_1;
+		return is_successful = false;
+	}
 
-	from_table.table_name	= "Listing";
+	table.table_name	= "Listing";
 	col_name				= "LID";
 	col_val					= lid;
 
@@ -176,13 +361,77 @@ bool Core::DeleteListing(const std::string &lid) {
 	where_clause += "'";
 	where_clause += col_val;
 	where_clause += "'";
-	from_table.where_clause = where_clause;
+	table.where_clause = where_clause;
 
-	is_successful = this->database_.Delete(from_table);
+	is_successful = this->database_.Delete(table);
 
 	return is_successful;
 }
 
-bool Core::UpdateListing(const std::string &lid) {
-	return false;
+
+/*
+* Updates specified listing record in database
+*
+* parameters:
+* > row contains the column data required to identify the record to update. In this case
+* all relevant attributes of the entity Listing are required.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector<
+*	{column_name = "LID"		,	column_data = "[MyLID]"			}
+*	{column_name = "Title"		,	column_data = "[MyTitle]		}
+*	{column_name = "ActivityID"	,	column_data = "[MyActivityID]"	}>;
+* > this.UpdateActivity(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::UpdateListing(const RowResult &row) {
+	bool is_successful = false;
+
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss << "Core Warning: attempting to update Listing record with "
+		<< "incompatible data\n";
+	err_msg_1 = ss.str();
+
+
+	if (row.size() != 3) { std::cerr<<err_msg_1;  return is_successful = false; }
+
+	std::string lid, title, activity_id;
+	for (auto column = row.begin(); column != row.end(); ++column) {
+		if (column->column_name == "LID") { lid = column->column_data; }
+		else if (column->column_name == "Title") { title = column->column_data; }
+		else if (column->column_name == "ActivityID") {activity_id = column->column_data ; }
+		else { std::cerr << err_msg_1;  is_successful = false; };
+	}
+
+	if ((activity_id.empty() == true) || (lid.empty() == true) || (title.empty() == true)) {
+		std::cerr << err_msg_1;
+		return is_successful = false;
+	}
+
+	std::string set_clause, where_clause;
+	QueryContainer table;
+	table.table_name = "Listing";
+
+	set_clause = "LID=";
+	set_clause += lid;
+	set_clause += ",";
+	set_clause += "Title=";
+	set_clause += title;
+	set_clause += ",";
+	set_clause += "ActivityID=";
+	set_clause += activity_id;
+	table.set_clause = set_clause;
+
+	where_clause = "LID=";
+	where_clause += lid;
+	table.where_clause = where_clause;
+
+	is_successful = this->database_.Insert(table);
+
+	return is_successful;
 }
