@@ -241,7 +241,6 @@ bool Database::Update(const QueryContainer &table) {//TODO
 	sql += ";";
 
 	is_successful = this->SqlCommand(sql);
-
 	return is_successful;
 }
 

@@ -504,12 +504,63 @@ SCENARIO("A single listing is updated")
 {
 	GIVEN("a database with a single listing")
 	{
+		std::string sql_filename = "BacklogManager.sql";
+		File sql_file(sql_filename, db_dir);
+
+		Database database(db_dir);
+		Core core(database);
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()    == true) { core.database_.Exterminate(); }
+
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
+
+		ColumnContainer column;
+		RowResult row;
+		row.clear();
+
+		std::string title = "The Great Escape";
+		std::string activity_id = "1";
+
+		column.column_name = "Title";
+		column.column_data = title;
+		row.push_back(column);
+
+		column.column_name = "ActivityID";
+		column.column_data = activity_id;
+		row.push_back(column);
+
+		REQUIRE(core.AddListing(row));
+		
+
 		WHEN("the listing is updated")
 		{
-			bool is_successful = false;
+			bool update_is_successful = false;
+			TableResult result, expected;
+
+			REQUIRE(core.database_.SqlCommand("SELECT LID FROM Listing WHERE Title='The Great Escape'"));
+			result = core.database_.read_result_buffer();
+			REQUIRE(result.begin()->begin()->column_name == "LID");
+			std::string lid = result.begin()->begin()->column_data;
+
+			row.clear();
+			column.column_name = "LID";
+			column.column_data = lid;
+			row.push_back(column);
+
+			column.column_name = "Title";
+			column.column_data = "The Terrible Escape";
+			row.push_back(column);
+
+			update_is_successful = core.UpdateListing(row);
+			expected.push_back(row);
+
 			THEN("the changes must be registered correctly by the database")
 			{
-				REQUIRE(is_successful == true);
+				core.database_.SqlCommand("SELECT LID,Title FROM Listing WHERE Title='The Terrible Escape'");
+				result = core.database_.read_result_buffer();
+				REQUIRE(update_is_successful == true);
+				REQUIRE(expected == result);
 			}
 		}
 	}

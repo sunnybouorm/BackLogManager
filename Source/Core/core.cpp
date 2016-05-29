@@ -233,18 +233,21 @@ bool Core::UpdateActivity(const RowResult &row) {//TODO
 	QueryContainer table;
 	table.table_name = "Activity";
 
-	set_clause  = "ActivityID=";
-	set_clause += activity_id;
-	set_clause += ",";
 	set_clause += "Name=";
+	set_clause += "'";
 	set_clause += activity_name;
+	set_clause += "'";
+
 	table.set_clause = set_clause;
 
 	where_clause  = "ActivityID=";
+	set_clause += "'";
 	where_clause += activity_id;
+	set_clause += "'";
+
 	table.where_clause = where_clause;
 
-	is_successful = this->database_.Insert(table);
+	is_successful = this->database_.Update(table);
 
 	return is_successful;
 }
@@ -275,10 +278,7 @@ bool Core::AddListing(const RowResult &row) {
 	std::vector<std::string> temp_name_vec, temp_val_vec;
 	bool is_successful = false;
 
-	if (row.size() != 2) {
-		std::cerr << err_msg_1;
-		return is_successful = false;
-	}
+	if (row.size() < 2) {std::cerr << err_msg_1; return is_successful = false;}
 
 	std::string title, activity_id;
 	for (auto column = row.begin(); column != row.end(); ++column) {
@@ -397,42 +397,44 @@ bool Core::UpdateListing(const RowResult &row) {
 	ss << "Core Warning: attempting to update Listing record with "
 		<< "incompatible data\n";
 	err_msg_1 = ss.str();
-
-
-	if (row.size() != 3) { std::cerr<<err_msg_1;  return is_successful = false; }
+	
+	if (row.size() < 2) { std::cerr<<err_msg_1;  return is_successful = false; }
 
 	std::string lid, title, activity_id;
 	for (auto column = row.begin(); column != row.end(); ++column) {
 		if (column->column_name == "LID") { lid = column->column_data; }
 		else if (column->column_name == "Title") { title = column->column_data; }
 		else if (column->column_name == "ActivityID") {activity_id = column->column_data ; }
-		else { std::cerr << err_msg_1;  is_successful = false; };
-	}
-
-	if ((activity_id.empty() == true) || (lid.empty() == true) || (title.empty() == true)) {
-		std::cerr << err_msg_1;
-		return is_successful = false;
-	}
+		else { std::cerr << err_msg_1;  is_successful = false; }; }
 
 	std::string set_clause, where_clause;
 	QueryContainer table;
 	table.table_name = "Listing";
 
-	set_clause = "LID=";
-	set_clause += lid;
-	set_clause += ",";
-	set_clause += "Title=";
-	set_clause += title;
-	set_clause += ",";
-	set_clause += "ActivityID=";
-	set_clause += activity_id;
+	if (title.empty() == false) {
+		set_clause += "Title=";
+		set_clause += "'";
+		set_clause += title;
+		set_clause += "'";
+	}
+	if ((activity_id.empty() == false) && (title.empty() == false)) {
+		set_clause += ",";
+	}
+	if (activity_id.empty() == false) {
+		set_clause += "ActivityID=";
+		set_clause += "'";
+		set_clause += activity_id;
+		set_clause += "'";
+	}
 	table.set_clause = set_clause;
 
 	where_clause = "LID=";
+	set_clause += "'";
 	where_clause += lid;
-	table.where_clause = where_clause;
+	set_clause += "'";
 
-	is_successful = this->database_.Insert(table);
+	table.where_clause = where_clause;
+	is_successful = this->database_.Update(table);
 
 	return is_successful;
 }
