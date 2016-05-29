@@ -3,7 +3,7 @@
 
 std::string db_dir = "D:\\Development\\Projects\\BacklogManager\\Database\\";
 
-SCENARIO("A single activity is added and deleted") 
+SCENARIO("A single activity is added, updated and deleted") 
 {
 	GIVEN("a clean database") 
 	{
@@ -52,6 +52,42 @@ SCENARIO("A single activity is added and deleted")
 			{
 				REQUIRE(expected == result);
 				REQUIRE(creation_is_success == true);
+
+				AND_WHEN("the activity is updated")
+				{
+					bool update_is_successful = false;
+					std::string activity_id;
+					ColumnContainer column;
+
+					row.clear();
+					core.database_.SqlCommand("SELECT ActivityID FROM Activity");
+					result = core.database_.read_result_buffer();
+					REQUIRE(result.begin()->begin()->column_name == "ActivityID");
+					
+					activity_id = result.begin()->begin()->column_data;
+					column.column_name = "ActivityID";
+					column.column_data = activity_id;
+					row.push_back(column);
+
+					column.column_name = "Name";
+					column.column_data = "TV";
+					row.push_back(column);
+					
+					update_is_successful = core.UpdateActivity(row);
+
+					expected.clear();
+					expected.push_back(row);
+
+					core.database_.SqlCommand("SELECT * FROM Activity");
+					result = core.database_.read_result_buffer();
+
+					THEN("it must be registed by the database successfully")
+					{
+						REQUIRE(update_is_successful == true);
+						REQUIRE(result == expected);
+					}
+				}
+
 				AND_WHEN("the activity is deleted")
 				{
 					bool deletion_is_success = false;
