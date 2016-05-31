@@ -662,6 +662,8 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 				result = core.database_.read_result_buffer();
 				REQUIRE(result.begin()->size() == 1);
 
+				std::string  udfid = result.begin()->begin()->column_data;
+
 				sql = "SELECT Name,Datatype,Description,ActivityID FROM UserDefinedField";
 				REQUIRE(core.database_.SqlCommand(sql) == true);
 				result = core.database_.read_result_buffer();
@@ -670,9 +672,47 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 
 				AND_WHEN("the user defined field is updated")
 				{
+					bool is_updated_successfully = false;
+					name		= "Genres";
+					data_type	= "int";
+					description = "some description";
+					activity_id = "2";
+
+					row.clear();
+
+					column.column_name = "UDFID";
+					column.column_data = udfid;
+					row.push_back(column);
+
+					column.column_name = "Name";
+					column.column_data = name;
+					row.push_back(column);
+
+					column.column_name = "DataType";
+					column.column_data = data_type;
+					row.push_back(column);
+
+					column.column_name = "Description";
+					column.column_data = description;
+					row.push_back(column);
+
+					column.column_name = "ActivityID";
+					column.column_data = activity_id;
+					row.push_back(column);
+
+					is_updated_successfully = core.UpdateUserDefinedField(row);
+
+					expected.clear();
+					expected.push_back(row);
+
 					THEN("the change must be registered by the database")
 					{
-						REQUIRE(false);
+						sql = "SELECT * FROM UserDefinedField";
+						REQUIRE(core.database_.SqlCommand(sql) == true);
+						result = core.database_.read_result_buffer();
+						REQUIRE(is_updated_successfully == true);
+						REQUIRE(result == expected);
+
 						AND_WHEN("the user defined field is deleted")
 						{
 							THEN("it must seize to exist")

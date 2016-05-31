@@ -611,7 +611,10 @@ bool Core::UpdateUserDefinedField(const RowResult &row) {
 		<< "incompatible data\n";
 	err_msg_1 = ss.str();
 
-	if (row.size() < 2) { std::cerr << err_msg_1;  return is_successful = false; }
+	if (row.size() < 2) { 
+		std::cerr << err_msg_1 << ", row size <" << row.size() <<"> is incompatible\n";
+		return is_successful = false; 
+	}
 
 	std::string udfid, name, description, data_type, activity_id;
 	for (auto column = row.begin(); column != row.end(); ++column) {
@@ -620,10 +623,17 @@ bool Core::UpdateUserDefinedField(const RowResult &row) {
 		else if (column->column_name == "DataType")		{ data_type = column->column_data;		}
 		else if (column->column_name == "Description")	{ description = column->column_data;	}
 		else if (column->column_name == "ActivityID")	{ activity_id = column->column_data;	}
-		else { std::cerr << err_msg_1;  is_successful = false; };
+		else { 
+			std::cerr << err_msg_1 << ", attribute <" << column->column_name 
+					  << "> is incompatible\n";  
+			is_successful = false; 
+		}
 	}
 
-	if (udfid.empty() == true) { std::cerr << err_msg_1; return is_successful = false; }
+	if (udfid.empty() == true) { 
+		std::cerr << err_msg_1 << "primary key UDFID cannot be null\n";
+		return is_successful = false; 
+	}
 
 	std::string set_clause, where_clause;
 	QueryContainer table;
