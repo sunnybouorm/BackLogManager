@@ -601,3 +601,59 @@ SCENARIO("A single listing is updated")
 		}
 	}
 }
+
+SCENARIO("a single user defined field is added, updated and deleted") {
+	GIVEN("a clean database")
+	{
+		WHEN("a user defined field is added")
+		{
+			THEN("the change must be registered by the database")
+			{
+				REQUIRE(false);
+				AND_WHEN("the user defined field is updated")
+				{
+					THEN("the change must be registered by the database")
+					{
+						REQUIRE(false);
+						AND_WHEN("the user defined field is deleted")
+						{
+							THEN("it must seize to exist")
+							{
+								REQUIRE(false);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+SCENARIO("a single user defined field data entry is added, updated, and deleted")
+{
+	GIVEN("a clean database")
+	{
+		WHEN("a user defined field data entry is added")
+		{
+			THEN("the change must be registered by the database")
+			{
+				REQUIRE(false);
+				AND_WHEN("the data entry is updated")
+				{
+					THEN("the change must be registered by the database")
+					{
+						REQUIRE(false);
+						AND_WHEN("the data entry is deleted")
+						{
+							THEN("it must seize to exist")
+							{
+								REQUIRE(false);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+}

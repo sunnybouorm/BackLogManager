@@ -23,6 +23,14 @@ public:
 	bool DeleteListing(const RowResult &row);
 	bool UpdateListing(const RowResult &row);
 
+	bool AddUserDefinedField(const RowResult &row);
+	bool DeleteUserDefinedField(const RowResult &row);
+	bool UpdateUserDefinedField(const RowResult &row);
+
+	bool AddUdfEntry(const RowResult &row);
+	bool DeleteUdfEntry(const RowResult &row);
+	bool ReplaceUdfEntry(const RowResult &row);
+
 	Database database_;
 
 private:

@@ -6,7 +6,7 @@ Core::Core(Database &db) {
 }
 
 /*
-* Finds and return unused integer ID for a specified table entry to occupy
+* Finds and returns unused integer ID for a specified table entry to occupy
 *-----------------------------------------------------------------------------------
 * NOTE:
 * > id = 0 is reserved, NEVER occupy it;
@@ -44,7 +44,7 @@ int Core::GenerateUniqueIntId(const std::string &table_name, const std::string &
 
 /*
  * Sepperate given data with commas and enclose by character if specified
- * parameters
+ * parameters.
  * > data: values to sepperate with commas
  * > characters: characters used to enclose the values defaults to an empty string
  * Example psuedo code: 
@@ -193,7 +193,8 @@ bool Core::DeleteActivity(const RowResult &row) {
 *
 * parameters:
 * > row contains the column data required to identify the record to update. In this case
-* all relevant attributes of the entity Activity are required.
+* the primary key ActivityID is compulsory, the other attributes are optional as long as a minimum 
+* of a single optional attribute is updated.
 * Check "Database.h" for more information on RowResult data type
 *
 * psuedo code:
@@ -205,7 +206,7 @@ bool Core::DeleteActivity(const RowResult &row) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::UpdateActivity(const RowResult &row) {//TODO
+bool Core::UpdateActivity(const RowResult &row) {
 	bool is_successful = false;
 
 	std::stringstream ss;
@@ -215,7 +216,7 @@ bool Core::UpdateActivity(const RowResult &row) {//TODO
 		<< "incompatible data\n";
 	err_msg_1 = ss.str();
 
-	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
+	if (row.size() < 2) { std::cerr << err_msg_1; return is_successful = false; }
 
 	std::string activity_id, activity_name;
 	for (auto column = row.begin(); column != row.end(); ++column) {
@@ -278,7 +279,7 @@ bool Core::AddListing(const RowResult &row) {
 	std::vector<std::string> temp_name_vec, temp_val_vec;
 	bool is_successful = false;
 
-	if (row.size() < 2) {std::cerr << err_msg_1; return is_successful = false;}
+	if (row.size() != 3) {std::cerr << err_msg_1; return is_successful = false;}
 
 	std::string title, activity_id;
 	for (auto column = row.begin(); column != row.end(); ++column) {
@@ -375,7 +376,8 @@ bool Core::DeleteListing(const RowResult &row) {
 *
 * parameters:
 * > row contains the column data required to identify the record to update. In this case
-* all relevant attributes of the entity Listing are required.
+* the primary key LID is compulsory, the other attributes are optional as long as a minimum 
+* of a single optional attribute is updated.
 * Check "Database.h" for more information on RowResult data type
 *
 * psuedo code:
@@ -405,7 +407,10 @@ bool Core::UpdateListing(const RowResult &row) {
 		if (column->column_name == "LID") { lid = column->column_data; }
 		else if (column->column_name == "Title") { title = column->column_data; }
 		else if (column->column_name == "ActivityID") {activity_id = column->column_data ; }
-		else { std::cerr << err_msg_1;  is_successful = false; }; }
+		else { std::cerr << err_msg_1;  is_successful = false; }; 
+	}
+
+	if (lid.empty() == true) { std::cerr << err_msg_1; return is_successful = false; }
 
 	std::string set_clause, where_clause;
 	QueryContainer table;
@@ -436,5 +441,393 @@ bool Core::UpdateListing(const RowResult &row) {
 	table.where_clause = where_clause;
 	is_successful = this->database_.Update(table);
 
+	return is_successful;
+}
+
+
+/*
+* Inserts a new UserDefinedField record into the database
+*
+* parameters:
+* > row contains the column data to insert into the new record,
+* In this case the primary key UDFID is not compulsory, as it is automatically generated.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector<
+* {column_name = "UDFID"		, column_data = "[MyUDFID]"			}
+* {column_name = "Name"			, column_data = "[MyName]"			}
+* {column_name = "DataType"		, column_data = "[MyDataType]"		} 
+* {column_name = "Description"	, column_data = "[MyDescription]"	} 
+* {column_name = "ActivityID"	, column_data = "[MyActivityID]"	} >;
+* > this.AddUserDefinedField(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+* > The attribute Datatype has three options, {"string","int","bool"}
+*/
+bool Core::AddUserDefinedField(const RowResult &row) {
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss	<< "Core Warning: attempting to add UserDefinedField record with "
+		<< "incompatible data\n";
+	err_msg_1 = ss.str();
+
+	bool is_successful = false;
+	std::string into_clause, value_clause;
+	std::string udfid,name,data_type,description,activity_id;
+	
+	if (row.size() != 4) { std::cerr << err_msg_1; return is_successful = false; }
+	for (auto column = row.begin(); column != row.end(); ++column) {
+			 if (column->column_name == "Name")			{ name		 = column->column_data; }
+		else if (column->column_name == "DataType")		{ data_type  = column->column_data; }
+		else if (column->column_name == "Description")	{description = column->column_data; }
+		else if (column->column_name == "ActivityID")	{activity_id = column->column_data; }
+		else { std::cerr<<err_msg_1;  return is_successful = false; }
+	}
+	if (udfid.empty() == true) { std::cerr << err_msg_1; return is_successful = false; }
+
+	std::string table_name, col_name_1, col_name_2, col_name_3, col_name_4, col_name_5;
+	std::vector<std::string> temp_name_vec, temp_val_vec;
+
+	table_name = "UserDefinedField";
+	col_name_1 = "UDFID";
+	col_name_2 = "Name";
+	col_name_3 = "DataType";
+	col_name_4 = "Description";
+	col_name_5 = "ActivityID";
+
+	int udfid = this->GenerateUniqueIntId(table_name, col_name_1);
+	temp_name_vec = { col_name_1, col_name_2, col_name_3, col_name_4, col_name_5};
+	temp_val_vec  = { udfid, name, data_type, description, activity_id };
+
+	QueryContainer table;
+
+	table.table_name = table_name;
+
+	into_clause = table.table_name;
+	into_clause += "(";
+	into_clause += this->CommaSeparate(temp_name_vec);
+	into_clause += ")";
+	table.into_clause = into_clause;
+
+	value_clause = "(";
+	value_clause += this->CommaSeparate(temp_val_vec, "'");
+	value_clause += ")";
+	table.value_clause = value_clause;
+
+	is_successful = this->database_.Insert(table);
+
+	return is_successful;
+}
+
+
+/*
+* Deletes specified activity record from database
+*
+* parameters:
+* > row contains the column data required to identify the record to delete,
+* in this case only a UDFID is required.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} >;
+* > this.DeleteActivity(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::DeleteUserDefinedField(const RowResult &row) {
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss << "Core Warning: Attempting to delete a UDF record "
+		<< "with incompatible data\n";
+	err_msg_1 = ss.str();
+
+	bool is_successful = false;
+	std::string where_clause, col_name, col_val, udfid;
+	QueryContainer table;
+
+	if ((row.begin()->column_name != "UDFID") || (row.begin()->column_data.empty() == true)) {
+		std::cerr << err_msg_1;
+		return is_successful = false;
+	}
+
+	udfid = row.begin()->column_data;
+	table.table_name = "UserDefinedField";
+	col_name = "UDFID";
+	col_val = udfid;
+
+	where_clause += col_name;
+	where_clause += "=";
+	where_clause += "'";
+	where_clause += col_val;
+	where_clause += "'";
+	table.where_clause = where_clause;
+
+	is_successful = this->database_.Delete(table);
+
+	return is_successful;
+}
+
+/*
+* Updates specified UDF record in database
+*
+* parameters:
+* > row contains the column data required to identify the record to update. In this case
+* the primary key UDFID is compulsory, the other attributes are optional as long as a minimum
+* of a single optional attribute is updated.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector<
+*	{column_name = "UDFID"			,	column_data = "[MyUDFID]"		}
+*	{column_name = "Name"			,	column_data = "[MyName]		}
+*	{column_name = "DataType"		,	column_data = "[MyDataType]"	} 
+*	{column_name = "Description"	,	column_data = "[MyDescription]"	} 
+*	{column_name = "ActivityID"		,	column_data = "[MyActivityID]"	} >;
+* > this.UpdateActivity(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::UpdateUserDefinedField(const RowResult &row) {
+	bool is_successful = false;
+
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss << "Core Warning: attempting to update UDF record with "
+		<< "incompatible data\n";
+	err_msg_1 = ss.str();
+
+	if (row.size() < 2) { std::cerr << err_msg_1;  return is_successful = false; }
+
+	std::string udfid, name, description, data_type, activity_id;
+	for (auto column = row.begin(); column != row.end(); ++column) {
+			 if (column->column_name == "UDFID")		{ udfid = column->column_data;			}
+		else if (column->column_name == "Name")			{ name = column->column_data;			}
+		else if (column->column_name == "DataType")		{ data_type = column->column_data;		}
+		else if (column->column_name == "Description")	{ description = column->column_data;	}
+		else if (column->column_name == "ActivityID")	{ activity_id = column->column_data;	}
+		else { std::cerr << err_msg_1;  is_successful = false; };
+	}
+
+	if (udfid.empty() == true) { std::cerr << err_msg_1; return is_successful = false; }
+
+	std::string set_clause, where_clause;
+	QueryContainer table;
+	bool is_next = false;
+	table.table_name = "UserDefinedField";
+
+	if (name.empty() == false) {
+		set_clause += "Name=";
+		set_clause += "'";
+		set_clause += name;
+		set_clause += "'";
+		is_next = true;
+	}
+	if (data_type.empty() == false) {
+		if (is_next == true) {
+			set_clause += ",";
+		}
+		set_clause += "DataType=";
+		set_clause += "'";
+		set_clause += data_type;
+		set_clause += "'";
+		is_next = true;
+	}
+	if (description.empty() == false) {
+		if (is_next == true) {
+			set_clause += ",";
+		}
+		set_clause += "Description=";
+		set_clause += "'";
+		set_clause += description;
+		set_clause += "'";
+		is_next = true;
+	}
+	if (activity_id.empty() == false) {
+		if (is_next == true) {
+			set_clause += ",";
+		}
+		set_clause += "ActivityID=";
+		set_clause += "'";
+		set_clause += activity_id;
+		set_clause += "'";
+	}	
+	table.set_clause = set_clause;
+
+	where_clause = "UDFID=";
+	set_clause += "'";
+	where_clause += udfid;
+	set_clause += "'";
+
+	table.where_clause = where_clause;
+	is_successful = this->database_.Update(table);
+
+	return is_successful;
+}
+
+/*
+* Inserts a new UDFentry record into the database
+*
+* parameters:
+* > row contains the column data to insert into the new record,
+* In this case the primary key UDFID is not compulsory, as it is automatically generated.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector<
+* {column_name = "Data"	, column_data = "[MyData]"	} >;
+* > this.AddUserDefinedField(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::AddUdfEntry(const RowResult &row) {
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss << "Core Warning: attempting to add UDFentry record with "
+		<< "incompatible data\n";
+	err_msg_1 = ss.str();
+
+	bool is_successful = false;
+	std::string into_clause, value_clause;
+	std::string udfid, data;
+
+	if (row.size() != 1) { std::cerr << err_msg_1; return is_successful = false; }
+	for (auto column = row.begin(); column != row.end(); ++column) {
+		if (column->column_name == "Data") { data = column->column_data; }
+		else { std::cerr << err_msg_1;  return is_successful = false; }
+	}
+	if (udfid.empty() == true) { std::cerr << err_msg_1; return is_successful = false; }
+
+	std::string table_name, col_name_1, col_name_2;
+	std::vector<std::string> temp_name_vec, temp_val_vec;
+
+	table_name = "UserDefinedField";
+	col_name_1 = "UDFID";
+	col_name_2 = "Data";
+
+	int udfid = this->GenerateUniqueIntId(table_name, col_name_1);
+	temp_name_vec = { col_name_1, col_name_2};
+	temp_val_vec  = { udfid		, data};
+
+	QueryContainer table;
+
+	table.table_name = table_name;
+
+	into_clause = table.table_name;
+	into_clause += "(";
+	into_clause += this->CommaSeparate(temp_name_vec);
+	into_clause += ")";
+	table.into_clause = into_clause;
+
+	value_clause = "(";
+	value_clause += this->CommaSeparate(temp_val_vec, "'");
+	value_clause += ")";
+	table.value_clause = value_clause;
+
+	is_successful = this->database_.Insert(table);
+
+	return is_successful;
+}
+
+/*
+* Deletes specified UDFentry record from database
+*
+* parameters:
+* > row contains the column data required to identify the record to delete,
+* in this case Data and associated UDFID are required to uniquely identify the record.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} 
+*							{column_name = "Data" , column_data = "[MyData]"} >;
+* > this.DeleteActivity(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::DeleteUdfEntry(const RowResult &row) {
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss << "Core Warning: Attempting to delete a UDFentry record "
+		<< "with incompatible data\n";
+	err_msg_1 = ss.str();
+
+	bool is_successful = false;
+	std::string where_clause, col_name, col_val, udfid, data;
+	QueryContainer table;
+
+	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
+	for (auto column = row.begin(); column != row.end(); ++column) {
+			 if(column->column_name == "Data")	{ data	= column->column_data;	}
+		else if(column->column_name == "UDFID") { udfid = column->column_data;	}
+		else { std::cerr << err_msg_1;  return is_successful = false; }
+	}
+	if ((udfid.empty() == true) || (data.empty() == true)) { 
+		std::cerr << err_msg_1; 
+		return is_successful = false; 
+	}
+
+	udfid = row.begin()->column_data;
+	table.table_name = "UserDefinedField";
+
+	where_clause = "(";
+
+	col_name = "UDFID";
+	col_val	 = udfid;
+	where_clause += col_name;
+	where_clause += "=";
+	where_clause += "'";
+	where_clause += col_val;
+	where_clause += "'";
+
+	where_clause += " AND ";
+
+	col_name = "Data";
+	col_val	 = data;
+	where_clause += col_name;
+	where_clause += "=";
+	where_clause += "'";
+	where_clause += col_val;
+	where_clause += "'";
+
+	where_clause = ")";
+
+	table.where_clause = where_clause;
+	is_successful = this->database_.Delete(table);
+
+	return is_successful;
+}
+
+/*
+* Replaces specified UDFentry record in database
+*
+* parameters:
+* > row contains the column data required to identify the record to update. 
+* in this case Data and associated UDFID are required to uniquely identify the record.
+* Check "Database.h" for more information on RowResult data type
+*
+* psuedo code:
+* > RowResult row = vector<
+*	{column_name = "UDFID"		,	column_data = "[MyUDFID]"	}
+*	{column_name = "Data"		,	column_data = "[MyName]		} >;
+* > this.UpdateActivity(row);
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::ReplaceUdfEntry(const RowResult &row) {//TODO
+	bool is_successful = false;
+	//Fetch all listings connected to entry
+	//Insert a new entry record and associat it with all listings linked to previous entry
+	//Delete UDFentry
 	return is_successful;
 }
