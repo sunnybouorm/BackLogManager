@@ -599,17 +599,74 @@ SCENARIO("A single listing is updated")
 				REQUIRE(expected == result);
 			}
 		}
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
 	}
 }
 
 SCENARIO("a single user defined field is added, updated and deleted") {
 	GIVEN("a clean database")
 	{
+		std::string sql_filename = "BacklogManager.sql";
+		File sql_file(sql_filename, db_dir);
+
+		Database database(db_dir);
+		Core core(database);
+		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
+
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
+
 		WHEN("a user defined field is added")
 		{
-			THEN("the change must be registered by the database")
+			bool is_added_successfully = false;
+			ColumnContainer column;
+			RowResult row;
+			row.clear();
+
+			TableResult result, expected;
+
+			std::string name, data_type, description, activity_id, sql;
+
+			name		= "Genre";
+			data_type	= "string";
+			description = "";
+			activity_id = "1";
+
+			column.column_name = "Name";
+			column.column_data = name;
+			row.push_back(column);
+
+			column.column_name = "DataType";
+			column.column_data = data_type;
+			row.push_back(column);
+
+			column.column_name = "Description";
+			column.column_data = description;
+			row.push_back(column);
+
+			column.column_name = "ActivityID";
+			column.column_data = activity_id;
+			row.push_back(column);
+
+			core.AddUserDefinedField(row);
+
+			expected.clear();
+			expected.push_back(row);
+
+			THEN("the change must be registered by the database correctly")
 			{
-				REQUIRE(false);
+				sql = "SELECT UDFID FROM UserDefinedField";
+				result = core.database_.read_result_buffer();
+				REQUIRE(result.begin()->size() == 1);
+
+				sql = "SELECT (Name,Datatype,Description,ActivityID) FROM UserDefinedField";
+				REQUIRE(core.database_.SqlCommand(sql) == true);
+				result = core.database_.read_result_buffer();
+				REQUIRE(is_added_successfully == true);
+				REQUIRE(result == expected);
+
 				AND_WHEN("the user defined field is updated")
 				{
 					THEN("the change must be registered by the database")
@@ -626,34 +683,38 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 				}
 			}
 		}
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
 	}
 }
 
-SCENARIO("a single user defined field data entry is added, updated, and deleted")
-{
-	GIVEN("a clean database")
-	{
-		WHEN("a user defined field data entry is added")
-		{
-			THEN("the change must be registered by the database")
-			{
-				REQUIRE(false);
-				AND_WHEN("the data entry is updated")
-				{
-					THEN("the change must be registered by the database")
-					{
-						REQUIRE(false);
-						AND_WHEN("the data entry is deleted")
-						{
-							THEN("it must seize to exist")
-							{
-								REQUIRE(false);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-}
+//SCENARIO("a single user defined field data entry is added, updated, and deleted")
+//{
+//	GIVEN("a clean database")
+//	{
+//		WHEN("a user defined field data entry is added")
+//		{
+//			THEN("the change must be registered by the database")
+//			{
+//				REQUIRE(false);
+//				AND_WHEN("the data entry is updated")
+//				{
+//					THEN("the change must be registered by the database")
+//					{
+//						REQUIRE(false);
+//						AND_WHEN("the data entry is deleted")
+//						{
+//							THEN("it must seize to exist")
+//							{
+//								REQUIRE(false);
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+//		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
+//	}
+//
+//}

@@ -498,7 +498,7 @@ bool Core::AddUserDefinedField(const RowResult &row) {
 	col_name_4 = "Description";
 	col_name_5 = "ActivityID";
 
-	int udfid = this->GenerateUniqueIntId(table_name, col_name_1);
+	udfid = std::to_string(this->GenerateUniqueIntId(table_name, col_name_1));
 	temp_name_vec = { col_name_1, col_name_2, col_name_3, col_name_4, col_name_5};
 	temp_val_vec  = { udfid, name, data_type, description, activity_id };
 
@@ -713,7 +713,7 @@ bool Core::AddUdfEntry(const RowResult &row) {
 	col_name_1 = "UDFID";
 	col_name_2 = "Data";
 
-	int udfid = this->GenerateUniqueIntId(table_name, col_name_1);
+	udfid = std::to_string(this->GenerateUniqueIntId(table_name, col_name_1));
 	temp_name_vec = { col_name_1, col_name_2};
 	temp_val_vec  = { udfid		, data};
 
@@ -827,7 +827,7 @@ bool Core::DeleteUdfEntry(const RowResult &row) {
 bool Core::ReplaceUdfEntry(const RowResult &row) {//TODO
 	bool is_successful = false;
 	//Fetch all listings connected to entry
-	//Insert a new entry record and associat it with all listings linked to previous entry
+	//Insert a new entry record and associate it with all listings linked to previous entry
 	//Delete UDFentry
 	return is_successful;
 }
