@@ -715,9 +715,16 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 
 						AND_WHEN("the user defined field is deleted")
 						{
+							bool is_deleted_successfully = false;
+							is_deleted_successfully = core.DeleteUserDefinedField(row);
+
 							THEN("it must seize to exist")
 							{
-								REQUIRE(false);
+								REQUIRE(is_deleted_successfully);
+								sql = "SELECT * FROM UserDefinedField";
+								REQUIRE(core.database_.SqlCommand(sql) == true);
+								result = core.database_.read_result_buffer();
+								REQUIRE(result.empty() == true);
 							}
 						}
 					}
