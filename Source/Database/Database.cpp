@@ -227,7 +227,7 @@ bool Database::Delete(const QueryContainer &table) {
 /*
 * Sends an sql UPDATE query based on table data given
 */
-bool Database::Update(const QueryContainer &table) {//TODO
+bool Database::Update(const QueryContainer &table) {
 	bool is_successful = false;
 
 	std::string sql, set_values, where_values;

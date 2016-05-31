@@ -330,12 +330,12 @@ SCENARIO("A single listing is added and deleted")
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
-			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing\n");
+			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing;");
 			TableResult result = core.database_.read_result_buffer();
 
 			THEN("it must be registered by the database correctly")
 			{
-				REQUIRE(expected == result);
+				REQUIRE(result == expected);
 				REQUIRE(creation_is_success  == true);
 				AND_WHEN("the listing is deleted")
 				{
@@ -650,7 +650,7 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 			column.column_data = activity_id;
 			row.push_back(column);
 
-			core.AddUserDefinedField(row);
+			is_added_successfully = core.AddUserDefinedField(row);
 
 			expected.clear();
 			expected.push_back(row);
@@ -658,10 +658,11 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 			THEN("the change must be registered by the database correctly")
 			{
 				sql = "SELECT UDFID FROM UserDefinedField";
+				REQUIRE(core.database_.SqlCommand(sql) == true);
 				result = core.database_.read_result_buffer();
 				REQUIRE(result.begin()->size() == 1);
 
-				sql = "SELECT (Name,Datatype,Description,ActivityID) FROM UserDefinedField";
+				sql = "SELECT Name,Datatype,Description,ActivityID FROM UserDefinedField";
 				REQUIRE(core.database_.SqlCommand(sql) == true);
 				result = core.database_.read_result_buffer();
 				REQUIRE(is_added_successfully == true);

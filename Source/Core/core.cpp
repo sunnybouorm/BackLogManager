@@ -279,7 +279,10 @@ bool Core::AddListing(const RowResult &row) {
 	std::vector<std::string> temp_name_vec, temp_val_vec;
 	bool is_successful = false;
 
-	if (row.size() != 3) {std::cerr << err_msg_1; return is_successful = false;}
+	if (row.size() != 2) {
+		std::cerr << err_msg_1 << ", size <" << row.size() << "> incompatible\n";
+		return is_successful = false;
+	}
 
 	std::string title, activity_id;
 	for (auto column = row.begin(); column != row.end(); ++column) {
@@ -288,7 +291,7 @@ bool Core::AddListing(const RowResult &row) {
 	}
 
 	if ((title.empty() == true) || (activity_id.empty() == true)) {
-		std::cerr << err_msg_1;
+		std::cerr << err_msg_1 << ", activity or title attributes NULL\n";
 		return is_successful = false;
 	}
 
@@ -478,15 +481,20 @@ bool Core::AddUserDefinedField(const RowResult &row) {
 	std::string into_clause, value_clause;
 	std::string udfid,name,data_type,description,activity_id;
 	
-	if (row.size() != 4) { std::cerr << err_msg_1; return is_successful = false; }
+	if (row.size() != 4) { 
+		std::cerr << err_msg_1 << ", size <"<< row.size() << "> incompatible\n"; 
+		return is_successful = false; 
+	}
 	for (auto column = row.begin(); column != row.end(); ++column) {
 			 if (column->column_name == "Name")			{ name		 = column->column_data; }
 		else if (column->column_name == "DataType")		{ data_type  = column->column_data; }
 		else if (column->column_name == "Description")	{description = column->column_data; }
 		else if (column->column_name == "ActivityID")	{activity_id = column->column_data; }
-		else { std::cerr<<err_msg_1;  return is_successful = false; }
+		else { 
+			std::cerr<<err_msg_1 << ", attribute <" << column->column_name << "> incompatible\n";
+			return is_successful = false;
+		}
 	}
-	if (udfid.empty() == true) { std::cerr << err_msg_1; return is_successful = false; }
 
 	std::string table_name, col_name_1, col_name_2, col_name_3, col_name_4, col_name_5;
 	std::vector<std::string> temp_name_vec, temp_val_vec;
