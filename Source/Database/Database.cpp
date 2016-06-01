@@ -220,7 +220,6 @@ bool Database::Delete(const QueryContainer &table) {
 	sql += ";";
 
 	is_successful = this->SqlCommand(sql);
-
 	return is_successful;
 }
 

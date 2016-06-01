@@ -29,7 +29,7 @@ public:
 
 	bool AddUdfEntry(const RowResult &row);
 	bool DeleteUdfEntry(const RowResult &row);
-	bool ReplaceUdfEntry(const RowResult &row);
+	bool UpdateUdfEntry(const RowResult &row);
 
 	Database database_;
 

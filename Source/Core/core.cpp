@@ -280,7 +280,7 @@ bool Core::AddListing(const RowResult &row) {
 	bool is_successful = false;
 
 	if (row.size() != 2) {
-		std::cerr << err_msg_1 << ", size <" << row.size() << "> incompatible\n";
+		std::cerr << err_msg_1 << ", size <" << row.size() << "> invalid\n";
 		return is_successful = false;
 	}
 
@@ -482,7 +482,7 @@ bool Core::AddUserDefinedField(const RowResult &row) {
 	std::string udfid,name,data_type,description,activity_id;
 	
 	if (row.size() != 4) { 
-		std::cerr << err_msg_1 << ", size <"<< row.size() << "> incompatible\n"; 
+		std::cerr << err_msg_1 << ", size <"<< row.size() << "> invalid\n"; 
 		return is_successful = false; 
 	}
 	for (auto column = row.begin(); column != row.end(); ++column) {
@@ -491,7 +491,7 @@ bool Core::AddUserDefinedField(const RowResult &row) {
 		else if (column->column_name == "Description")	{description = column->column_data; }
 		else if (column->column_name == "ActivityID")	{activity_id = column->column_data; }
 		else { 
-			std::cerr<<err_msg_1 << ", attribute <" << column->column_name << "> incompatible\n";
+			std::cerr<<err_msg_1 << ", attribute <" << column->column_name << "> invalid\n";
 			return is_successful = false;
 		}
 	}
@@ -612,7 +612,7 @@ bool Core::UpdateUserDefinedField(const RowResult &row) {
 	err_msg_1 = ss.str();
 
 	if (row.size() < 2) { 
-		std::cerr << err_msg_1 << ", row size <" << row.size() <<"> is incompatible\n";
+		std::cerr << err_msg_1 << ", row size <" << row.size() <<"> is invalid\n";
 		return is_successful = false; 
 	}
 
@@ -625,7 +625,7 @@ bool Core::UpdateUserDefinedField(const RowResult &row) {
 		else if (column->column_name == "ActivityID")	{ activity_id = column->column_data;	}
 		else { 
 			std::cerr << err_msg_1 << ", attribute <" << column->column_name 
-					  << "> is incompatible\n";  
+					  << "> is invalid\n";  
 			is_successful = false; 
 		}
 	}
@@ -717,21 +717,27 @@ bool Core::AddUdfEntry(const RowResult &row) {
 	std::string into_clause, value_clause;
 	std::string udfid, data;
 
-	if (row.size() != 1) { std::cerr << err_msg_1; return is_successful = false; }
+	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
 	for (auto column = row.begin(); column != row.end(); ++column) {
-		if (column->column_name == "Data") { data = column->column_data; }
-		else { std::cerr << err_msg_1;  return is_successful = false; }
+			 if (column->column_name == "UDFID") { udfid = column->column_data; }
+		else if (column->column_name == "Data" ) { data  = column->column_data; }
+		else { 
+			std::cerr << err_msg_1 << ", column < " << column->column_name <<"> is invalid\n";
+			return is_successful = false; 
+		}
 	}
-	if (udfid.empty() == true) { std::cerr << err_msg_1; return is_successful = false; }
+	if ((udfid.empty() == true) || (data.empty() == true)) {
+		std::cerr << err_msg_1 << ", data and UDFID cannot be NULL\n";
+		return is_successful = false; 
+	}
 
 	std::string table_name, col_name_1, col_name_2;
 	std::vector<std::string> temp_name_vec, temp_val_vec;
 
-	table_name = "UserDefinedField";
+	table_name = "UDFentry";
 	col_name_1 = "UDFID";
 	col_name_2 = "Data";
 
-	udfid = std::to_string(this->GenerateUniqueIntId(table_name, col_name_1));
 	temp_name_vec = { col_name_1, col_name_2};
 	temp_val_vec  = { udfid		, data};
 
@@ -794,10 +800,7 @@ bool Core::DeleteUdfEntry(const RowResult &row) {
 		return is_successful = false; 
 	}
 
-	udfid = row.begin()->column_data;
-	table.table_name = "UserDefinedField";
-
-	where_clause = "(";
+	table.table_name = "UDFentry";
 
 	col_name = "UDFID";
 	col_val	 = udfid;
@@ -816,8 +819,6 @@ bool Core::DeleteUdfEntry(const RowResult &row) {
 	where_clause += "'";
 	where_clause += col_val;
 	where_clause += "'";
-
-	where_clause = ")";
 
 	table.where_clause = where_clause;
 	is_successful = this->database_.Delete(table);
@@ -842,10 +843,55 @@ bool Core::DeleteUdfEntry(const RowResult &row) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::ReplaceUdfEntry(const RowResult &row) {//TODO
+bool Core::UpdateUdfEntry(const RowResult &row) {
 	bool is_successful = false;
-	//Fetch all listings connected to entry
-	//Insert a new entry record and associate it with all listings linked to previous entry
-	//Delete UDFentry
+
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss << "Core Warning: attempting to update UDFentry record with "
+		<< "incompatible data\n";
+	err_msg_1 = ss.str();
+
+	if (row.size() != 2) {
+		std::cerr << err_msg_1 << ", row size <" << row.size() << "> is invalid\n";
+		return is_successful = false;
+	}
+
+	std::string udfid, data;
+	for (auto column = row.begin(); column != row.end(); ++column) {
+		if (column->column_name		 == "UDFID") { udfid = column->column_data; }
+		else if (column->column_name == "Data")  { data = column->column_data;  }
+		else {
+			std::cerr << err_msg_1 << ", attribute <" << column->column_name
+				<< "> is invalid\n";
+			is_successful = false;
+		}
+	}
+
+	if ( (udfid.empty() == true) || (data.empty() == true)) {
+		std::cerr << err_msg_1 << "primary key UDFID and attribute data cannot be NULL\n";
+		return is_successful = false;
+	}
+
+	std::string set_clause, where_clause;
+	QueryContainer table;
+
+	table.table_name = "UDFentry";
+
+	set_clause += "Data=";
+	set_clause += "'";
+	set_clause += data;
+	set_clause += "'";
+	table.set_clause = set_clause;
+
+	where_clause = "UDFID=";
+	set_clause += "'";
+	where_clause += udfid;
+	set_clause += "'";
+
+	table.where_clause = where_clause;
+	is_successful = this->database_.Update(table);
+
 	return is_successful;
 }
