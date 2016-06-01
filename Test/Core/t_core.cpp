@@ -21,7 +21,7 @@ SCENARIO("A single activity is added, updated and deleted")
 		WHEN("an activity is added")
 		{
 			ColumnContainer column;
-			RowResult row;
+			RowContainer row;
 			std::string activity_name = "Movies";
 			bool creation_is_success = false;
 
@@ -35,7 +35,7 @@ SCENARIO("A single activity is added, updated and deleted")
 			//generate expected result as a basis of comparison
 			//-------------------------------------------------
 			ColumnContainer col_res;
-			RowResult row_res;
+			RowContainer row_res;
 
 			col_res.column_name = "Name";
 			col_res.column_data = activity_name;
@@ -134,7 +134,7 @@ SCENARIO("Multiple activities are added and deleted")
 		WHEN("multiple activities are added")
 		{
 			ColumnContainer column;
-			RowResult row;
+			RowContainer row;
 			bool creation_is_success = false;
 
 			column.column_name = "Name";
@@ -160,7 +160,7 @@ SCENARIO("Multiple activities are added and deleted")
 			//generate expected result as a basis of comparison
 			//-------------------------------------------------
 			ColumnContainer col_res;
-			RowResult row_res;
+			RowContainer row_res;
 			TableResult expected;
 
 			col_res.column_name = "Name";
@@ -296,7 +296,7 @@ SCENARIO("A single listing is added and deleted")
 		WHEN("a listing is added")
 		{
 			ColumnContainer column;
-			RowResult row;
+			RowContainer row;
 			row.clear();
 			bool creation_is_success = false;
 
@@ -316,7 +316,7 @@ SCENARIO("A single listing is added and deleted")
 			//generate expected result as a basis of comparison
 			//-------------------------------------------------
 			ColumnContainer col_res;
-			RowResult row_res;
+			RowContainer row_res;
 
 			col_res.column_name = "Title";
 			col_res.column_data = title;
@@ -385,7 +385,7 @@ SCENARIO("Multiple listings are added and deleted")
 		WHEN("multiple listings are added")
 		{
 			ColumnContainer column;
-			RowResult row;
+			RowContainer row;
 			row.clear();
 			bool creation_is_success = false;
 
@@ -435,7 +435,7 @@ SCENARIO("Multiple listings are added and deleted")
 			//generate expected result as a basis of comparison
 			//-------------------------------------------------
 			ColumnContainer col_res1, col_res2;
-			RowResult row_res;
+			RowContainer row_res;
 			TableResult expected;
 
 			col_res1.column_name = "Title";
@@ -552,7 +552,7 @@ SCENARIO("A single listing is updated")
 		core.database_.ImportSql(sql_file);
 
 		ColumnContainer column;
-		RowResult row;
+		RowContainer row;
 		row.clear();
 
 		std::string title = "The Great Escape";
@@ -622,7 +622,7 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 		{
 			bool is_added_successfully = false;
 			ColumnContainer column;
-			RowResult row;
+			RowContainer row;
 			row.clear();
 
 			TableResult result, expected;
@@ -755,7 +755,7 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 		{
 			bool is_added_successfully = false;
 			ColumnContainer column;
-			RowResult row;
+			RowContainer row;
 			row.clear();
 
 			TableResult result, expected;

@@ -15,21 +15,23 @@ class Core {
 public:
 	Core(Database &db);
 
-	bool AddActivity   (const RowResult &row);
-	bool DeleteActivity(const RowResult &row);
-	bool UpdateActivity(const RowResult &row);
+	bool AddActivity   (const RowContainer &row);
+	bool DeleteActivity(const RowContainer &row);
+	bool UpdateActivity(const RowContainer &row);
 
-	bool AddListing   (const RowResult &row);
-	bool DeleteListing(const RowResult &row);
-	bool UpdateListing(const RowResult &row);
+	bool AddListing   (const RowContainer &row);
+	bool DeleteListing(const RowContainer &row);
+	bool UpdateListing(const RowContainer &row);
 
-	bool AddUserDefinedField(const RowResult &row);
-	bool DeleteUserDefinedField(const RowResult &row);
-	bool UpdateUserDefinedField(const RowResult &row);
+	bool AddUserDefinedField(const RowContainer &row);
+	bool DeleteUserDefinedField(const RowContainer &row);
+	bool UpdateUserDefinedField(const RowContainer &row);
 
-	bool AddUdfEntry(const RowResult &row);
-	bool DeleteUdfEntry(const RowResult &row);
-	bool UpdateUdfEntry(const RowResult &row);
+	bool AddUdfEntry(const RowContainer &row);
+	bool DeleteUdfEntry(const RowContainer &row);
+	bool UpdateUdfEntry(const RowContainer &row);
+
+
 
 	Database database_;
 

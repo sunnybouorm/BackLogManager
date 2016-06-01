@@ -3,7 +3,7 @@
 
 /*overloaded operators*/
 //------------------------------------------------------------------------------------------------
-bool operator==(const RowResult &res1, const RowResult &res2) {
+bool operator==(const RowContainer &res1, const RowContainer &res2) {
 	if (res1.size() != res2.size()) {return false; }
 	else {
 		for (std::vector<ColumnContainer>::size_type i = 0; i!= res1.size() ; i++){
@@ -14,20 +14,20 @@ bool operator==(const RowResult &res1, const RowResult &res2) {
 	}
 	return true;
 }
-bool operator!=(const RowResult &res1, const RowResult &res2) {
+bool operator!=(const RowContainer &res1, const RowContainer &res2) {
 	if (res1 == res2) { return false; }
 	else { return true; }
 }
 
-bool operator==(const std::vector<RowResult> &res1, const std::vector<RowResult> &res2) {
+bool operator==(const std::vector<RowContainer> &res1, const std::vector<RowContainer> &res2) {
 	if (res1.size() != res2.size()) { return false; }
 	else {
-		for (std::vector<RowResult>::size_type i = 0; i != res1.size(); i++) {
+		for (std::vector<RowContainer>::size_type i = 0; i != res1.size(); i++) {
 			if (res1[i] != res2[i]) { return false; }
 		}
 	} return true;
 }
-bool operator!=(const std::vector<RowResult> &res1, const std::vector<RowResult> &res2) {
+bool operator!=(const std::vector<RowContainer> &res1, const std::vector<RowContainer> &res2) {
 	if (res1 == res2) { return false; }
 	else { return true; }
 }
@@ -44,7 +44,7 @@ static int StatementCallback(void *db_object, int count, char **data, char **az_
 	int i;
 	Database *this_db = static_cast <Database *> (db_object);
 	ColumnContainer col_res;
-	RowResult row_res;
+	RowContainer row_res;
 	for (i = 0; i < count; i++) {
 		col_res.column_name = az_col_name[i];
 		col_res.column_data = data[i] ? data[i] : "NULL";// if data[i] then data[i] else "NULL"

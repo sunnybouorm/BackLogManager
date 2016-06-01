@@ -31,7 +31,7 @@ int Core::GenerateUniqueIntId(const std::string &table_name, const std::string &
 	int current_id, previous_id;
 	previous_id = 0;
 	if (raw_result.empty() == true) { return (id = 1); }
-	for (std::vector<RowResult>::iterator i = raw_result.begin(); i != raw_result.end(); ++i)
+	for (std::vector<RowContainer>::iterator i = raw_result.begin(); i != raw_result.end(); ++i)
 	{
 		auto j = i->begin();
 		current_id = std::stoi(j->column_data);
@@ -77,16 +77,16 @@ std::string Core::CommaSeparate(std::vector<std::string> &data, const std::strin
  * parameters:
  * > row contains the column data to insert into the new activity record,
  * in this case only an activity name is required no need to worry about activity_ID as it is 
- * automatically generated. Check "Database.h" for more information on RowResult data type
+ * automatically generated. Check "Database.h" for more information on RowContainer data type
  *
  * psuedo code:
- * > RowResult row = vector< {column_name = "Name", column_data = "[MyactivityName]"} >;
+ * > RowContainer row = vector< {column_name = "Name", column_data = "[MyactivityName]"} >;
  * > this.AddActivity(row);
  *-------------------------------------------------------------
  * Notes:
  * > Requires an open connection to database
  */
-bool Core::AddActivity(const RowResult &row) {
+bool Core::AddActivity(const RowContainer &row) {
 	std::stringstream ss;
 	std::string err_msg_1;
 
@@ -142,16 +142,16 @@ bool Core::AddActivity(const RowResult &row) {
 * parameters:
 * > row contains the column data required to identify the record to delete,
 * in this case only an activity ID is required. 
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector< {column_name = "ActivityID", column_data = "[MyactivityID]"} >;
+* > RowContainer row = vector< {column_name = "ActivityID", column_data = "[MyactivityID]"} >;
 * > this.DeleteActivity(row);
 *-------------------------------------------------------------
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::DeleteActivity(const RowResult &row) {
+bool Core::DeleteActivity(const RowContainer &row) {
 	std::stringstream ss;
 	std::string err_msg_1;
 
@@ -195,10 +195,10 @@ bool Core::DeleteActivity(const RowResult &row) {
 * > row contains the column data required to identify the record to update. In this case
 * the primary key ActivityID is compulsory, the other attributes are optional as long as a minimum 
 * of a single optional attribute is updated.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector< 
+* > RowContainer row = vector< 
 *	{column_name = "ActivityID",	column_data = "[MyactivityID]"	}
 *	{column_name = "Name"		 ,	column_data = "[MyName]"		}>;
 * > this.UpdateActivity(row);
@@ -206,7 +206,7 @@ bool Core::DeleteActivity(const RowResult &row) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::UpdateActivity(const RowResult &row) {
+bool Core::UpdateActivity(const RowContainer &row) {
 	bool is_successful = false;
 
 	std::stringstream ss;
@@ -261,10 +261,10 @@ bool Core::UpdateActivity(const RowResult &row) {
 * > row contains the column data to insert into the new listing record,
 * in this case only a title and associated activity ID are required, no need to worry about
 * the listing ID as it is automatically generated.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector< 
+* > RowContainer row = vector< 
 * {column_name = "Title"		, column_data = "[MyTitle]"		} 
 * {column_name = "ActivityID"	, column_data = "[MyActivityID]"} >;
 * > this.AddActivity(row);
@@ -272,7 +272,7 @@ bool Core::UpdateActivity(const RowResult &row) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::AddListing(const RowResult &row) {
+bool Core::AddListing(const RowContainer &row) {
 	std::string err_msg_1 = "Core Warning: attempting to add listing with incompatible data\n";
 
 	std::string table_name, col_name_1, col_name_2, col_name_3, into_clause, value_clause;
@@ -330,16 +330,16 @@ bool Core::AddListing(const RowResult &row) {
 * parameters:
 * > row contains the column data required to identify the record to delete,
 * in this case only a listing ID is required.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector< {column_name = "LID", column_data = "[MyLID]"} >;
+* > RowContainer row = vector< {column_name = "LID", column_data = "[MyLID]"} >;
 * > this.DeleteActivity(row);
 *-------------------------------------------------------------
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::DeleteListing(const RowResult &row) {
+bool Core::DeleteListing(const RowContainer &row) {
 	std::stringstream ss;
 	std::string err_msg_1;
 
@@ -381,10 +381,10 @@ bool Core::DeleteListing(const RowResult &row) {
 * > row contains the column data required to identify the record to update. In this case
 * the primary key LID is compulsory, the other attributes are optional as long as a minimum 
 * of a single optional attribute is updated.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector<
+* > RowContainer row = vector<
 *	{column_name = "LID"		,	column_data = "[MyLID]"			}
 *	{column_name = "Title"		,	column_data = "[MyTitle]		}
 *	{column_name = "ActivityID"	,	column_data = "[MyActivityID]"	}>;
@@ -393,7 +393,7 @@ bool Core::DeleteListing(const RowResult &row) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::UpdateListing(const RowResult &row) {
+bool Core::UpdateListing(const RowContainer &row) {
 	bool is_successful = false;
 
 	std::stringstream ss;
@@ -454,10 +454,10 @@ bool Core::UpdateListing(const RowResult &row) {
 * parameters:
 * > row contains the column data to insert into the new record,
 * In this case the primary key UDFID is not compulsory, as it is automatically generated.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector<
+* > RowContainer row = vector<
 * {column_name = "UDFID"		, column_data = "[MyUDFID]"			}
 * {column_name = "Name"			, column_data = "[MyName]"			}
 * {column_name = "DataType"		, column_data = "[MyDataType]"		} 
@@ -469,7 +469,7 @@ bool Core::UpdateListing(const RowResult &row) {
 * > Requires an open connection to database
 * > The attribute Datatype has three options, {"string","int","bool"}
 */
-bool Core::AddUserDefinedField(const RowResult &row) {
+bool Core::AddUserDefinedField(const RowContainer &row) {
 	std::stringstream ss;
 	std::string err_msg_1;
 
@@ -537,16 +537,16 @@ bool Core::AddUserDefinedField(const RowResult &row) {
 * parameters:
 * > row contains the column data required to identify the record to delete,
 * in this case only a UDFID is required.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} >;
+* > RowContainer row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} >;
 * > this.DeleteActivity(row);
 *-------------------------------------------------------------
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::DeleteUserDefinedField(const RowResult &row) {
+bool Core::DeleteUserDefinedField(const RowContainer &row) {
 	std::stringstream ss;
 	std::string err_msg_1;
 
@@ -587,10 +587,10 @@ bool Core::DeleteUserDefinedField(const RowResult &row) {
 * > row contains the column data required to identify the record to update. In this case
 * the primary key UDFID is compulsory, the other attributes are optional as long as a minimum
 * of a single optional attribute is updated.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector<
+* > RowContainer row = vector<
 *	{column_name = "UDFID"			,	column_data = "[MyUDFID]"		}
 *	{column_name = "Name"			,	column_data = "[MyName]		}
 *	{column_name = "DataType"		,	column_data = "[MyDataType]"	} 
@@ -601,7 +601,7 @@ bool Core::DeleteUserDefinedField(const RowResult &row) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::UpdateUserDefinedField(const RowResult &row) {
+bool Core::UpdateUserDefinedField(const RowContainer &row) {
 	bool is_successful = false;
 
 	std::stringstream ss;
@@ -695,17 +695,17 @@ bool Core::UpdateUserDefinedField(const RowResult &row) {
 * parameters:
 * > row contains the column data to insert into the new record,
 * In this case the primary key UDFID is not compulsory, as it is automatically generated.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector<
+* > RowContainer row = vector<
 * {column_name = "Data"	, column_data = "[MyData]"	} >;
 * > this.AddUserDefinedField(row);
 *-------------------------------------------------------------
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::AddUdfEntry(const RowResult &row) {
+bool Core::AddUdfEntry(const RowContainer &row) {
 	std::stringstream ss;
 	std::string err_msg_1;
 
@@ -767,17 +767,17 @@ bool Core::AddUdfEntry(const RowResult &row) {
 * parameters:
 * > row contains the column data required to identify the record to delete,
 * in this case Data and associated UDFID are required to uniquely identify the record.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} 
+* > RowContainer row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} 
 *							{column_name = "Data" , column_data = "[MyData]"} >;
 * > this.DeleteActivity(row);
 *-------------------------------------------------------------
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::DeleteUdfEntry(const RowResult &row) {
+bool Core::DeleteUdfEntry(const RowContainer &row) {
 	std::stringstream ss;
 	std::string err_msg_1;
 
@@ -832,10 +832,10 @@ bool Core::DeleteUdfEntry(const RowResult &row) {
 * parameters:
 * > row contains the column data required to identify the record to update. 
 * in this case Data and associated UDFID are required to uniquely identify the record.
-* Check "Database.h" for more information on RowResult data type
+* Check "Database.h" for more information on RowContainer data type
 *
 * psuedo code:
-* > RowResult row = vector<
+* > RowContainer row = vector<
 *	{column_name = "UDFID"		,	column_data = "[MyUDFID]"	}
 *	{column_name = "Data"		,	column_data = "[MyName]		} >;
 * > this.UpdateActivity(row);
@@ -843,7 +843,7 @@ bool Core::DeleteUdfEntry(const RowResult &row) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::UpdateUdfEntry(const RowResult &row) {
+bool Core::UpdateUdfEntry(const RowContainer &row) {
 	bool is_successful = false;
 
 	std::stringstream ss;

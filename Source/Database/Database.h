@@ -9,8 +9,8 @@ typedef struct ColumnStruct {//stores a single column element
 	std::string column_data;
 } ColumnContainer;
 
-typedef std::vector <ColumnContainer> RowResult;
-typedef std::vector <RowResult> TableResult;
+typedef std::vector <ColumnContainer> RowContainer;
+typedef std::vector <RowContainer> TableResult;
 
 typedef struct QueryStruct {//used to generate an SQL query
 	std::string table_name;
@@ -25,10 +25,10 @@ typedef struct QueryStruct {//used to generate an SQL query
 
 } QueryContainer;
 
-bool operator==(const RowResult &res1, const RowResult &res2);
-bool operator!=(const RowResult &res1, const RowResult &res2);
-bool operator==(const std::vector<RowResult> &res1, const std::vector<RowResult> &res2);
-bool operator!=(const std::vector<RowResult> &res1, const std::vector<RowResult> &res2);
+bool operator==(const RowContainer &res1, const RowContainer &res2);
+bool operator!=(const RowContainer &res1, const RowContainer &res2);
+bool operator==(const std::vector<RowContainer> &res1, const std::vector<RowContainer> &res2);
+bool operator!=(const std::vector<RowContainer> &res1, const std::vector<RowContainer> &res2);
 
 //Database model file
 const std::string kDbName("db.db3");
@@ -53,7 +53,7 @@ public :
 	bool Delete(const QueryContainer &table);
 	bool Update(const QueryContainer &table);
 
-	std::vector<RowResult> read_result_buffer() { return this->result_buffer_; }
+	std::vector<RowContainer> read_result_buffer() { return this->result_buffer_; }
 
 	bool is_exist();//checks if this instance's database file exists
 
@@ -63,7 +63,7 @@ public :
 private:
 	friend static int StatementCallback(void *db_object, int count, char **data, char **az_col_name);
 
-	void push_to_result_buffer(RowResult value) { this->result_buffer_.push_back(value); }
+	void push_to_result_buffer(RowContainer value) { this->result_buffer_.push_back(value); }
 	void clear_result_buffer() { this->result_buffer_.clear(); }
 
 	//directory configuration
