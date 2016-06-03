@@ -27,10 +27,13 @@ public:
 	bool DeleteUserDefinedField(const RowContainer &row);
 	bool UpdateUserDefinedField(const RowContainer &row);
 
-	bool AddUdfEntry(const RowContainer &row);
+	bool AddUdfEntry   (const RowContainer &row);
 	bool DeleteUdfEntry(const RowContainer &row);
 	bool UpdateUdfEntry(const RowContainer &row);
 
+	bool AddUdfListingM2M(const RowContainer &row);
+	bool InsertUdfListingM2M(const RowContainer &row);
+	bool DeleteUdfListingM2M(const RowContainer &row);
 
 
 	Database database_;

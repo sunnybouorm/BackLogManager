@@ -10,7 +10,7 @@ typedef struct ColumnStruct {//stores a single column element
 } ColumnContainer;
 
 typedef std::vector <ColumnContainer> RowContainer;
-typedef std::vector <RowContainer> TableResult;
+typedef std::vector <RowContainer> TableContainer;
 
 typedef struct QueryStruct {//used to generate an SQL query
 	std::string table_name;
@@ -72,7 +72,7 @@ private:
 	std::string db_dir_uri_;
 	const static int default_flags_ = SQLITE_OPEN_URI | SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
 	sqlite3 *db_;
-	TableResult result_buffer_;
+	TableContainer result_buffer_;
 	File db_file_;
 };
 

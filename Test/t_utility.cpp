@@ -1,12 +1,12 @@
 #include "../Source/stdafx.h"
 #include "t_utility.h"
 
-void PrintTableResult(TableResult data) {
+void PrintTableResult(TableContainer data) {
 
 	int row_count = 0;
 	std::cout
 		<< "----------------------\n"
-		<< "TableResult contents:\n"
+		<< "TableContainer contents:\n"
 		<< "----------------------\n";
 	if (data.empty() == false) {
 		for (auto row = data.begin(); row != data.end(); row++) {
@@ -26,7 +26,7 @@ void PrintTableResult(TableResult data) {
 
 	std::cout
 		<< "______________________\n"
-		<< "TableResult END"
+		<< "TableContainer END"
 		<< "\n\n";
 
 }

@@ -1,6 +1,8 @@
 #include "../stdafx.h"
 #include "core.h"
 
+//TODO: move insert/delete/update function to database.h and reduce amount of code by writing more functions
+
 Core::Core(Database &db) {
 	this->database_ = db;
 }
@@ -14,7 +16,7 @@ Core::Core(Database &db) {
 int Core::GenerateUniqueIntId(const std::string &table_name, const std::string &id_name) {
 	int id = 0;
 	//fetch occupied ids by ascending order
-	TableResult raw_result;
+	TableContainer raw_result;
 	std::string sql;
 	sql  = "SELECT ";
 	sql += id_name;

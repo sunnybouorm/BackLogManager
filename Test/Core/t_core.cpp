@@ -41,12 +41,12 @@ SCENARIO("A single activity is added, updated and deleted")
 			col_res.column_data = activity_name;
 			row_res.push_back(col_res);
 
-			TableResult expected;
+			TableContainer expected;
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
 			core.database_.SqlCommand("SELECT Name FROM Activity\n");
-			TableResult result = core.database_.read_result_buffer();
+			TableContainer result = core.database_.read_result_buffer();
 
 			THEN("it must be registered by the database correctly")
 			{
@@ -101,7 +101,7 @@ SCENARIO("A single activity is added, updated and deleted")
 					deletion_is_success = core.DeleteActivity(row);
 
 					core.database_.SqlCommand("SELECT * FROM Activity;");
-					TableResult result = core.database_.read_result_buffer();
+					TableContainer result = core.database_.read_result_buffer();
 
 					THEN("it must be removed from the database")
 					{
@@ -161,7 +161,7 @@ SCENARIO("Multiple activities are added and deleted")
 			//-------------------------------------------------
 			ColumnContainer col_res;
 			RowContainer row_res;
-			TableResult expected;
+			TableContainer expected;
 
 			col_res.column_name = "Name";
 
@@ -181,7 +181,7 @@ SCENARIO("Multiple activities are added and deleted")
 			//-------------------------------------------------
 
 			core.database_.SqlCommand("SELECT Name FROM Activity\n");
-			TableResult result = core.database_.read_result_buffer();
+			TableContainer result = core.database_.read_result_buffer();
 
 			THEN("the changes must be regisitered by the database correctly")
 			{
@@ -226,7 +226,7 @@ SCENARIO("Multiple activities are added and deleted")
 					deletion_is_success &= core.DeleteActivity(row);
 
 					core.database_.SqlCommand("SELECT Name FROM Activity\n");
-					TableResult result = core.database_.read_result_buffer();
+					TableContainer result = core.database_.read_result_buffer();
 					THEN("all activity records must seize to exist")
 					{
 						REQUIRE(deletion_is_success == true);
@@ -261,7 +261,7 @@ SCENARIO("Multiple activities are added and deleted")
 					deletion_is_success &= core.DeleteActivity(row);
 
 					core.database_.SqlCommand("SELECT Name FROM Activity\n");
-					TableResult result = core.database_.read_result_buffer();
+					TableContainer result = core.database_.read_result_buffer();
 
 					expected.pop_back();
 					expected.erase(expected.begin());
@@ -326,12 +326,12 @@ SCENARIO("A single listing is added and deleted")
 			col_res.column_data = activity_id;
 			row_res.push_back(col_res);
 
-			TableResult expected;
+			TableContainer expected;
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
 			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing;");
-			TableResult result = core.database_.read_result_buffer();
+			TableContainer result = core.database_.read_result_buffer();
 
 			THEN("it must be registered by the database correctly")
 			{
@@ -436,7 +436,7 @@ SCENARIO("Multiple listings are added and deleted")
 			//-------------------------------------------------
 			ColumnContainer col_res1, col_res2;
 			RowContainer row_res;
-			TableResult expected;
+			TableContainer expected;
 
 			col_res1.column_name = "Title";
 			col_res2.column_name = "ActivityID";
@@ -463,7 +463,7 @@ SCENARIO("Multiple listings are added and deleted")
 			//-------------------------------------------------
 
 			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing\n");
-			TableResult result = core.database_.read_result_buffer();
+			TableContainer result = core.database_.read_result_buffer();
 
 			THEN("the changes must be regisitered by the database correctly")
 			{
@@ -572,7 +572,7 @@ SCENARIO("A single listing is updated")
 		WHEN("the listing is updated")
 		{
 			bool update_is_successful = false;
-			TableResult result, expected;
+			TableContainer result, expected;
 
 			REQUIRE(core.database_.SqlCommand("SELECT LID FROM Listing WHERE Title='The Great Escape'"));
 			result = core.database_.read_result_buffer();
@@ -625,7 +625,7 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 			RowContainer row;
 			row.clear();
 
-			TableResult result, expected;
+			TableContainer result, expected;
 
 			std::string name, data_type, description, activity_id, sql;
 
@@ -758,7 +758,7 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 			RowContainer row;
 			row.clear();
 
-			TableResult result, expected;
+			TableContainer result, expected;
 			std::string udfid, data, sql;
 
 			udfid		= "1";
