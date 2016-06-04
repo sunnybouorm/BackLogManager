@@ -15,6 +15,7 @@ typedef std::vector <RowContainer> TableContainer;
 typedef struct QueryStruct {//used to generate an SQL query
 	std::string table_name;
 	std::vector<ColumnContainer> columns;
+	std::vector<std::string> primary_keys;
 
 	std::string select_clause;
 	std::string value_clause;
@@ -54,7 +55,6 @@ public :
 	bool Update(const QueryContainer &table);
 
 	std::vector<RowContainer> read_result_buffer() { return this->result_buffer_; }
-
 	bool is_exist();//checks if this instance's database file exists
 
 	//Diagnostic

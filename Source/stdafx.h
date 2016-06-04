@@ -16,5 +16,6 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <vector>
+#include <map>
 
 #endif // BACKLOGMANAGER_SOURCE_STDAFX_H_

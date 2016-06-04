@@ -1,14 +1,43 @@
 #include "../stdafx.h"
 #include "core.h"
 
-//TODO: move insert/delete/update function to database.h and reduce amount of code by writing more functions
+
+
+const DbMap Core::init_db_map() {
+
+	const std::multimap<const std::string, const std::string> DbMapContainer = {
+		{ "Activity", "ActivityID"	},
+		{ "Activity", "Name"		},
+
+		{ "Listing"	, "LID"			},
+		{ "Listing"	, "Title"		},
+		{ "Listing"	, "ActivityID"	},
+
+		{ "UserDefinedField", "UDFID"		},
+		{ "UserDefinedField", "Name"		},
+		{ "UserDefinedField", "DataType"	},
+		{ "UserDefinedField", "Description" },
+		{ "UserDefinedField", "ActivityID"	},
+
+		{ "UDFentry", "Data"	},
+		{ "UDFentry", "UDFID"	},
+
+		{ "Listing_UDFentry", "LID"			},
+		{ "Listing_UDFentry", "UDFID"		},
+		{ "Listing_UDFentry", "EntryData"	}
+	};
+
+	return DbMapContainer;
+}
+
+const DbMap Core::kDatabaseMap = Core::init_db_map();
 
 Core::Core(Database &db) {
 	this->database_ = db;
 }
 
 /*
-* Finds and returns unused integer ID for a specified table entry to occupy
+* Finds and returns unused integer ID for a specified query entry to occupy
 *-----------------------------------------------------------------------------------
 * NOTE:
 * > id = 0 is reserved, NEVER occupy it;
@@ -99,7 +128,7 @@ bool Core::AddActivity(const RowContainer &row) {
 	bool is_successful = false;
 	std::string into_clause, value_clause, table_name, col_name_1, col_name_2, activity_name;
 	std::vector<std::string> temp_name_vec, temp_val_vec;
-	QueryContainer table;
+	QueryContainer query;
 
 	if (row.begin()->column_name != "Name") { 
 		std::cerr << err_msg_1;
@@ -119,20 +148,20 @@ bool Core::AddActivity(const RowContainer &row) {
 	temp_name_vec = { col_name_1, col_name_2 };
 	temp_val_vec  = { std::to_string(activity_id), activity_name };
 
-	table.table_name = table_name;
+	query.table_name = table_name;
 
-	into_clause  = table.table_name;
+	into_clause  = query.table_name;
 	into_clause += "(";
 	into_clause += this->CommaSeparate(temp_name_vec);
 	into_clause += ")";
-	table.into_clause = into_clause;
+	query.into_clause = into_clause;
 
 	value_clause  = "(";
 	value_clause += this->CommaSeparate(temp_val_vec, "'");
 	value_clause += ")";
-	table.value_clause = value_clause;
+	query.value_clause = value_clause;
 
-	is_successful = this->database_.Insert(table);
+	is_successful = this->database_.Insert(query);
 
 	return is_successful;
 }
@@ -163,7 +192,7 @@ bool Core::DeleteActivity(const RowContainer &row) {
 
 	bool is_successful = false;
 	std::string where_clause, col_name, col_val, activity_id;
-	QueryContainer table;
+	QueryContainer query;
 
 	if (row.begin()->column_name != "ActivityID") { 
 		std::cerr << err_msg_1;
@@ -174,7 +203,7 @@ bool Core::DeleteActivity(const RowContainer &row) {
 	}
 
 	activity_id = row.begin()->column_data;
-	table.table_name	= "Activity";
+	query.table_name	= "Activity";
 	col_name			= "ActivityID";
 	col_val				= activity_id;
 
@@ -183,9 +212,9 @@ bool Core::DeleteActivity(const RowContainer &row) {
 	where_clause += "'";
 	where_clause += col_val;
 	where_clause += "'";
-	table.where_clause = where_clause;
+	query.where_clause = where_clause;
 
-	is_successful = this->database_.Delete(table);
+	is_successful = this->database_.Delete(query);
 
 	return is_successful;
 }
@@ -233,24 +262,24 @@ bool Core::UpdateActivity(const RowContainer &row) {
 	}
 
 	std::string set_clause, where_clause;
-	QueryContainer table;
-	table.table_name = "Activity";
+	QueryContainer query;
+	query.table_name = "Activity";
 
 	set_clause += "Name=";
 	set_clause += "'";
 	set_clause += activity_name;
 	set_clause += "'";
 
-	table.set_clause = set_clause;
+	query.set_clause = set_clause;
 
 	where_clause  = "ActivityID=";
 	set_clause += "'";
 	where_clause += activity_id;
 	set_clause += "'";
 
-	table.where_clause = where_clause;
+	query.where_clause = where_clause;
 
-	is_successful = this->database_.Update(table);
+	is_successful = this->database_.Update(query);
 
 	return is_successful;
 }
@@ -306,22 +335,22 @@ bool Core::AddListing(const RowContainer &row) {
 	temp_name_vec = {col_name_1, col_name_2, col_name_3};
 	temp_val_vec  = {std::to_string(lid), title, activity_id };
 
-	QueryContainer table;
+	QueryContainer query;
 
-	table.table_name = table_name;
+	query.table_name = table_name;
 
-	into_clause  = table.table_name;
+	into_clause  = query.table_name;
 	into_clause += "(";
 	into_clause += this->CommaSeparate(temp_name_vec);
 	into_clause += ")";
-	table.into_clause = into_clause;
+	query.into_clause = into_clause;
 
 	value_clause = "(";
 	value_clause += this->CommaSeparate(temp_val_vec,"'");
 	value_clause += ")";
-	table.value_clause = value_clause;
+	query.value_clause = value_clause;
 	
-	is_successful = this->database_.Insert(table);
+	is_successful = this->database_.Insert(query);
 
 	return is_successful;
 }
@@ -351,7 +380,7 @@ bool Core::DeleteListing(const RowContainer &row) {
 
 	bool is_successful = false;
 	std::string where_clause, col_name, col_val, lid;
-	QueryContainer table;
+	QueryContainer query;
 
 	if((row.begin()->column_name != "LID") || (row.begin()->column_data.empty() == true)) {
 		std::cerr << err_msg_1;
@@ -359,7 +388,7 @@ bool Core::DeleteListing(const RowContainer &row) {
 	}
 
 	lid = row.begin()->column_data;
-	table.table_name	= "Listing";
+	query.table_name	= "Listing";
 	col_name			= "LID";
 	col_val				= lid;
 
@@ -368,9 +397,9 @@ bool Core::DeleteListing(const RowContainer &row) {
 	where_clause += "'";
 	where_clause += col_val;
 	where_clause += "'";
-	table.where_clause = where_clause;
+	query.where_clause = where_clause;
 
-	is_successful = this->database_.Delete(table);
+	is_successful = this->database_.Delete(query);
 
 	return is_successful;
 }
@@ -418,8 +447,8 @@ bool Core::UpdateListing(const RowContainer &row) {
 	if (lid.empty() == true) { std::cerr << err_msg_1; return is_successful = false; }
 
 	std::string set_clause, where_clause;
-	QueryContainer table;
-	table.table_name = "Listing";
+	QueryContainer query;
+	query.table_name = "Listing";
 
 	if (title.empty() == false) {
 		set_clause += "Title=";
@@ -436,15 +465,15 @@ bool Core::UpdateListing(const RowContainer &row) {
 		set_clause += activity_id;
 		set_clause += "'";
 	}
-	table.set_clause = set_clause;
+	query.set_clause = set_clause;
 
 	where_clause = "LID=";
 	set_clause += "'";
 	where_clause += lid;
 	set_clause += "'";
 
-	table.where_clause = where_clause;
-	is_successful = this->database_.Update(table);
+	query.where_clause = where_clause;
+	is_successful = this->database_.Update(query);
 
 	return is_successful;
 }
@@ -512,22 +541,22 @@ bool Core::AddUserDefinedField(const RowContainer &row) {
 	temp_name_vec = { col_name_1, col_name_2, col_name_3, col_name_4, col_name_5};
 	temp_val_vec  = { udfid, name, data_type, description, activity_id };
 
-	QueryContainer table;
+	QueryContainer query;
 
-	table.table_name = table_name;
+	query.table_name = table_name;
 
-	into_clause = table.table_name;
+	into_clause = query.table_name;
 	into_clause += "(";
 	into_clause += this->CommaSeparate(temp_name_vec);
 	into_clause += ")";
-	table.into_clause = into_clause;
+	query.into_clause = into_clause;
 
 	value_clause = "(";
 	value_clause += this->CommaSeparate(temp_val_vec, "'");
 	value_clause += ")";
-	table.value_clause = value_clause;
+	query.value_clause = value_clause;
 
-	is_successful = this->database_.Insert(table);
+	is_successful = this->database_.Insert(query);
 
 	return is_successful;
 }
@@ -558,7 +587,7 @@ bool Core::DeleteUserDefinedField(const RowContainer &row) {
 
 	bool is_successful = false;
 	std::string where_clause, col_name, col_val, udfid;
-	QueryContainer table;
+	QueryContainer query;
 
 	if ((row.begin()->column_name != "UDFID") || (row.begin()->column_data.empty() == true)) {
 		std::cerr << err_msg_1;
@@ -566,7 +595,7 @@ bool Core::DeleteUserDefinedField(const RowContainer &row) {
 	}
 
 	udfid = row.begin()->column_data;
-	table.table_name = "UserDefinedField";
+	query.table_name = "UserDefinedField";
 	col_name = "UDFID";
 	col_val = udfid;
 
@@ -575,9 +604,9 @@ bool Core::DeleteUserDefinedField(const RowContainer &row) {
 	where_clause += "'";
 	where_clause += col_val;
 	where_clause += "'";
-	table.where_clause = where_clause;
+	query.where_clause = where_clause;
 
-	is_successful = this->database_.Delete(table);
+	is_successful = this->database_.Delete(query);
 
 	return is_successful;
 }
@@ -638,9 +667,9 @@ bool Core::UpdateUserDefinedField(const RowContainer &row) {
 	}
 
 	std::string set_clause, where_clause;
-	QueryContainer table;
+	QueryContainer query;
 	bool is_next = false;
-	table.table_name = "UserDefinedField";
+	query.table_name = "UserDefinedField";
 
 	if (name.empty() == false) {
 		set_clause += "Name=";
@@ -678,15 +707,15 @@ bool Core::UpdateUserDefinedField(const RowContainer &row) {
 		set_clause += activity_id;
 		set_clause += "'";
 	}	
-	table.set_clause = set_clause;
+	query.set_clause = set_clause;
 
 	where_clause = "UDFID=";
 	set_clause += "'";
 	where_clause += udfid;
 	set_clause += "'";
 
-	table.where_clause = where_clause;
-	is_successful = this->database_.Update(table);
+	query.where_clause = where_clause;
+	is_successful = this->database_.Update(query);
 
 	return is_successful;
 }
@@ -743,22 +772,22 @@ bool Core::AddUdfEntry(const RowContainer &row) {
 	temp_name_vec = { col_name_1, col_name_2};
 	temp_val_vec  = { udfid		, data};
 
-	QueryContainer table;
+	QueryContainer query;
 
-	table.table_name = table_name;
+	query.table_name = table_name;
 
-	into_clause = table.table_name;
+	into_clause = query.table_name;
 	into_clause += "(";
 	into_clause += this->CommaSeparate(temp_name_vec);
 	into_clause += ")";
-	table.into_clause = into_clause;
+	query.into_clause = into_clause;
 
 	value_clause = "(";
 	value_clause += this->CommaSeparate(temp_val_vec, "'");
 	value_clause += ")";
-	table.value_clause = value_clause;
+	query.value_clause = value_clause;
 
-	is_successful = this->database_.Insert(table);
+	is_successful = this->database_.Insert(query);
 
 	return is_successful;
 }
@@ -789,7 +818,7 @@ bool Core::DeleteUdfEntry(const RowContainer &row) {
 
 	bool is_successful = false;
 	std::string where_clause, col_name, col_val, udfid, data;
-	QueryContainer table;
+	QueryContainer query;
 
 	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
 	for (auto column = row.begin(); column != row.end(); ++column) {
@@ -802,7 +831,7 @@ bool Core::DeleteUdfEntry(const RowContainer &row) {
 		return is_successful = false; 
 	}
 
-	table.table_name = "UDFentry";
+	query.table_name = "UDFentry";
 
 	col_name = "UDFID";
 	col_val	 = udfid;
@@ -822,8 +851,8 @@ bool Core::DeleteUdfEntry(const RowContainer &row) {
 	where_clause += col_val;
 	where_clause += "'";
 
-	table.where_clause = where_clause;
-	is_successful = this->database_.Delete(table);
+	query.where_clause = where_clause;
+	is_successful = this->database_.Delete(query);
 
 	return is_successful;
 }
@@ -877,23 +906,44 @@ bool Core::UpdateUdfEntry(const RowContainer &row) {
 	}
 
 	std::string set_clause, where_clause;
-	QueryContainer table;
+	QueryContainer query;
 
-	table.table_name = "UDFentry";
+	query.table_name = "UDFentry";
 
 	set_clause += "Data=";
 	set_clause += "'";
 	set_clause += data;
 	set_clause += "'";
-	table.set_clause = set_clause;
+	query.set_clause = set_clause;
 
 	where_clause = "UDFID=";
 	set_clause += "'";
 	where_clause += udfid;
 	set_clause += "'";
 
-	table.where_clause = where_clause;
-	is_successful = this->database_.Update(table);
+	query.where_clause = where_clause;
+	is_successful = this->database_.Update(query);
 
 	return is_successful;
 }
+
+bool AddUdfListingM2M(const RowContainer &row);
+bool InsertUdfListingM2M(const RowContainer &row);
+bool DeleteUdfListingM2M(const RowContainer &row);
+
+//bool Insert(QueryContainer &query) {//TODO
+//
+//
+//
+//
+//		 if (query.table_name == "Activity"){}
+//	else if (query.table_name == "Listing") {}
+//	else if (query.table_name == "UserDefinedField") {}
+//	else if (query.table_name == "UDFentry") {}
+//	else if (query.table_name == "Listing_UDFentry") {}
+//	else {}
+//}
+//
+//
+//bool Delete(QueryContainer &query);
+//bool Update(QueryContainer &query);

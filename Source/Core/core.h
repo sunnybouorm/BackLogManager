@@ -2,6 +2,9 @@
 #define BACKLOGMANAGER_CORE_CORE_H_
 #include "../Database/database.h"
 
+
+typedef std::multimap<const std::string, const std::string> DbMap;
+
 /*
  * Core application that interfaces with GUI and Database
  *---------------------------------------------------------------------------------------------
@@ -9,11 +12,14 @@
  * > Some methods invoked require an open connection to a database Object to function properly,
  * ensure that an open connection is established before invoking any methods that require it.
  */
-
 class Core {
 
 public:
 	Core(Database &db);
+
+	bool Insert(QueryContainer &query);
+	bool Delete(QueryContainer &query);
+	bool Update(QueryContainer &query);
 
 	bool AddActivity   (const RowContainer &row);
 	bool DeleteActivity(const RowContainer &row);
@@ -35,12 +41,15 @@ public:
 	bool InsertUdfListingM2M(const RowContainer &row);
 	bool DeleteUdfListingM2M(const RowContainer &row);
 
-
 	Database database_;
 
 private:
+	const static std::multimap<const std::string, const std::string> init_db_map();
+
 	int GenerateUniqueIntId(const std::string &table_name, const std::string &id_name);
 	std::string Core::CommaSeparate(std::vector<std::string> &data, const std::string &character="");
-	
+
+	const static DbMap kDatabaseMap;
 };
+
 #endif//BACKLOGMANAGER_CORE_CORE_H_ 
