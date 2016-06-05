@@ -36,6 +36,83 @@ Core::Core(Database &db) {
 	this->database_ = db;
 }
 
+bool Core::Insert(QueryContainer &query) {//TODO
+	bool is_successful = false;
+
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	ss << "Core Warning: Attempting to insert a record "
+		<< "with incompatible data";
+	err_msg_1 = ss.str();
+
+	//check if table specififed exists in database
+	auto table_iter = kDatabaseMap.find(query.table_name);
+	if (table_iter == kDatabaseMap.end()) { 
+		std::cerr << err_msg_1 << ", table <" << query.table_name << "> is invalid\n";
+		return is_successful = false;
+	}
+
+	//check if query columns specified exist in database
+	bool is_exist = false;
+	auto table_range = kDatabaseMap.equal_range(query.table_name);
+	for (auto q_col = query.columns.begin(); q_col != query.columns.end(); ++q_col) {
+		for (auto db_col = table_range.first; db_col != table_range.second; ++db_col) {
+			if (db_col->second == q_col->column_name) { 
+				is_exist = true; 
+				break;
+			}
+		}
+		if (is_exist == false) {
+			std::cerr << err_msg_1 << ", column <" << q_col->column_name << "> is invalid\n";
+			return is_successful = false;
+		} else {is_exist = false;}
+	}
+
+	//select function
+	if (query.table_name == "Activity") {
+		//is_successful = AddActivity(query);
+
+	}
+	//else if (query.table_name == "") {
+
+	//}
+	//else if (query.table_name == "") {
+
+	//}
+	//else if (query.table_name == "") {
+
+	//}
+	//else if (query.table_name == "") {
+
+	//}
+	//else if (query.table_name == "") {
+
+	//}
+
+	return is_successful;
+}
+
+bool Core::Delete(QueryContainer &query) {//TODO
+	bool is_successful = false;
+
+	//error check
+
+	//select function
+
+	return is_successful;
+}
+
+bool Core::Update(QueryContainer &query) {//TODO
+	bool is_successful = false;
+
+	//error check
+
+	//select function
+
+	return is_successful;
+}
+
 /*
 * Finds and returns unused integer ID for a specified query entry to occupy
 *-----------------------------------------------------------------------------------
