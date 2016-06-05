@@ -17,11 +17,9 @@ class Core {
 public:
 	Core(Database &db);
 
-	bool Insert(QueryContainer &query);
-	bool Delete(QueryContainer &query);
-	bool Update(QueryContainer &query);
+	bool SqlRequest(QueryContainer &query);
 
-	bool AddActivity   (const RowContainer &row);
+	bool AddActivity   (const QueryContainer &query);
 	bool DeleteActivity(const RowContainer &row);
 	bool UpdateActivity(const RowContainer &row);
 

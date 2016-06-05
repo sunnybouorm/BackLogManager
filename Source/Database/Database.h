@@ -4,6 +4,8 @@
 #include "sqlite3.h"
 #include "../File_IO.h"
 
+enum Request{INSERT, DELETE, UPDATE};
+
 typedef struct ColumnStruct {//stores a single column element
 	std::string column_name;
 	std::string column_data;
@@ -13,6 +15,7 @@ typedef std::vector <ColumnContainer> RowContainer;
 typedef std::vector <RowContainer> TableContainer;
 
 typedef struct QueryStruct {//used to generate an SQL query
+	Request request;
 	std::string table_name;
 	std::vector<ColumnContainer> columns;
 	std::vector<std::string> primary_keys;

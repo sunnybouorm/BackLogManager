@@ -6,21 +6,21 @@
 const DbMap Core::init_db_map() {
 
 	const std::multimap<const std::string, const std::string> DbMapContainer = {
-		{ "Activity", "ActivityID"	},
-		{ "Activity", "Name"		},
+		{ "Activity", "ActivityID"			},	//automatically generated on insert
+		{ "Activity", "Name"				},
 
-		{ "Listing"	, "LID"			},
-		{ "Listing"	, "Title"		},
-		{ "Listing"	, "ActivityID"	},
+		{ "Listing"	, "LID"					},	//automatically generated on insert
+		{ "Listing"	, "Title"				},
+		{ "Listing"	, "ActivityID"			},
 
-		{ "UserDefinedField", "UDFID"		},
+		{ "UserDefinedField", "UDFID"		},	//automatically generated on insert
 		{ "UserDefinedField", "Name"		},
 		{ "UserDefinedField", "DataType"	},
 		{ "UserDefinedField", "Description" },
 		{ "UserDefinedField", "ActivityID"	},
 
-		{ "UDFentry", "Data"	},
-		{ "UDFentry", "UDFID"	},
+		{ "UDFentry", "Data"				},
+		{ "UDFentry", "UDFID"				},
 
 		{ "Listing_UDFentry", "LID"			},
 		{ "Listing_UDFentry", "UDFID"		},
@@ -36,7 +36,18 @@ Core::Core(Database &db) {
 	this->database_ = db;
 }
 
-bool Core::Insert(QueryContainer &query) {//TODO
+/*
+ * Selects an appropriate function to handle the SQL query given, (Insert/Delete/Update)
+ *
+ * parameters:
+ * > query: contains all data required to construct an SQL query
+ *-------------------------------------------------------------
+ * Notes:
+ * > Requires an open connection to database
+ * > Unique IDs are automatically generated when inserting new records, ensure
+ *   automatically generated IDs are not included when making an insert request.
+ */
+bool Core::SqlRequest(QueryContainer &query) {//TODO
 	bool is_successful = false;
 
 	std::stringstream ss;
@@ -69,9 +80,23 @@ bool Core::Insert(QueryContainer &query) {//TODO
 		} else {is_exist = false;}
 	}
 
-	//select function
-	if (query.table_name == "Activity") {
-		//is_successful = AddActivity(query);
+	//select relavent function to handle request
+	if ( (query.table_name == "Activity") && (query.request == INSERT) ) {
+
+		if (query.columns.size() != 1) {
+			std::cerr	<< err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid."
+						<< " ensure ActivityID is not included in an insert query\n";
+			return is_successful = false;
+		}
+
+		std::string key_name = "ActivityID";
+		ColumnContainer column;
+
+		int activity_id = this->GenerateUniqueIntId(query.table_name, key_name);
+		column.column_name = key_name;
+		column.column_data = std::to_string(activity_id);
+		query.columns.push_back(column);
+		is_successful = AddActivity(query);
 
 	}
 	//else if (query.table_name == "") {
@@ -89,26 +114,6 @@ bool Core::Insert(QueryContainer &query) {//TODO
 	//else if (query.table_name == "") {
 
 	//}
-
-	return is_successful;
-}
-
-bool Core::Delete(QueryContainer &query) {//TODO
-	bool is_successful = false;
-
-	//error check
-
-	//select function
-
-	return is_successful;
-}
-
-bool Core::Update(QueryContainer &query) {//TODO
-	bool is_successful = false;
-
-	//error check
-
-	//select function
 
 	return is_successful;
 }
@@ -194,31 +199,8 @@ std::string Core::CommaSeparate(std::vector<std::string> &data, const std::strin
  * Notes:
  * > Requires an open connection to database
  */
-bool Core::AddActivity(const RowContainer &row) {
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss << "Core Warning: Attempting to add an activity record "
-		<< "with incompatible data\n";
-	err_msg_1 = ss.str();
-
+bool Core::AddActivity(const QueryContainer &query) {
 	bool is_successful = false;
-	std::string into_clause, value_clause, table_name, col_name_1, col_name_2, activity_name;
-	std::vector<std::string> temp_name_vec, temp_val_vec;
-	QueryContainer query;
-
-	if (row.begin()->column_name != "Name") { 
-		std::cerr << err_msg_1;
-		return is_successful = false;
-	} else if (row.begin()->column_data.empty() == true) {
-		std::cerr << err_msg_1;
-		return is_successful = false;
-	}
-	activity_name = row.begin()->column_data;
-
-	table_name = "Activity";
-	col_name_1 = "ActivityID";
-	col_name_2 = "Name";
 
 	int activity_id = this->GenerateUniqueIntId(table_name, col_name_1);
 
