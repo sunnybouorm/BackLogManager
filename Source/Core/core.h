@@ -27,9 +27,9 @@ private:
 	int GenerateUniqueIntId(const std::string &table_name, const std::string &id_name);
 	std::string Core::CommaSeparate(std::vector<std::string> &data, const std::string &character = "");
 
-	bool AddActivity(QueryContainer	&query);
-	bool DeleteActivity(RowContainer &row);
-	bool UpdateActivity(RowContainer &row);
+	bool AddActivity	(QueryContainer	&query);
+	bool DeleteActivity	(QueryContainer	&query);
+	bool UpdateActivity	(QueryContainer	&query);
 
 	bool AddListing(const RowContainer &row);
 	bool DeleteListing(const RowContainer &row);

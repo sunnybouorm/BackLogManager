@@ -69,7 +69,7 @@ Core::Core(Database &db) {
  * > Delete request:
  *   //TODO
  * > Update request:
- *   //TODO
+ *   query elements required: {table_name,columns,request}
  *-------------------------------------------------------------
  * Notes:
  * > Requires an open connection to database
@@ -112,7 +112,7 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 	//select relavent function to handle request
 	if ( (query.table_name == "Activity") && (query.request == INSERT) ) {
 
-		if (query.columns.size() != 1) {
+		if (query.columns.size() !=  kDatabaseMap_.count(query.table_name) - 1) {
 			std::cerr	<< err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid."
 						<< " ensure ActivityID is not included in an insert query\n";
 			return is_successful = false;
@@ -125,10 +125,16 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		column.column_name = key_name;
 		column.column_data = std::to_string(activity_id);
 		query.columns.push_back(column);
-		is_successful = AddActivity(query);
+		is_successful = this->AddActivity(query);
 	}
-	else if ((query.table_name == "Activity") && (query.request == UPDATE)) {
-		//TODO
+	else if ((query.table_name == "Activity") && (query.request == UPDATE)) {//TODO
+
+		if (query.columns.size() != kDatabaseMap_.count(query.table_name) ) {
+			std::cerr << err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid.\n";
+
+			return is_successful = false;
+		}
+		is_successful = this->UpdateActivity(query);
 	}
 	else if ((query.table_name == "Activity") && (query.request == DELETE)) {
 		//TODO
@@ -141,6 +147,35 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 	}
 	else if (query.table_name == "") {
 
+	}
+	else if (query.table_name == "") {
+
+	}
+	else if (query.table_name == "") {
+
+	}
+	else if (query.table_name == "") {
+
+	}
+	else if (query.table_name == "") {
+
+	}
+	else if (query.table_name == "") {
+
+	}
+	else if (query.table_name == "") {
+
+	}
+	else if (query.table_name == "") {
+
+	}
+	else if (query.table_name == "") {
+
+	}
+	else if (query.table_name == "") {
+
+	}
+	else {//TODO: insert error statement
 	}
 
 	return is_successful;
@@ -324,52 +359,34 @@ bool Core::AddActivity(QueryContainer &query) {
 * Notes:
 * > Requires an open connection to database
 */
-//bool Core::UpdateActivity(const RowContainer &row) {
-//	bool is_successful = false;
-//
-//	std::stringstream ss;
-//	std::string err_msg_1;
-//
-//	ss << "Core Warning: attempting to update activity record with "
-//		<< "incompatible data\n";
-//	err_msg_1 = ss.str();
-//
-//	if (row.size() < 2) { std::cerr << err_msg_1; return is_successful = false; }
-//
-//	std::string activity_id, activity_name;
-//	for (auto column = row.begin(); column != row.end(); ++column) {
-//		if (column->column_name == "ActivityID") { activity_id = column->column_data; }
-//		else if (column->column_name == "Name")  { activity_name = column->column_data; }
-//		else { std::cerr << err_msg_1;  is_successful = false; };
-//	}
-//
-//	if ((activity_id.empty() == true) || (activity_name.empty() == true)) {
-//		std::cerr << err_msg_1;
-//		return is_successful = false;
-//	}
-//
-//	std::string set_clause, where_clause;
-//	QueryContainer query;
-//	query.table_name = "Activity";
-//
-//	set_clause += "Name=";
-//	set_clause += "'";
-//	set_clause += activity_name;
-//	set_clause += "'";
-//
-//	query.set_clause = set_clause;
-//
-//	where_clause  = "ActivityID=";
-//	set_clause += "'";
-//	where_clause += activity_id;
-//	set_clause += "'";
-//
-//	query.where_clause = where_clause;
-//
-//	is_successful = this->database_.Update(query);
-//
-//	return is_successful;
-//}
+bool Core::UpdateActivity(QueryContainer &query) {
+	bool is_successful = false;
+
+	std::string set_clause, where_clause, activity_name, activity_id;
+	
+	for (auto it = query.columns.begin(); it != query.columns.end(); ++it) {
+		if		(it->column_name == "Name")			{ activity_name = it->column_data;	}
+		else if (it->column_name == "ActivityID")	{ activity_id	= it->column_data;	}
+	}
+
+	set_clause += "Name=";
+	set_clause += "'";
+	set_clause += activity_name;
+	set_clause += "'";
+
+	query.set_clause = set_clause;
+
+	where_clause  = "ActivityID=";
+	set_clause += "'";
+	where_clause += activity_id;
+	set_clause += "'";
+
+	query.where_clause = where_clause;
+
+	is_successful = this->database_.Update(query);
+
+	return is_successful;
+}
 
 
 /*

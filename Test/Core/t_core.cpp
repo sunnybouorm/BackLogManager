@@ -61,40 +61,45 @@ SCENARIO("A single activity is added, updated and deleted")
 				REQUIRE(creation_is_success == true);
 				REQUIRE(expected == result);
 
-				//AND_WHEN("the activity is updated")
-				//{
-				//	bool update_is_successful = false;
-				//	std::string activity_id;
-				//	ColumnContainer column;
+				AND_WHEN("the activity is updated")
+				{
+					bool update_is_successful = false;
+					std::string activity_id;
+					ColumnContainer column;
+					QueryContainer query;
 
-				//	row.clear();
-				//	core.database_.SqlCommand("SELECT ActivityID FROM Activity");
-				//	result = core.database_.read_result_buffer();
-				//	REQUIRE(result.begin()->begin()->column_name == "ActivityID");
-				//	
-				//	activity_id = result.begin()->begin()->column_data;
-				//	column.column_name = "ActivityID";
-				//	column.column_data = activity_id;
-				//	row.push_back(column);
+					row.clear();
+					core.database_.SqlCommand("SELECT ActivityID FROM Activity");
+					result = core.database_.read_result_buffer();
+					REQUIRE(result.begin()->begin()->column_name == "ActivityID");
+					
+					activity_id = result.begin()->begin()->column_data;
+					column.column_name = "ActivityID";
+					column.column_data = activity_id;
+					row.push_back(column);
 
-				//	column.column_name = "Name";
-				//	column.column_data = "TV";
-				//	row.push_back(column);
-				//	
-				//	update_is_successful = core.UpdateActivity(row);
+					column.column_name = "Name";
+					column.column_data = "TV";
+					row.push_back(column);
+					
+					query.table_name	= table_name;
+					query.columns		= row;
+					query.request		= UPDATE;
 
-				//	expected.clear();
-				//	expected.push_back(row);
+					update_is_successful = core.SqlRequest(query);
 
-				//	core.database_.SqlCommand("SELECT * FROM Activity");
-				//	result = core.database_.read_result_buffer();
+					expected.clear();
+					expected.push_back(row);
 
-				//	THEN("it must be registed by the database successfully")
-				//	{
-				//		REQUIRE(update_is_successful == true);
-				//		REQUIRE(result == expected);
-				//	}
-				//}
+					core.database_.SqlCommand("SELECT * FROM Activity");
+					result = core.database_.read_result_buffer();
+
+					THEN("it must be registed by the database successfully")
+					{
+						REQUIRE(update_is_successful == true);
+						REQUIRE(result == expected);
+					}
+				}
 
 				//AND_WHEN("the activity is deleted")
 				//{
