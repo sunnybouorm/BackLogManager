@@ -4,7 +4,7 @@
 #include "sqlite3.h"
 #include "../File_IO.h"
 
-enum Request{INSERT, DELETE, UPDATE};
+enum Request { INSERT, UPDATE, DELETE };
 
 typedef struct ColumnStruct {//stores a single column element
 	std::string column_name;

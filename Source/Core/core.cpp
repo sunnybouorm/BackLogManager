@@ -30,7 +30,27 @@ const DbMap Core::init_db_map() {
 	return DbMapContainer;
 }
 
-const DbMap Core::kDatabaseMap = Core::init_db_map();
+const DbMap Core::kDatabaseMap_ = Core::init_db_map();
+
+/*
+* Extracts columns from a Rowcontainer object into a different container format
+* > Before:
+*	vector<ColumnContainer>
+*   [ {column_name_0, column_data_0}, {column_name_1, column_data_1}, ...]
+* > After
+* pair[ vector<string>, vector<string> ]
+* [ {column_name_0,column_name_1,...} , {column_data_0,column_data_1,...} ]
+*/
+std::pair<std::vector<std::string>, std::vector<std::string>> row_2_vect(const RowContainer &row) {
+	std::pair<std::vector<std::string>, std::vector<std::string>> result;
+
+	for (auto column = row.begin(); column != row.end(); ++column) {
+		result.first.push_back (column->column_name);
+		result.second.push_back(column->column_data);
+	}
+
+	return result;
+}
 
 Core::Core(Database &db) {
 	this->database_ = db;
@@ -41,6 +61,15 @@ Core::Core(Database &db) {
  *
  * parameters:
  * > query: contains all data required to construct an SQL query
+ *-------------------------------------------------------------
+ * Usage:
+ * > Insert request:
+ *   query elements required: {table_name,columns,request}
+ *   do not include automatically generated primary keys in columns
+ * > Delete request:
+ *   //TODO
+ * > Update request:
+ *   //TODO
  *-------------------------------------------------------------
  * Notes:
  * > Requires an open connection to database
@@ -58,15 +87,15 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 	err_msg_1 = ss.str();
 
 	//check if table specififed exists in database
-	auto table_iter = kDatabaseMap.find(query.table_name);
-	if (table_iter == kDatabaseMap.end()) { 
+	auto table_iter = kDatabaseMap_.find(query.table_name);
+	if (table_iter == kDatabaseMap_.end()) { 
 		std::cerr << err_msg_1 << ", table <" << query.table_name << "> is invalid\n";
 		return is_successful = false;
 	}
 
 	//check if query columns specified exist in database
 	bool is_exist = false;
-	auto table_range = kDatabaseMap.equal_range(query.table_name);
+	auto table_range = kDatabaseMap_.equal_range(query.table_name);
 	for (auto q_col = query.columns.begin(); q_col != query.columns.end(); ++q_col) {
 		for (auto db_col = table_range.first; db_col != table_range.second; ++db_col) {
 			if (db_col->second == q_col->column_name) { 
@@ -97,23 +126,22 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		column.column_data = std::to_string(activity_id);
 		query.columns.push_back(column);
 		is_successful = AddActivity(query);
+	}
+	else if ((query.table_name == "Activity") && (query.request == UPDATE)) {
+		//TODO
+	}
+	else if ((query.table_name == "Activity") && (query.request == DELETE)) {
+		//TODO
+	}
+	else if (query.table_name == "") {
 
 	}
-	//else if (query.table_name == "") {
+	else if (query.table_name == "") {
 
-	//}
-	//else if (query.table_name == "") {
+	}
+	else if (query.table_name == "") {
 
-	//}
-	//else if (query.table_name == "") {
-
-	//}
-	//else if (query.table_name == "") {
-
-	//}
-	//else if (query.table_name == "") {
-
-	//}
+	}
 
 	return is_successful;
 }
@@ -199,22 +227,22 @@ std::string Core::CommaSeparate(std::vector<std::string> &data, const std::strin
  * Notes:
  * > Requires an open connection to database
  */
-bool Core::AddActivity(const QueryContainer &query) {
+bool Core::AddActivity(QueryContainer &query) {
 	bool is_successful = false;
+	std::pair< std::vector <std::string>, std::vector <std::string> > temp;
+	
+	temp = row_2_vect(query.columns);
+	std::vector <std::string> temp_name_vec = temp.first;
+	std::vector <std::string> temp_val_vec  = temp.second;
 
-	int activity_id = this->GenerateUniqueIntId(table_name, col_name_1);
-
-	temp_name_vec = { col_name_1, col_name_2 };
-	temp_val_vec  = { std::to_string(activity_id), activity_name };
-
-	query.table_name = table_name;
-
+	std::string into_clause;
 	into_clause  = query.table_name;
 	into_clause += "(";
 	into_clause += this->CommaSeparate(temp_name_vec);
 	into_clause += ")";
 	query.into_clause = into_clause;
 
+	std::string value_clause;
 	value_clause  = "(";
 	value_clause += this->CommaSeparate(temp_val_vec, "'");
 	value_clause += ")";
@@ -241,42 +269,42 @@ bool Core::AddActivity(const QueryContainer &query) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::DeleteActivity(const RowContainer &row) {
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss	<< "Core Warning: attempting to delete activity record with "
-		<< "incompatible data\n";
-	err_msg_1 = ss.str();
-
-	bool is_successful = false;
-	std::string where_clause, col_name, col_val, activity_id;
-	QueryContainer query;
-
-	if (row.begin()->column_name != "ActivityID") { 
-		std::cerr << err_msg_1;
-		return is_successful = false; 
-	} else if (row.begin()->column_data.empty() == true) { 
-		std::cerr << err_msg_1;
-		return is_successful = false; 
-	}
-
-	activity_id = row.begin()->column_data;
-	query.table_name	= "Activity";
-	col_name			= "ActivityID";
-	col_val				= activity_id;
-
-	where_clause  = col_name;
-	where_clause += "=";
-	where_clause += "'";
-	where_clause += col_val;
-	where_clause += "'";
-	query.where_clause = where_clause;
-
-	is_successful = this->database_.Delete(query);
-
-	return is_successful;
-}
+//bool Core::DeleteActivity(const RowContainer &row) {
+//	std::stringstream ss;
+//	std::string err_msg_1;
+//
+//	ss	<< "Core Warning: attempting to delete activity record with "
+//		<< "incompatible data\n";
+//	err_msg_1 = ss.str();
+//
+//	bool is_successful = false;
+//	std::string where_clause, col_name, col_val, activity_id;
+//	QueryContainer query;
+//
+//	if (row.begin()->column_name != "ActivityID") { 
+//		std::cerr << err_msg_1;
+//		return is_successful = false; 
+//	} else if (row.begin()->column_data.empty() == true) { 
+//		std::cerr << err_msg_1;
+//		return is_successful = false; 
+//	}
+//
+//	activity_id = row.begin()->column_data;
+//	query.table_name	= "Activity";
+//	col_name			= "ActivityID";
+//	col_val				= activity_id;
+//
+//	where_clause  = col_name;
+//	where_clause += "=";
+//	where_clause += "'";
+//	where_clause += col_val;
+//	where_clause += "'";
+//	query.where_clause = where_clause;
+//
+//	is_successful = this->database_.Delete(query);
+//
+//	return is_successful;
+//}
 
 /*
 * Updates specified activity record in database
@@ -296,52 +324,52 @@ bool Core::DeleteActivity(const RowContainer &row) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::UpdateActivity(const RowContainer &row) {
-	bool is_successful = false;
-
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss << "Core Warning: attempting to update activity record with "
-		<< "incompatible data\n";
-	err_msg_1 = ss.str();
-
-	if (row.size() < 2) { std::cerr << err_msg_1; return is_successful = false; }
-
-	std::string activity_id, activity_name;
-	for (auto column = row.begin(); column != row.end(); ++column) {
-		if (column->column_name == "ActivityID") { activity_id = column->column_data; }
-		else if (column->column_name == "Name")  { activity_name = column->column_data; }
-		else { std::cerr << err_msg_1;  is_successful = false; };
-	}
-
-	if ((activity_id.empty() == true) || (activity_name.empty() == true)) {
-		std::cerr << err_msg_1;
-		return is_successful = false;
-	}
-
-	std::string set_clause, where_clause;
-	QueryContainer query;
-	query.table_name = "Activity";
-
-	set_clause += "Name=";
-	set_clause += "'";
-	set_clause += activity_name;
-	set_clause += "'";
-
-	query.set_clause = set_clause;
-
-	where_clause  = "ActivityID=";
-	set_clause += "'";
-	where_clause += activity_id;
-	set_clause += "'";
-
-	query.where_clause = where_clause;
-
-	is_successful = this->database_.Update(query);
-
-	return is_successful;
-}
+//bool Core::UpdateActivity(const RowContainer &row) {
+//	bool is_successful = false;
+//
+//	std::stringstream ss;
+//	std::string err_msg_1;
+//
+//	ss << "Core Warning: attempting to update activity record with "
+//		<< "incompatible data\n";
+//	err_msg_1 = ss.str();
+//
+//	if (row.size() < 2) { std::cerr << err_msg_1; return is_successful = false; }
+//
+//	std::string activity_id, activity_name;
+//	for (auto column = row.begin(); column != row.end(); ++column) {
+//		if (column->column_name == "ActivityID") { activity_id = column->column_data; }
+//		else if (column->column_name == "Name")  { activity_name = column->column_data; }
+//		else { std::cerr << err_msg_1;  is_successful = false; };
+//	}
+//
+//	if ((activity_id.empty() == true) || (activity_name.empty() == true)) {
+//		std::cerr << err_msg_1;
+//		return is_successful = false;
+//	}
+//
+//	std::string set_clause, where_clause;
+//	QueryContainer query;
+//	query.table_name = "Activity";
+//
+//	set_clause += "Name=";
+//	set_clause += "'";
+//	set_clause += activity_name;
+//	set_clause += "'";
+//
+//	query.set_clause = set_clause;
+//
+//	where_clause  = "ActivityID=";
+//	set_clause += "'";
+//	where_clause += activity_id;
+//	set_clause += "'";
+//
+//	query.where_clause = where_clause;
+//
+//	is_successful = this->database_.Update(query);
+//
+//	return is_successful;
+//}
 
 
 /*

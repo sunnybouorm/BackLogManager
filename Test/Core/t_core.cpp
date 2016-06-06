@@ -20,17 +20,25 @@ SCENARIO("A single activity is added, updated and deleted")
 
 		WHEN("an activity is added")
 		{
+			QueryContainer	query;
 			ColumnContainer column;
-			RowContainer row;
-			std::string activity_name = "Movies";
-			bool creation_is_success = false;
+			RowContainer	row;
 
-			column.column_name = "Name";
-			column.column_data = activity_name;
+			bool creation_is_success = false;
+			
+			std::string table_name	  = "Activity";
+			std::string activity_name = "Movies";
+
+			column.column_name		  = "Name";
+			column.column_data		  = activity_name;
 			row.clear();
 			row.push_back(column);
 
-			creation_is_success = core.AddActivity(row);
+			query.table_name = table_name;
+			query.columns	 = row;
+			query.request	 = INSERT;
+
+			creation_is_success = core.SqlRequest(query);
 
 			//generate expected result as a basis of comparison
 			//-------------------------------------------------
@@ -50,65 +58,65 @@ SCENARIO("A single activity is added, updated and deleted")
 
 			THEN("it must be registered by the database correctly")
 			{
-				REQUIRE(expected == result);
 				REQUIRE(creation_is_success == true);
+				REQUIRE(expected == result);
 
-				AND_WHEN("the activity is updated")
-				{
-					bool update_is_successful = false;
-					std::string activity_id;
-					ColumnContainer column;
+				//AND_WHEN("the activity is updated")
+				//{
+				//	bool update_is_successful = false;
+				//	std::string activity_id;
+				//	ColumnContainer column;
 
-					row.clear();
-					core.database_.SqlCommand("SELECT ActivityID FROM Activity");
-					result = core.database_.read_result_buffer();
-					REQUIRE(result.begin()->begin()->column_name == "ActivityID");
-					
-					activity_id = result.begin()->begin()->column_data;
-					column.column_name = "ActivityID";
-					column.column_data = activity_id;
-					row.push_back(column);
+				//	row.clear();
+				//	core.database_.SqlCommand("SELECT ActivityID FROM Activity");
+				//	result = core.database_.read_result_buffer();
+				//	REQUIRE(result.begin()->begin()->column_name == "ActivityID");
+				//	
+				//	activity_id = result.begin()->begin()->column_data;
+				//	column.column_name = "ActivityID";
+				//	column.column_data = activity_id;
+				//	row.push_back(column);
 
-					column.column_name = "Name";
-					column.column_data = "TV";
-					row.push_back(column);
-					
-					update_is_successful = core.UpdateActivity(row);
+				//	column.column_name = "Name";
+				//	column.column_data = "TV";
+				//	row.push_back(column);
+				//	
+				//	update_is_successful = core.UpdateActivity(row);
 
-					expected.clear();
-					expected.push_back(row);
+				//	expected.clear();
+				//	expected.push_back(row);
 
-					core.database_.SqlCommand("SELECT * FROM Activity");
-					result = core.database_.read_result_buffer();
+				//	core.database_.SqlCommand("SELECT * FROM Activity");
+				//	result = core.database_.read_result_buffer();
 
-					THEN("it must be registed by the database successfully")
-					{
-						REQUIRE(update_is_successful == true);
-						REQUIRE(result == expected);
-					}
-				}
+				//	THEN("it must be registed by the database successfully")
+				//	{
+				//		REQUIRE(update_is_successful == true);
+				//		REQUIRE(result == expected);
+				//	}
+				//}
 
-				AND_WHEN("the activity is deleted")
-				{
-					bool deletion_is_success = false;
-					core.database_.SqlCommand("SELECT ActivityID FROM Activity WHERE Name='Movies';");
-					result = core.database_.read_result_buffer();
-					std::string activity_id = result.begin()->begin()->column_data;
-					column.column_name = "ActivityID";
-					column.column_data = activity_id;
-					row.clear();
-					row.push_back(column);
-					deletion_is_success = core.DeleteActivity(row);
+				//AND_WHEN("the activity is deleted")
+				//{
+				//	bool deletion_is_success = false;
+				//	core.database_.SqlCommand("SELECT ActivityID FROM Activity WHERE Name='Movies';");
+				//	result = core.database_.read_result_buffer();
+				//	std::string activity_id = result.begin()->begin()->column_data;
+				//	column.column_name = "ActivityID";
+				//	column.column_data = activity_id;
+				//	row.clear();
+				//	row.push_back(column);
+				//	deletion_is_success = core.DeleteActivity(row);
 
-					core.database_.SqlCommand("SELECT * FROM Activity;");
-					TableContainer result = core.database_.read_result_buffer();
+				//	core.database_.SqlCommand("SELECT * FROM Activity;");
+				//	TableContainer result = core.database_.read_result_buffer();
 
-					THEN("it must be removed from the database")
-					{
-						REQUIRE(deletion_is_success == true);
-						REQUIRE(result.empty() == true);
-					}
-				}
+				//	THEN("it must be removed from the database")
+				//	{
+				//		REQUIRE(deletion_is_success == true);
+				//		REQUIRE(result.empty() == true);
+				//	}
+				//}
 			}
 		}
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
