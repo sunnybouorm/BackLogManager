@@ -138,7 +138,7 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		}
 		is_successful = this->UpdateActivity(query);
 	}
-	else if ((query.table_name == "Activity") && (query.request == DELETE)) {//TODO
+	else if ((query.table_name == "Activity") && (query.request == DELETE)) {
 		ss.clear();
 		ss << "Core Warning: Attempting to Delete an Activity with incompatible data";
 		err_msg_1 = ss.str();
