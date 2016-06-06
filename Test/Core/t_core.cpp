@@ -29,6 +29,7 @@ SCENARIO("A single activity is added, updated and deleted")
 			
 			std::string table_name	  = "Activity";
 			std::string activity_name = "Movies";
+			std::string activity_id	  = "1";
 
 			column.column_name		  = "Name";
 			column.column_data		  = activity_name;
@@ -46,6 +47,10 @@ SCENARIO("A single activity is added, updated and deleted")
 			ColumnContainer col_res;
 			RowContainer row_res;
 
+			col_res.column_name = "ActivityID";
+			col_res.column_data = activity_id;
+			row_res.push_back(col_res);
+
 			col_res.column_name = "Name";
 			col_res.column_data = activity_name;
 			row_res.push_back(col_res);
@@ -54,7 +59,7 @@ SCENARIO("A single activity is added, updated and deleted")
 			expected.push_back(row_res);
 			//-------------------------------------------------
 
-			core.database_.SqlCommand("SELECT Name FROM Activity\n");
+			core.database_.SqlCommand("SELECT * FROM Activity\n");
 			TableContainer result = core.database_.read_result_buffer();
 
 			THEN("it must be registered by the database correctly")
@@ -79,6 +84,10 @@ SCENARIO("A single activity is added, updated and deleted")
 					search_params.push_back(column);
 
 					row.clear();
+					column.column_name = "ActivityID";
+					column.column_data = activity_id;
+					row.push_back(column);
+
 					column.column_name = "Name";
 					column.column_data = "TV";
 					row.push_back(column);
