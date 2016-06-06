@@ -31,21 +31,21 @@ private:
 	bool DeleteActivity	(QueryContainer	&query);
 	bool UpdateActivity	(QueryContainer	&query);
 
-	bool AddListing(const RowContainer &row);
-	bool DeleteListing(const RowContainer &row);
-	bool UpdateListing(const RowContainer &row);
+	bool AddListing		(QueryContainer	&query);
+	bool DeleteListing	(QueryContainer	&query);
+	bool UpdateListing	(QueryContainer	&query);
 
-	bool AddUserDefinedField(const RowContainer &row);
-	bool DeleteUserDefinedField(const RowContainer &row);
-	bool UpdateUserDefinedField(const RowContainer &row);
+	bool AddUserDefinedField	(QueryContainer	&query);
+	bool DeleteUserDefinedField	(QueryContainer	&query);
+	bool UpdateUserDefinedField	(QueryContainer	&query);
 
-	bool AddUdfEntry(const RowContainer &row);
-	bool DeleteUdfEntry(const RowContainer &row);
-	bool UpdateUdfEntry(const RowContainer &row);
+	bool AddUdfEntry	(QueryContainer	&query);
+	bool DeleteUdfEntry	(QueryContainer	&query);
+	bool UpdateUdfEntry	(QueryContainer	&query);
 
-	bool AddUdfListingM2M(const RowContainer &row);
-	bool InsertUdfListingM2M(const RowContainer &row);
-	bool DeleteUdfListingM2M(const RowContainer &row);
+	bool AddUdfListingM2M	(QueryContainer	&query);
+	bool InsertUdfListingM2M(QueryContainer	&query);
+	bool DeleteUdfListingM2M(QueryContainer	&query);
 };
 
 #endif//BACKLOGMANAGER_CORE_CORE_H_ 

@@ -67,7 +67,7 @@ Core::Core(Database &db) {
  *   query elements required: {table_name,columns,request}
  *   do not include automatically generated primary keys in columns
  * > Delete request:
- *   //TODO
+ *   query elements required: {table_name,primary_keys,request}
  * > Update request:
  *   query elements required: {table_name,columns,request}
  *-------------------------------------------------------------
@@ -272,15 +272,6 @@ std::string Core::CommaSeparate(std::vector<std::string> &data, const std::strin
 
 /*
  * Inserts a new activity record into the database
- *
- * parameters:
- * > row contains the column data to insert into the new activity record,
- * in this case only an activity name is required no need to worry about activity_ID as it is 
- * automatically generated. Check "Database.h" for more information on RowContainer data type
- *
- * psuedo code:
- * > RowContainer row = vector< {column_name = "Name", column_data = "[MyactivityName]"} >;
- * > this.AddActivity(row);
  *-------------------------------------------------------------
  * Notes:
  * > Requires an open connection to database
@@ -314,15 +305,6 @@ bool Core::AddActivity(QueryContainer &query) {
 
 /*
 * Deletes specified activity record from database
-*
-* parameters:
-* > row contains the column data required to identify the record to delete,
-* in this case only an activity ID is required. 
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector< {column_name = "ActivityID", column_data = "[MyactivityID]"} >;
-* > this.DeleteActivity(row);
 *-------------------------------------------------------------
 * Notes:
 * > Requires an open connection to database
@@ -351,18 +333,6 @@ bool Core::DeleteActivity(QueryContainer &query) {
 
 /*
 * Updates specified activity record in database
-*
-* parameters:
-* > row contains the column data required to identify the record to update. In this case
-* the primary key ActivityID is compulsory, the other attributes are optional as long as a minimum 
-* of a single optional attribute is updated.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector< 
-*	{column_name = "ActivityID",	column_data = "[MyactivityID]"	}
-*	{column_name = "Name"		 ,	column_data = "[MyName]"		}>;
-* > this.UpdateActivity(row);
 *-------------------------------------------------------------
 * Notes:
 * > Requires an open connection to database
