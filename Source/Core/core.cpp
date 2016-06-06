@@ -82,8 +82,7 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 	std::stringstream ss;
 	std::string err_msg_1;
 
-	ss << "Core Warning: Attempting to insert a record "
-		<< "with incompatible data";
+	ss << "Core Warning: Attempting to make an SQL request with incompatible data";
 	err_msg_1 = ss.str();
 
 	//check if table specififed exists in database
@@ -127,7 +126,10 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		query.columns.push_back(column);
 		is_successful = this->AddActivity(query);
 	}
-	else if ((query.table_name == "Activity") && (query.request == UPDATE)) {//TODO
+	else if ((query.table_name == "Activity") && (query.request == UPDATE)) {
+		ss.clear();
+		ss << "Core Warning: Attempting to add an Activity with incompatible data";
+		err_msg_1 = ss.str();
 
 		if (query.columns.size() != kDatabaseMap_.count(query.table_name) ) {
 			std::cerr << err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid.\n";
@@ -136,8 +138,29 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		}
 		is_successful = this->UpdateActivity(query);
 	}
-	else if ((query.table_name == "Activity") && (query.request == DELETE)) {
-		//TODO
+	else if ((query.table_name == "Activity") && (query.request == DELETE)) {//TODO
+		ss.clear();
+		ss << "Core Warning: Attempting to Delete an Activity with incompatible data";
+		err_msg_1 = ss.str();
+
+		if(query.primary_keys.size() != 1) 
+		{ 
+			std::cerr	<< err_msg_1
+						<< "primary keys size<" << query.primary_keys.size()
+						<< "> is invalid"
+						<< "\n";
+
+			return is_successful = false;
+
+		} else if (query.primary_keys.begin()->column_name != "ActivityID") {
+			std::cerr << err_msg_1
+				<< "primary key name <" << query.primary_keys.begin()->column_name
+				<< "> is invalid"
+				<< "\n";
+
+			return is_successful = false;
+		}
+		is_successful = this->DeleteActivity(query);
 	}
 	else if (query.table_name == "") {
 
@@ -304,42 +327,27 @@ bool Core::AddActivity(QueryContainer &query) {
 * Notes:
 * > Requires an open connection to database
 */
-//bool Core::DeleteActivity(const RowContainer &row) {
-//	std::stringstream ss;
-//	std::string err_msg_1;
-//
-//	ss	<< "Core Warning: attempting to delete activity record with "
-//		<< "incompatible data\n";
-//	err_msg_1 = ss.str();
-//
-//	bool is_successful = false;
-//	std::string where_clause, col_name, col_val, activity_id;
-//	QueryContainer query;
-//
-//	if (row.begin()->column_name != "ActivityID") { 
-//		std::cerr << err_msg_1;
-//		return is_successful = false; 
-//	} else if (row.begin()->column_data.empty() == true) { 
-//		std::cerr << err_msg_1;
-//		return is_successful = false; 
-//	}
-//
-//	activity_id = row.begin()->column_data;
-//	query.table_name	= "Activity";
-//	col_name			= "ActivityID";
-//	col_val				= activity_id;
-//
-//	where_clause  = col_name;
-//	where_clause += "=";
-//	where_clause += "'";
-//	where_clause += col_val;
-//	where_clause += "'";
-//	query.where_clause = where_clause;
-//
-//	is_successful = this->database_.Delete(query);
-//
-//	return is_successful;
-//}
+bool Core::DeleteActivity(QueryContainer &query) {
+	std::stringstream ss;
+	std::string err_msg_1;
+
+	bool is_successful = false;
+	std::string where_clause, col_name, col_val;
+
+	col_name	= query.primary_keys.begin()->column_name;
+	col_val		= query.primary_keys.begin()->column_data;
+
+	where_clause  = col_name;
+	where_clause += "=";
+	where_clause += "'";
+	where_clause += col_val;
+	where_clause += "'";
+	query.where_clause = where_clause;
+
+	is_successful = this->database_.Delete(query);
+
+	return is_successful;
+}
 
 /*
 * Updates specified activity record in database

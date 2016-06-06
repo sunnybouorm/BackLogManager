@@ -66,7 +66,6 @@ SCENARIO("A single activity is added, updated and deleted")
 					bool update_is_successful = false;
 					std::string activity_id;
 					ColumnContainer column;
-					QueryContainer query;
 
 					row.clear();
 					core.database_.SqlCommand("SELECT ActivityID FROM Activity");
@@ -101,27 +100,33 @@ SCENARIO("A single activity is added, updated and deleted")
 					}
 				}
 
-				//AND_WHEN("the activity is deleted")
-				//{
-				//	bool deletion_is_success = false;
-				//	core.database_.SqlCommand("SELECT ActivityID FROM Activity WHERE Name='Movies';");
-				//	result = core.database_.read_result_buffer();
-				//	std::string activity_id = result.begin()->begin()->column_data;
-				//	column.column_name = "ActivityID";
-				//	column.column_data = activity_id;
-				//	row.clear();
-				//	row.push_back(column);
-				//	deletion_is_success = core.DeleteActivity(row);
+				AND_WHEN("the activity is deleted")
+				{
+					bool deletion_is_success = false;
+					core.database_.SqlCommand("SELECT ActivityID FROM Activity WHERE Name='Movies';");
+					result = core.database_.read_result_buffer();
+					std::string activity_id = result.begin()->begin()->column_data;
+					column.column_name = "ActivityID";
+					column.column_data = activity_id;
+					row.clear();
+					row.push_back(column);
 
-				//	core.database_.SqlCommand("SELECT * FROM Activity;");
-				//	TableContainer result = core.database_.read_result_buffer();
+					query.columns.clear();
+					query.table_name	= table_name;
+					query.primary_keys	= row;
+					query.request		= DELETE;
 
-				//	THEN("it must be removed from the database")
-				//	{
-				//		REQUIRE(deletion_is_success == true);
-				//		REQUIRE(result.empty() == true);
-				//	}
-				//}
+					deletion_is_success = core.SqlRequest(query);
+
+					core.database_.SqlCommand("SELECT * FROM Activity;");
+					TableContainer result = core.database_.read_result_buffer();
+
+					THEN("it must be removed from the database")
+					{
+						REQUIRE(deletion_is_success == true);
+						REQUIRE(result.empty() == true);
+					}
+				}
 			}
 		}
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
