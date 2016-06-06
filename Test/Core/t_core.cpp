@@ -23,6 +23,7 @@ SCENARIO("A single activity is added, updated and deleted")
 			QueryContainer	query;
 			ColumnContainer column;
 			RowContainer	row;
+			RowContainer	search_params;
 
 			bool creation_is_success = false;
 			
@@ -67,7 +68,6 @@ SCENARIO("A single activity is added, updated and deleted")
 					std::string activity_id;
 					ColumnContainer column;
 
-					row.clear();
 					core.database_.SqlCommand("SELECT ActivityID FROM Activity");
 					result = core.database_.read_result_buffer();
 					REQUIRE(result.begin()->begin()->column_name == "ActivityID");
@@ -75,14 +75,17 @@ SCENARIO("A single activity is added, updated and deleted")
 					activity_id = result.begin()->begin()->column_data;
 					column.column_name = "ActivityID";
 					column.column_data = activity_id;
-					row.push_back(column);
+					search_params.clear();
+					search_params.push_back(column);
 
+					row.clear();
 					column.column_name = "Name";
 					column.column_data = "TV";
 					row.push_back(column);
 					
 					query.table_name	= table_name;
 					query.columns		= row;
+					query.search_params = search_params;
 					query.request		= UPDATE;
 
 					update_is_successful = core.SqlRequest(query);
@@ -113,7 +116,7 @@ SCENARIO("A single activity is added, updated and deleted")
 
 					query.columns.clear();
 					query.table_name	= table_name;
-					query.primary_keys	= row;
+					query.search_params	= row;
 					query.request		= DELETE;
 
 					deletion_is_success = core.SqlRequest(query);
@@ -295,96 +298,102 @@ SCENARIO("A single activity is added, updated and deleted")
 //		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
 //	}
 //}
-//
-//SCENARIO("A single listing is added and deleted")
-//{
-//	GIVEN("a clean database")
-//	{
-//		std::string sql_filename = "BacklogManager.sql";
-//		File sql_file(sql_filename, db_dir);
-//
-//		Database database(db_dir);
-//		Core core(database);
-//		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
-//		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
-//
-//		core.database_.OpenConnection();
-//		core.database_.ImportSql(sql_file);
-//
-//		WHEN("a listing is added")
-//		{
-//			ColumnContainer column;
-//			RowContainer row;
-//			row.clear();
-//			bool creation_is_success = false;
-//
-//			std::string title		= "The Great Escape";
-//			std::string activity_id = "1";
-//
-//			column.column_name = "Title";
-//			column.column_data = title;
-//			row.push_back(column);
-//
-//			column.column_name = "ActivityID";
-//			column.column_data = activity_id;
-//			row.push_back(column);
-//
-//			creation_is_success	=  core.AddListing(row);
-//
-//			//generate expected result as a basis of comparison
-//			//-------------------------------------------------
-//			ColumnContainer col_res;
-//			RowContainer row_res;
-//
-//			col_res.column_name = "Title";
-//			col_res.column_data = title;
-//			row_res.push_back(col_res);
-//
-//			col_res.column_name = "ActivityID";
-//			col_res.column_data = activity_id;
-//			row_res.push_back(col_res);
-//
-//			TableContainer expected;
-//			expected.push_back(row_res);
-//			//-------------------------------------------------
-//
-//			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing;");
-//			TableContainer result = core.database_.read_result_buffer();
-//
-//			THEN("it must be registered by the database correctly")
-//			{
-//				REQUIRE(result == expected);
-//				REQUIRE(creation_is_success  == true);
-//				AND_WHEN("the listing is deleted")
-//				{
-//					bool deletion_is_success = false;
-//
-//					core.database_.SqlCommand("SELECT LID FROM Listing\n");
-//					result = core.database_.read_result_buffer();
-//					std::string lid = result.begin()->begin()->column_data;
-//					column.column_name = "LID";
-//					column.column_data = lid;
-//					row.clear();
-//					row.push_back(column);
-//					deletion_is_success = core.DeleteListing(row);
-//					REQUIRE(deletion_is_success == true);
-//
-//					core.database_.SqlCommand("SELECT * FROM Listing\n");
-//					result = core.database_.read_result_buffer();
-//
-//					THEN("it must be removed from the database")
-//					{
-//						REQUIRE(deletion_is_success == true);
-//						REQUIRE(result.empty() == true);
-//					}
-//				}
-//			}
-//		}
-//		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-//		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
-//	}
-//}
-//
+
+SCENARIO("A single listing is added and deleted")
+{
+	GIVEN("a clean database")
+	{
+		std::string sql_filename = "BacklogManager.sql";
+		File sql_file(sql_filename, db_dir);
+
+		Database database(db_dir);
+		Core core(database);
+		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
+
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
+
+		WHEN("a listing is added")
+		{
+			std::string table_name = "Listing";
+			QueryContainer query;
+			ColumnContainer column;
+			RowContainer row;
+			row.clear();
+			bool creation_is_success = false;
+
+			std::string title		= "The Great Escape";
+			std::string activity_id = "1";
+
+			column.column_name = "Title";
+			column.column_data = title;
+			row.push_back(column);
+
+			column.column_name = "ActivityID";
+			column.column_data = activity_id;
+			row.push_back(column);
+
+			query.table_name	= table_name;
+			query.columns		= row;
+			query.request		= INSERT;
+
+			creation_is_success	=  core.SqlRequest(query);
+
+			//generate expected result as a basis of comparison
+			//-------------------------------------------------
+			ColumnContainer col_res;
+			RowContainer row_res;
+
+			col_res.column_name = "Title";
+			col_res.column_data = title;
+			row_res.push_back(col_res);
+
+			col_res.column_name = "ActivityID";
+			col_res.column_data = activity_id;
+			row_res.push_back(col_res);
+
+			TableContainer expected;
+			expected.push_back(row_res);
+			//-------------------------------------------------
+
+			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing;");
+			TableContainer result = core.database_.read_result_buffer();
+
+			THEN("it must be registered by the database correctly")
+			{
+				REQUIRE(creation_is_success == true);
+				REQUIRE(result == expected);
+				/*AND_WHEN("the listing is deleted")
+				{
+					bool deletion_is_success = false;
+
+					core.database_.SqlCommand("SELECT LID FROM Listing\n");
+					result = core.database_.read_result_buffer();
+					std::string lid = result.begin()->begin()->column_data;
+					column.column_name = "LID";
+					column.column_data = lid;
+					row.clear();
+					row.push_back(column);
+					deletion_is_success = core.DeleteListing(row);
+					REQUIRE(deletion_is_success == true);
+
+					core.database_.SqlCommand("SELECT * FROM Listing\n");
+					result = core.database_.read_result_buffer();
+
+					THEN("it must be removed from the database")
+					{
+						REQUIRE(deletion_is_success == true);
+						REQUIRE(result.empty() == true);
+					}
+				}*/
+			}
+		}
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
+	}
+}
+
 //SCENARIO("Multiple listings are added and deleted")
 //{
 //	GIVEN("a clean database")

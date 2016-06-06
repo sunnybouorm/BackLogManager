@@ -25,7 +25,12 @@ private:
 	const static DbMap kDatabaseMap_;
 
 	int GenerateUniqueIntId(const std::string &table_name, const std::string &id_name);
-	std::string Core::CommaSeparate(std::vector<std::string> &data, const std::string &character = "");
+	std::string Core::CommaSeparate(std::vector<std::string> &data,\
+		const std::string &character = "");
+
+	bool Insert(QueryContainer &query);
+	bool Delete(QueryContainer &query);
+	bool Update(QueryContainer &query);
 
 	bool AddActivity	(QueryContainer	&query);
 	bool DeleteActivity	(QueryContainer	&query);

@@ -18,7 +18,7 @@ typedef struct QueryStruct {//used to generate an SQL query
 	Request request;
 	std::string table_name;
 	std::vector<ColumnContainer> columns;
-	std::vector<ColumnContainer> primary_keys;
+	std::vector<ColumnContainer> search_params;
 
 	std::string select_clause;
 	std::string value_clause;

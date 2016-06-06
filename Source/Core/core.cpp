@@ -67,9 +67,9 @@ Core::Core(Database &db) {
  *   query elements required: {table_name,columns,request}
  *   do not include automatically generated primary keys in columns
  * > Delete request:
- *   query elements required: {table_name,primary_keys,request}
+ *   query elements required: {table_name,search_params,request}
  * > Update request:
- *   query elements required: {table_name,columns,request}
+ *   query elements required: {table_name,search_params,columns,request}
  *-------------------------------------------------------------
  * Notes:
  * > Requires an open connection to database
@@ -108,9 +108,19 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		} else {is_exist = false;}
 	}
 
+	//check if search params valid where applicable
+	if ( (query.request == UPDATE) || (query.request == DELETE) ) {
+		if (query.search_params.empty()==true) {
+			std::cout << err_msg_1;
+
+			return is_successful = false;
+		}
+	}
+
 	//select relavent function to handle request
 	if ( (query.table_name == "Activity") && (query.request == INSERT) ) {
 
+		//error check
 		if (query.columns.size() !=  kDatabaseMap_.count(query.table_name) - 1) {
 			std::cerr	<< err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid."
 						<< " ensure ActivityID is not included in an insert query\n";
@@ -125,43 +135,95 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		column.column_data = std::to_string(activity_id);
 		query.columns.push_back(column);
 		is_successful = this->AddActivity(query);
-	}
-	else if ((query.table_name == "Activity") && (query.request == UPDATE)) {
+
+	} else if ((query.table_name == "Activity") && (query.request == UPDATE)) {
 		ss.clear();
-		ss << "Core Warning: Attempting to add an Activity with incompatible data";
+		ss << "Core Warning: Attempting to add an Activity record with incompatible data";
 		err_msg_1 = ss.str();
 
-		if (query.columns.size() != kDatabaseMap_.count(query.table_name) ) {
+		//error check
+		if	(query.columns.size() > kDatabaseMap_.count(query.table_name) && \
+			(query.columns.empty() == false) ) 
+		{
 			std::cerr << err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid.\n";
 
 			return is_successful = false;
 		}
 		is_successful = this->UpdateActivity(query);
-	}
-	else if ((query.table_name == "Activity") && (query.request == DELETE)) {
+
+	} else if ((query.table_name == "Activity") && (query.request == DELETE)) {
 		ss.clear();
-		ss << "Core Warning: Attempting to Delete an Activity with incompatible data";
+		ss << "Core Warning: Attempting to Delete an Activity record with incompatible data";
 		err_msg_1 = ss.str();
 
-		if(query.primary_keys.size() != 1) 
+		//error check
+		if(query.search_params.size() != 1) 
 		{ 
 			std::cerr	<< err_msg_1
-						<< "primary keys size<" << query.primary_keys.size()
+						<< "primary keys size<" << query.search_params.size()
 						<< "> is invalid"
 						<< "\n";
 
 			return is_successful = false;
 
-		} else if (query.primary_keys.begin()->column_name != "ActivityID") {
+		} else if (query.search_params.begin()->column_name != "ActivityID") {
 			std::cerr << err_msg_1
-				<< "primary key name <" << query.primary_keys.begin()->column_name
+				<< "primary key name <" << query.search_params.begin()->column_name
 				<< "> is invalid"
 				<< "\n";
 
 			return is_successful = false;
 		}
+
 		is_successful = this->DeleteActivity(query);
 	}
+
+
+	else if ((query.table_name == "Listing") && (query.request == INSERT)) {
+		ss.clear();
+		ss << "Core Warning: attempting to add a listing record with incompatible data\n";
+		err_msg_1 = ss.str();
+
+		//error check
+		if (query.columns.size() != kDatabaseMap_.count(query.table_name) - 1) {
+			std::cerr << err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid."
+				<< " ensure LID is not included in an insert query as it is automatically generated"
+				<< "\n";
+
+			return is_successful = false;
+		}
+
+		std::string key_name = "LID";
+		ColumnContainer column;
+
+		int lid = this->GenerateUniqueIntId(query.table_name, key_name);
+		column.column_name = key_name;
+		column.column_data = std::to_string(lid);
+		query.columns.push_back(column);
+		is_successful = this->AddListing(query);
+
+	} else if ((query.table_name == "Listing") && (query.request == UPDATE)) {//TODO
+		ss.clear();
+		ss << "Core Warning: attempting to update Listing record with "
+			<< "incompatible data\n";
+		err_msg_1 = ss.str();
+
+		//error check
+		if	(query.columns.size() > kDatabaseMap_.count(query.table_name) &&
+			(query.columns.empty() == false))
+		{
+			std::cerr << err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid.\n";
+
+			return is_successful = false;
+		}
+
+		is_successful = this->UpdateListing(query);
+
+
+	} else if (query.table_name == "") {//TODO
+
+	}
+
 	else if (query.table_name == "") {
 
 	}
@@ -171,6 +233,8 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 	else if (query.table_name == "") {
 
 	}
+
+
 	else if (query.table_name == "") {
 
 	}
@@ -180,6 +244,8 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 	else if (query.table_name == "") {
 
 	}
+
+
 	else if (query.table_name == "") {
 
 	}
@@ -189,16 +255,8 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 	else if (query.table_name == "") {
 
 	}
-	else if (query.table_name == "") {
-
-	}
-	else if (query.table_name == "") {
-
-	}
-	else if (query.table_name == "") {
-
-	}
-	else {//TODO: insert error statement
+	else {
+		std::cerr << err_msg_1 << ", failed to find SQL operation requested\n" ;
 	}
 
 	return is_successful;
@@ -270,6 +328,86 @@ std::string Core::CommaSeparate(std::vector<std::string> &data, const std::strin
 	return result;
 }
 
+bool Core::Insert(QueryContainer &query) {//TODO
+	bool is_successful = false;
+	std::pair< std::vector <std::string>, std::vector <std::string> > temp;
+
+	temp = row_2_vect(query.columns);
+	std::vector <std::string> temp_name_vec = temp.first;
+	std::vector <std::string> temp_val_vec = temp.second;
+
+	std::string into_clause;
+	into_clause = query.table_name;
+	into_clause += "(";
+	into_clause += this->CommaSeparate(temp_name_vec);
+	into_clause += ")";
+	query.into_clause = into_clause;
+
+	std::string value_clause;
+	value_clause = "(";
+	value_clause += this->CommaSeparate(temp_val_vec, "'");
+	value_clause += ")";
+	query.value_clause = value_clause;
+
+	is_successful = this->database_.Insert(query);
+
+	return is_successful;
+}
+
+bool Core::Delete(QueryContainer &query) {//TODO
+	bool is_successful = false;
+	std::string where_clause, col_name, col_val;
+
+	col_name = query.search_params.begin()->column_name;
+	col_val = query.search_params.begin()->column_data;
+
+	where_clause = col_name;
+	where_clause += "=";
+	where_clause += "'";
+	where_clause += col_val;
+	where_clause += "'";
+	query.where_clause = where_clause;
+
+	is_successful = this->database_.Delete(query);
+
+	return is_successful;
+}
+
+bool Core::Update(QueryContainer &query) {//TODO
+	bool is_successful = false;
+	std::string set_clause, where_clause;
+
+	auto last_col = query.columns.end();
+	--last_col;
+	for (auto column = query.columns.begin(); column != query.columns.end(); ++column) {
+		set_clause += column->column_name;
+		set_clause += "=";
+		set_clause += "'";
+		set_clause += column->column_data;
+		set_clause += "'";
+
+		if (column != last_col) { set_clause += ","; }
+	}
+	query.set_clause = set_clause;
+
+	last_col = query.search_params.end();
+	--last_col;
+	for (auto key = query.search_params.begin(); key != query.search_params.end(); ++key) {
+		where_clause += key->column_name;
+		where_clause += "=";
+		set_clause += "'";
+		where_clause += key->column_data;
+		set_clause += "'";
+
+		if (key != last_col) { set_clause += " AND "; }
+	}
+
+	query.where_clause = where_clause;
+	is_successful = this->database_.Update(query);
+
+	return is_successful;
+}
+
 /*
  * Inserts a new activity record into the database
  *-------------------------------------------------------------
@@ -278,26 +416,7 @@ std::string Core::CommaSeparate(std::vector<std::string> &data, const std::strin
  */
 bool Core::AddActivity(QueryContainer &query) {
 	bool is_successful = false;
-	std::pair< std::vector <std::string>, std::vector <std::string> > temp;
-	
-	temp = row_2_vect(query.columns);
-	std::vector <std::string> temp_name_vec = temp.first;
-	std::vector <std::string> temp_val_vec  = temp.second;
-
-	std::string into_clause;
-	into_clause  = query.table_name;
-	into_clause += "(";
-	into_clause += this->CommaSeparate(temp_name_vec);
-	into_clause += ")";
-	query.into_clause = into_clause;
-
-	std::string value_clause;
-	value_clause  = "(";
-	value_clause += this->CommaSeparate(temp_val_vec, "'");
-	value_clause += ")";
-	query.value_clause = value_clause;
-
-	is_successful = this->database_.Insert(query);
+	is_successful = this->Insert(query);
 
 	return is_successful;
 }
@@ -310,23 +429,8 @@ bool Core::AddActivity(QueryContainer &query) {
 * > Requires an open connection to database
 */
 bool Core::DeleteActivity(QueryContainer &query) {
-	std::stringstream ss;
-	std::string err_msg_1;
-
 	bool is_successful = false;
-	std::string where_clause, col_name, col_val;
-
-	col_name	= query.primary_keys.begin()->column_name;
-	col_val		= query.primary_keys.begin()->column_data;
-
-	where_clause  = col_name;
-	where_clause += "=";
-	where_clause += "'";
-	where_clause += col_val;
-	where_clause += "'";
-	query.where_clause = where_clause;
-
-	is_successful = this->database_.Delete(query);
+	is_successful = this->Delete(query);
 
 	return is_successful;
 }
@@ -339,29 +443,7 @@ bool Core::DeleteActivity(QueryContainer &query) {
 */
 bool Core::UpdateActivity(QueryContainer &query) {
 	bool is_successful = false;
-
-	std::string set_clause, where_clause, activity_name, activity_id;
-	
-	for (auto it = query.columns.begin(); it != query.columns.end(); ++it) {
-		if		(it->column_name == "Name")			{ activity_name = it->column_data;	}
-		else if (it->column_name == "ActivityID")	{ activity_id	= it->column_data;	}
-	}
-
-	set_clause += "Name=";
-	set_clause += "'";
-	set_clause += activity_name;
-	set_clause += "'";
-
-	query.set_clause = set_clause;
-
-	where_clause  = "ActivityID=";
-	set_clause += "'";
-	where_clause += activity_id;
-	set_clause += "'";
-
-	query.where_clause = where_clause;
-
-	is_successful = this->database_.Update(query);
+	is_successful = this->Update(query);
 
 	return is_successful;
 }
@@ -385,107 +467,61 @@ bool Core::UpdateActivity(QueryContainer &query) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::AddListing(const RowContainer &row) {
-	std::string err_msg_1 = "Core Warning: attempting to add listing with incompatible data\n";
-
-	std::string table_name, col_name_1, col_name_2, col_name_3, into_clause, value_clause;
-	std::vector<std::string> temp_name_vec, temp_val_vec;
+bool Core::AddListing(QueryContainer &query) {
 	bool is_successful = false;
-
-	if (row.size() != 2) {
-		std::cerr << err_msg_1 << ", size <" << row.size() << "> invalid\n";
-		return is_successful = false;
-	}
-
-	std::string title, activity_id;
-	for (auto column = row.begin(); column != row.end(); ++column) {
-		if (column->column_name == "Title") { title = column->column_data; }
-		else if (column->column_name == "ActivityID") { activity_id = column->column_data; }
-	}
-
-	if ((title.empty() == true) || (activity_id.empty() == true)) {
-		std::cerr << err_msg_1 << ", activity or title attributes NULL\n";
-		return is_successful = false;
-	}
-
-	table_name = "Listing";
-	col_name_1 = "LID";
-	col_name_2 = "Title";
-	col_name_3 = "ActivityID";
-
-	int lid = this->GenerateUniqueIntId(table_name, col_name_1);
-	temp_name_vec = {col_name_1, col_name_2, col_name_3};
-	temp_val_vec  = {std::to_string(lid), title, activity_id };
-
-	QueryContainer query;
-
-	query.table_name = table_name;
-
-	into_clause  = query.table_name;
-	into_clause += "(";
-	into_clause += this->CommaSeparate(temp_name_vec);
-	into_clause += ")";
-	query.into_clause = into_clause;
-
-	value_clause = "(";
-	value_clause += this->CommaSeparate(temp_val_vec,"'");
-	value_clause += ")";
-	query.value_clause = value_clause;
-	
-	is_successful = this->database_.Insert(query);
+	is_successful = this->Insert(query);
 
 	return is_successful;
 }
 
-/*
-* Deletes specified listing record from database
-*
-* parameters:
-* > row contains the column data required to identify the record to delete,
-* in this case only a listing ID is required.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector< {column_name = "LID", column_data = "[MyLID]"} >;
-* > this.DeleteActivity(row);
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
-bool Core::DeleteListing(const RowContainer &row) {
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss	<< "Core Warning: Attempting to delete a listing record "
-		<< "with incompatible data\n";
-	err_msg_1 = ss.str();
-
-	bool is_successful = false;
-	std::string where_clause, col_name, col_val, lid;
-	QueryContainer query;
-
-	if((row.begin()->column_name != "LID") || (row.begin()->column_data.empty() == true)) {
-		std::cerr << err_msg_1;
-		return is_successful = false;
-	}
-
-	lid = row.begin()->column_data;
-	query.table_name	= "Listing";
-	col_name			= "LID";
-	col_val				= lid;
-
-	where_clause += col_name;
-	where_clause += "=";
-	where_clause += "'";
-	where_clause += col_val;
-	where_clause += "'";
-	query.where_clause = where_clause;
-
-	is_successful = this->database_.Delete(query);
-
-	return is_successful;
-}
-
+///*
+//* Deletes specified listing record from database
+//*
+//* parameters:
+//* > row contains the column data required to identify the record to delete,
+//* in this case only a listing ID is required.
+//* Check "Database.h" for more information on RowContainer data type
+//*
+//* psuedo code:
+//* > RowContainer row = vector< {column_name = "LID", column_data = "[MyLID]"} >;
+//* > this.DeleteActivity(row);
+//*-------------------------------------------------------------
+//* Notes:
+//* > Requires an open connection to database
+//*/
+//bool Core::DeleteListing(const RowContainer &row) {
+//	std::stringstream ss;
+//	std::string err_msg_1;
+//
+//	ss	<< "Core Warning: Attempting to delete a listing record "
+//		<< "with incompatible data\n";
+//	err_msg_1 = ss.str();
+//
+//	bool is_successful = false;
+//	std::string where_clause, col_name, col_val, lid;
+//	QueryContainer query;
+//
+//	if((row.begin()->column_name != "LID") || (row.begin()->column_data.empty() == true)) {
+//		std::cerr << err_msg_1;
+//		return is_successful = false;
+//	}
+//
+//	lid = row.begin()->column_data;
+//	query.table_name	= "Listing";
+//	col_name			= "LID";
+//	col_val				= lid;
+//
+//	where_clause += col_name;
+//	where_clause += "=";
+//	where_clause += "'";
+//	where_clause += col_val;
+//	where_clause += "'";
+//	query.where_clause = where_clause;
+//
+//	is_successful = this->database_.Delete(query);
+//
+//	return is_successful;
+//}
 
 /*
 * Updates specified listing record in database
@@ -506,512 +542,465 @@ bool Core::DeleteListing(const RowContainer &row) {
 * Notes:
 * > Requires an open connection to database
 */
-bool Core::UpdateListing(const RowContainer &row) {
+bool Core::UpdateListing(QueryContainer &query) {
 	bool is_successful = false;
-
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss << "Core Warning: attempting to update Listing record with "
-		<< "incompatible data\n";
-	err_msg_1 = ss.str();
-	
-	if (row.size() < 2) { std::cerr<<err_msg_1;  return is_successful = false; }
-
-	std::string lid, title, activity_id;
-	for (auto column = row.begin(); column != row.end(); ++column) {
-		if (column->column_name == "LID") { lid = column->column_data; }
-		else if (column->column_name == "Title") { title = column->column_data; }
-		else if (column->column_name == "ActivityID") {activity_id = column->column_data ; }
-		else { std::cerr << err_msg_1;  is_successful = false; }; 
-	}
-
-	if (lid.empty() == true) { std::cerr << err_msg_1; return is_successful = false; }
-
-	std::string set_clause, where_clause;
-	QueryContainer query;
-	query.table_name = "Listing";
-
-	if (title.empty() == false) {
-		set_clause += "Title=";
-		set_clause += "'";
-		set_clause += title;
-		set_clause += "'";
-	}
-	if ((activity_id.empty() == false) && (title.empty() == false)) {
-		set_clause += ",";
-	}
-	if (activity_id.empty() == false) {
-		set_clause += "ActivityID=";
-		set_clause += "'";
-		set_clause += activity_id;
-		set_clause += "'";
-	}
-	query.set_clause = set_clause;
-
-	where_clause = "LID=";
-	set_clause += "'";
-	where_clause += lid;
-	set_clause += "'";
-
-	query.where_clause = where_clause;
-	is_successful = this->database_.Update(query);
+	is_successful = this->Update(query);
 
 	return is_successful;
 }
 
 
 /*
-* Inserts a new UserDefinedField record into the database
-*
-* parameters:
-* > row contains the column data to insert into the new record,
-* In this case the primary key UDFID is not compulsory, as it is automatically generated.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector<
-* {column_name = "UDFID"		, column_data = "[MyUDFID]"			}
-* {column_name = "Name"			, column_data = "[MyName]"			}
-* {column_name = "DataType"		, column_data = "[MyDataType]"		} 
-* {column_name = "Description"	, column_data = "[MyDescription]"	} 
-* {column_name = "ActivityID"	, column_data = "[MyActivityID]"	} >;
-* > this.AddUserDefinedField(row);
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-* > The attribute Datatype has three options, {"string","int","bool"}
-*/
-bool Core::AddUserDefinedField(const RowContainer &row) {
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss	<< "Core Warning: attempting to add UserDefinedField record with "
-		<< "incompatible data\n";
-	err_msg_1 = ss.str();
-
-	bool is_successful = false;
-	std::string into_clause, value_clause;
-	std::string udfid,name,data_type,description,activity_id;
-	
-	if (row.size() != 4) { 
-		std::cerr << err_msg_1 << ", size <"<< row.size() << "> invalid\n"; 
-		return is_successful = false; 
-	}
-	for (auto column = row.begin(); column != row.end(); ++column) {
-			 if (column->column_name == "Name")			{ name		 = column->column_data; }
-		else if (column->column_name == "DataType")		{ data_type  = column->column_data; }
-		else if (column->column_name == "Description")	{description = column->column_data; }
-		else if (column->column_name == "ActivityID")	{activity_id = column->column_data; }
-		else { 
-			std::cerr<<err_msg_1 << ", attribute <" << column->column_name << "> invalid\n";
-			return is_successful = false;
-		}
-	}
-
-	std::string table_name, col_name_1, col_name_2, col_name_3, col_name_4, col_name_5;
-	std::vector<std::string> temp_name_vec, temp_val_vec;
-
-	table_name = "UserDefinedField";
-	col_name_1 = "UDFID";
-	col_name_2 = "Name";
-	col_name_3 = "DataType";
-	col_name_4 = "Description";
-	col_name_5 = "ActivityID";
-
-	udfid = std::to_string(this->GenerateUniqueIntId(table_name, col_name_1));
-	temp_name_vec = { col_name_1, col_name_2, col_name_3, col_name_4, col_name_5};
-	temp_val_vec  = { udfid, name, data_type, description, activity_id };
-
-	QueryContainer query;
-
-	query.table_name = table_name;
-
-	into_clause = query.table_name;
-	into_clause += "(";
-	into_clause += this->CommaSeparate(temp_name_vec);
-	into_clause += ")";
-	query.into_clause = into_clause;
-
-	value_clause = "(";
-	value_clause += this->CommaSeparate(temp_val_vec, "'");
-	value_clause += ")";
-	query.value_clause = value_clause;
-
-	is_successful = this->database_.Insert(query);
-
-	return is_successful;
-}
-
-
-/*
-* Deletes specified activity record from database
-*
-* parameters:
-* > row contains the column data required to identify the record to delete,
-* in this case only a UDFID is required.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} >;
-* > this.DeleteActivity(row);
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
-bool Core::DeleteUserDefinedField(const RowContainer &row) {
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss << "Core Warning: Attempting to delete a UDF record "
-		<< "with incompatible data\n";
-	err_msg_1 = ss.str();
-
-	bool is_successful = false;
-	std::string where_clause, col_name, col_val, udfid;
-	QueryContainer query;
-
-	if ((row.begin()->column_name != "UDFID") || (row.begin()->column_data.empty() == true)) {
-		std::cerr << err_msg_1;
-		return is_successful = false;
-	}
-
-	udfid = row.begin()->column_data;
-	query.table_name = "UserDefinedField";
-	col_name = "UDFID";
-	col_val = udfid;
-
-	where_clause += col_name;
-	where_clause += "=";
-	where_clause += "'";
-	where_clause += col_val;
-	where_clause += "'";
-	query.where_clause = where_clause;
-
-	is_successful = this->database_.Delete(query);
-
-	return is_successful;
-}
-
-/*
-* Updates specified UDF record in database
-*
-* parameters:
-* > row contains the column data required to identify the record to update. In this case
-* the primary key UDFID is compulsory, the other attributes are optional as long as a minimum
-* of a single optional attribute is updated.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector<
-*	{column_name = "UDFID"			,	column_data = "[MyUDFID]"		}
-*	{column_name = "Name"			,	column_data = "[MyName]		}
-*	{column_name = "DataType"		,	column_data = "[MyDataType]"	} 
-*	{column_name = "Description"	,	column_data = "[MyDescription]"	} 
-*	{column_name = "ActivityID"		,	column_data = "[MyActivityID]"	} >;
-* > this.UpdateActivity(row);
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
-bool Core::UpdateUserDefinedField(const RowContainer &row) {
-	bool is_successful = false;
-
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss << "Core Warning: attempting to update UDF record with "
-		<< "incompatible data\n";
-	err_msg_1 = ss.str();
-
-	if (row.size() < 2) { 
-		std::cerr << err_msg_1 << ", row size <" << row.size() <<"> is invalid\n";
-		return is_successful = false; 
-	}
-
-	std::string udfid, name, description, data_type, activity_id;
-	for (auto column = row.begin(); column != row.end(); ++column) {
-			 if (column->column_name == "UDFID")		{ udfid = column->column_data;			}
-		else if (column->column_name == "Name")			{ name = column->column_data;			}
-		else if (column->column_name == "DataType")		{ data_type = column->column_data;		}
-		else if (column->column_name == "Description")	{ description = column->column_data;	}
-		else if (column->column_name == "ActivityID")	{ activity_id = column->column_data;	}
-		else { 
-			std::cerr << err_msg_1 << ", attribute <" << column->column_name 
-					  << "> is invalid\n";  
-			is_successful = false; 
-		}
-	}
-
-	if (udfid.empty() == true) { 
-		std::cerr << err_msg_1 << "primary key UDFID cannot be null\n";
-		return is_successful = false; 
-	}
-
-	std::string set_clause, where_clause;
-	QueryContainer query;
-	bool is_next = false;
-	query.table_name = "UserDefinedField";
-
-	if (name.empty() == false) {
-		set_clause += "Name=";
-		set_clause += "'";
-		set_clause += name;
-		set_clause += "'";
-		is_next = true;
-	}
-	if (data_type.empty() == false) {
-		if (is_next == true) {
-			set_clause += ",";
-		}
-		set_clause += "DataType=";
-		set_clause += "'";
-		set_clause += data_type;
-		set_clause += "'";
-		is_next = true;
-	}
-	if (description.empty() == false) {
-		if (is_next == true) {
-			set_clause += ",";
-		}
-		set_clause += "Description=";
-		set_clause += "'";
-		set_clause += description;
-		set_clause += "'";
-		is_next = true;
-	}
-	if (activity_id.empty() == false) {
-		if (is_next == true) {
-			set_clause += ",";
-		}
-		set_clause += "ActivityID=";
-		set_clause += "'";
-		set_clause += activity_id;
-		set_clause += "'";
-	}	
-	query.set_clause = set_clause;
-
-	where_clause = "UDFID=";
-	set_clause += "'";
-	where_clause += udfid;
-	set_clause += "'";
-
-	query.where_clause = where_clause;
-	is_successful = this->database_.Update(query);
-
-	return is_successful;
-}
-
-/*
-* Inserts a new UDFentry record into the database
-*
-* parameters:
-* > row contains the column data to insert into the new record,
-* In this case the primary key UDFID is not compulsory, as it is automatically generated.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector<
-* {column_name = "Data"	, column_data = "[MyData]"	} >;
-* > this.AddUserDefinedField(row);
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
-bool Core::AddUdfEntry(const RowContainer &row) {
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss << "Core Warning: attempting to add UDFentry record with "
-		<< "incompatible data\n";
-	err_msg_1 = ss.str();
-
-	bool is_successful = false;
-	std::string into_clause, value_clause;
-	std::string udfid, data;
-
-	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
-	for (auto column = row.begin(); column != row.end(); ++column) {
-			 if (column->column_name == "UDFID") { udfid = column->column_data; }
-		else if (column->column_name == "Data" ) { data  = column->column_data; }
-		else { 
-			std::cerr << err_msg_1 << ", column < " << column->column_name <<"> is invalid\n";
-			return is_successful = false; 
-		}
-	}
-	if ((udfid.empty() == true) || (data.empty() == true)) {
-		std::cerr << err_msg_1 << ", data and UDFID cannot be NULL\n";
-		return is_successful = false; 
-	}
-
-	std::string table_name, col_name_1, col_name_2;
-	std::vector<std::string> temp_name_vec, temp_val_vec;
-
-	table_name = "UDFentry";
-	col_name_1 = "UDFID";
-	col_name_2 = "Data";
-
-	temp_name_vec = { col_name_1, col_name_2};
-	temp_val_vec  = { udfid		, data};
-
-	QueryContainer query;
-
-	query.table_name = table_name;
-
-	into_clause = query.table_name;
-	into_clause += "(";
-	into_clause += this->CommaSeparate(temp_name_vec);
-	into_clause += ")";
-	query.into_clause = into_clause;
-
-	value_clause = "(";
-	value_clause += this->CommaSeparate(temp_val_vec, "'");
-	value_clause += ")";
-	query.value_clause = value_clause;
-
-	is_successful = this->database_.Insert(query);
-
-	return is_successful;
-}
-
-/*
-* Deletes specified UDFentry record from database
-*
-* parameters:
-* > row contains the column data required to identify the record to delete,
-* in this case Data and associated UDFID are required to uniquely identify the record.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} 
-*							{column_name = "Data" , column_data = "[MyData]"} >;
-* > this.DeleteActivity(row);
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
-bool Core::DeleteUdfEntry(const RowContainer &row) {
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss << "Core Warning: Attempting to delete a UDFentry record "
-		<< "with incompatible data\n";
-	err_msg_1 = ss.str();
-
-	bool is_successful = false;
-	std::string where_clause, col_name, col_val, udfid, data;
-	QueryContainer query;
-
-	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
-	for (auto column = row.begin(); column != row.end(); ++column) {
-			 if(column->column_name == "Data")	{ data	= column->column_data;	}
-		else if(column->column_name == "UDFID") { udfid = column->column_data;	}
-		else { std::cerr << err_msg_1;  return is_successful = false; }
-	}
-	if ((udfid.empty() == true) || (data.empty() == true)) { 
-		std::cerr << err_msg_1; 
-		return is_successful = false; 
-	}
-
-	query.table_name = "UDFentry";
-
-	col_name = "UDFID";
-	col_val	 = udfid;
-	where_clause += col_name;
-	where_clause += "=";
-	where_clause += "'";
-	where_clause += col_val;
-	where_clause += "'";
-
-	where_clause += " AND ";
-
-	col_name = "Data";
-	col_val	 = data;
-	where_clause += col_name;
-	where_clause += "=";
-	where_clause += "'";
-	where_clause += col_val;
-	where_clause += "'";
-
-	query.where_clause = where_clause;
-	is_successful = this->database_.Delete(query);
-
-	return is_successful;
-}
-
-/*
-* Replaces specified UDFentry record in database
-*
-* parameters:
-* > row contains the column data required to identify the record to update. 
-* in this case Data and associated UDFID are required to uniquely identify the record.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector<
-*	{column_name = "UDFID"		,	column_data = "[MyUDFID]"	}
-*	{column_name = "Data"		,	column_data = "[MyName]		} >;
-* > this.UpdateActivity(row);
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
-bool Core::UpdateUdfEntry(const RowContainer &row) {
-	bool is_successful = false;
-
-	std::stringstream ss;
-	std::string err_msg_1;
-
-	ss << "Core Warning: attempting to update UDFentry record with "
-		<< "incompatible data\n";
-	err_msg_1 = ss.str();
-
-	if (row.size() != 2) {
-		std::cerr << err_msg_1 << ", row size <" << row.size() << "> is invalid\n";
-		return is_successful = false;
-	}
-
-	std::string udfid, data;
-	for (auto column = row.begin(); column != row.end(); ++column) {
-		if (column->column_name		 == "UDFID") { udfid = column->column_data; }
-		else if (column->column_name == "Data")  { data = column->column_data;  }
-		else {
-			std::cerr << err_msg_1 << ", attribute <" << column->column_name
-				<< "> is invalid\n";
-			is_successful = false;
-		}
-	}
-
-	if ( (udfid.empty() == true) || (data.empty() == true)) {
-		std::cerr << err_msg_1 << "primary key UDFID and attribute data cannot be NULL\n";
-		return is_successful = false;
-	}
-
-	std::string set_clause, where_clause;
-	QueryContainer query;
-
-	query.table_name = "UDFentry";
-
-	set_clause += "Data=";
-	set_clause += "'";
-	set_clause += data;
-	set_clause += "'";
-	query.set_clause = set_clause;
-
-	where_clause = "UDFID=";
-	set_clause += "'";
-	where_clause += udfid;
-	set_clause += "'";
-
-	query.where_clause = where_clause;
-	is_successful = this->database_.Update(query);
-
-	return is_successful;
-}
-
-bool AddUdfListingM2M(const RowContainer &row);
-bool InsertUdfListingM2M(const RowContainer &row);
-bool DeleteUdfListingM2M(const RowContainer &row);
+//* Inserts a new UserDefinedField record into the database
+//*
+//* parameters:
+//* > row contains the column data to insert into the new record,
+//* In this case the primary key UDFID is not compulsory, as it is automatically generated.
+//* Check "Database.h" for more information on RowContainer data type
+//*
+//* psuedo code:
+//* > RowContainer row = vector<
+//* {column_name = "UDFID"		, column_data = "[MyUDFID]"			}
+//* {column_name = "Name"			, column_data = "[MyName]"			}
+//* {column_name = "DataType"		, column_data = "[MyDataType]"		} 
+//* {column_name = "Description"	, column_data = "[MyDescription]"	} 
+//* {column_name = "ActivityID"	, column_data = "[MyActivityID]"	} >;
+//* > this.AddUserDefinedField(row);
+//*-------------------------------------------------------------
+//* Notes:
+//* > Requires an open connection to database
+//* > The attribute Datatype has three options, {"string","int","bool"}
+//*/
+//bool Core::AddUserDefinedField(const RowContainer &row) {
+//	std::stringstream ss;
+//	std::string err_msg_1;
+//
+//	ss	<< "Core Warning: attempting to add UserDefinedField record with "
+//		<< "incompatible data\n";
+//	err_msg_1 = ss.str();
+//
+//	bool is_successful = false;
+//	std::string into_clause, value_clause;
+//	std::string udfid,name,data_type,description,activity_id;
+//	
+//	if (row.size() != 4) { 
+//		std::cerr << err_msg_1 << ", size <"<< row.size() << "> invalid\n"; 
+//		return is_successful = false; 
+//	}
+//	for (auto column = row.begin(); column != row.end(); ++column) {
+//			 if (column->column_name == "Name")			{ name		 = column->column_data; }
+//		else if (column->column_name == "DataType")		{ data_type  = column->column_data; }
+//		else if (column->column_name == "Description")	{description = column->column_data; }
+//		else if (column->column_name == "ActivityID")	{activity_id = column->column_data; }
+//		else { 
+//			std::cerr<<err_msg_1 << ", attribute <" << column->column_name << "> invalid\n";
+//			return is_successful = false;
+//		}
+//	}
+//
+//	std::string table_name, col_name_1, col_name_2, col_name_3, col_name_4, col_name_5;
+//	std::vector<std::string> temp_name_vec, temp_val_vec;
+//
+//	table_name = "UserDefinedField";
+//	col_name_1 = "UDFID";
+//	col_name_2 = "Name";
+//	col_name_3 = "DataType";
+//	col_name_4 = "Description";
+//	col_name_5 = "ActivityID";
+//
+//	udfid = std::to_string(this->GenerateUniqueIntId(table_name, col_name_1));
+//	temp_name_vec = { col_name_1, col_name_2, col_name_3, col_name_4, col_name_5};
+//	temp_val_vec  = { udfid, name, data_type, description, activity_id };
+//
+//	QueryContainer query;
+//
+//	query.table_name = table_name;
+//
+//	into_clause = query.table_name;
+//	into_clause += "(";
+//	into_clause += this->CommaSeparate(temp_name_vec);
+//	into_clause += ")";
+//	query.into_clause = into_clause;
+//
+//	value_clause = "(";
+//	value_clause += this->CommaSeparate(temp_val_vec, "'");
+//	value_clause += ")";
+//	query.value_clause = value_clause;
+//
+//	is_successful = this->database_.Insert(query);
+//
+//	return is_successful;
+//}
+//
+//
+///*
+//* Deletes specified activity record from database
+//*
+//* parameters:
+//* > row contains the column data required to identify the record to delete,
+//* in this case only a UDFID is required.
+//* Check "Database.h" for more information on RowContainer data type
+//*
+//* psuedo code:
+//* > RowContainer row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} >;
+//* > this.DeleteActivity(row);
+//*-------------------------------------------------------------
+//* Notes:
+//* > Requires an open connection to database
+//*/
+//bool Core::DeleteUserDefinedField(const RowContainer &row) {
+//	std::stringstream ss;
+//	std::string err_msg_1;
+//
+//	ss << "Core Warning: Attempting to delete a UDF record "
+//		<< "with incompatible data\n";
+//	err_msg_1 = ss.str();
+//
+//	bool is_successful = false;
+//	std::string where_clause, col_name, col_val, udfid;
+//	QueryContainer query;
+//
+//	if ((row.begin()->column_name != "UDFID") || (row.begin()->column_data.empty() == true)) {
+//		std::cerr << err_msg_1;
+//		return is_successful = false;
+//	}
+//
+//	udfid = row.begin()->column_data;
+//	query.table_name = "UserDefinedField";
+//	col_name = "UDFID";
+//	col_val = udfid;
+//
+//	where_clause += col_name;
+//	where_clause += "=";
+//	where_clause += "'";
+//	where_clause += col_val;
+//	where_clause += "'";
+//	query.where_clause = where_clause;
+//
+//	is_successful = this->database_.Delete(query);
+//
+//	return is_successful;
+//}
+//
+///*
+//* Updates specified UDF record in database
+//*
+//* parameters:
+//* > row contains the column data required to identify the record to update. In this case
+//* the primary key UDFID is compulsory, the other attributes are optional as long as a minimum
+//* of a single optional attribute is updated.
+//* Check "Database.h" for more information on RowContainer data type
+//*
+//* psuedo code:
+//* > RowContainer row = vector<
+//*	{column_name = "UDFID"			,	column_data = "[MyUDFID]"		}
+//*	{column_name = "Name"			,	column_data = "[MyName]		}
+//*	{column_name = "DataType"		,	column_data = "[MyDataType]"	} 
+//*	{column_name = "Description"	,	column_data = "[MyDescription]"	} 
+//*	{column_name = "ActivityID"		,	column_data = "[MyActivityID]"	} >;
+//* > this.UpdateActivity(row);
+//*-------------------------------------------------------------
+//* Notes:
+//* > Requires an open connection to database
+//*/
+//bool Core::UpdateUserDefinedField(const RowContainer &row) {
+//	bool is_successful = false;
+//
+//	std::stringstream ss;
+//	std::string err_msg_1;
+//
+//	ss << "Core Warning: attempting to update UDF record with "
+//		<< "incompatible data\n";
+//	err_msg_1 = ss.str();
+//
+//	if (row.size() < 2) { 
+//		std::cerr << err_msg_1 << ", row size <" << row.size() <<"> is invalid\n";
+//		return is_successful = false; 
+//	}
+//
+//	std::string udfid, name, description, data_type, activity_id;
+//	for (auto column = row.begin(); column != row.end(); ++column) {
+//			 if (column->column_name == "UDFID")		{ udfid = column->column_data;			}
+//		else if (column->column_name == "Name")			{ name = column->column_data;			}
+//		else if (column->column_name == "DataType")		{ data_type = column->column_data;		}
+//		else if (column->column_name == "Description")	{ description = column->column_data;	}
+//		else if (column->column_name == "ActivityID")	{ activity_id = column->column_data;	}
+//		else { 
+//			std::cerr << err_msg_1 << ", attribute <" << column->column_name 
+//					  << "> is invalid\n";  
+//			is_successful = false; 
+//		}
+//	}
+//
+//	if (udfid.empty() == true) { 
+//		std::cerr << err_msg_1 << "primary key UDFID cannot be null\n";
+//		return is_successful = false; 
+//	}
+//
+//	std::string set_clause, where_clause;
+//	QueryContainer query;
+//	bool is_next = false;
+//	query.table_name = "UserDefinedField";
+//
+//	if (name.empty() == false) {
+//		set_clause += "Name=";
+//		set_clause += "'";
+//		set_clause += name;
+//		set_clause += "'";
+//		is_next = true;
+//	}
+//	if (data_type.empty() == false) {
+//		if (is_next == true) {
+//			set_clause += ",";
+//		}
+//		set_clause += "DataType=";
+//		set_clause += "'";
+//		set_clause += data_type;
+//		set_clause += "'";
+//		is_next = true;
+//	}
+//	if (description.empty() == false) {
+//		if (is_next == true) {
+//			set_clause += ",";
+//		}
+//		set_clause += "Description=";
+//		set_clause += "'";
+//		set_clause += description;
+//		set_clause += "'";
+//		is_next = true;
+//	}
+//	if (activity_id.empty() == false) {
+//		if (is_next == true) {
+//			set_clause += ",";
+//		}
+//		set_clause += "ActivityID=";
+//		set_clause += "'";
+//		set_clause += activity_id;
+//		set_clause += "'";
+//	}	
+//	query.set_clause = set_clause;
+//
+//	where_clause = "UDFID=";
+//	set_clause += "'";
+//	where_clause += udfid;
+//	set_clause += "'";
+//
+//	query.where_clause = where_clause;
+//	is_successful = this->database_.Update(query);
+//
+//	return is_successful;
+//}
+//
+///*
+//* Inserts a new UDFentry record into the database
+//*
+//* parameters:
+//* > row contains the column data to insert into the new record,
+//* In this case the primary key UDFID is not compulsory, as it is automatically generated.
+//* Check "Database.h" for more information on RowContainer data type
+//*
+//* psuedo code:
+//* > RowContainer row = vector<
+//* {column_name = "Data"	, column_data = "[MyData]"	} >;
+//* > this.AddUserDefinedField(row);
+//*-------------------------------------------------------------
+//* Notes:
+//* > Requires an open connection to database
+//*/
+//bool Core::AddUdfEntry(const RowContainer &row) {
+//	std::stringstream ss;
+//	std::string err_msg_1;
+//
+//	ss << "Core Warning: attempting to add UDFentry record with "
+//		<< "incompatible data\n";
+//	err_msg_1 = ss.str();
+//
+//	bool is_successful = false;
+//	std::string into_clause, value_clause;
+//	std::string udfid, data;
+//
+//	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
+//	for (auto column = row.begin(); column != row.end(); ++column) {
+//			 if (column->column_name == "UDFID") { udfid = column->column_data; }
+//		else if (column->column_name == "Data" ) { data  = column->column_data; }
+//		else { 
+//			std::cerr << err_msg_1 << ", column < " << column->column_name <<"> is invalid\n";
+//			return is_successful = false; 
+//		}
+//	}
+//	if ((udfid.empty() == true) || (data.empty() == true)) {
+//		std::cerr << err_msg_1 << ", data and UDFID cannot be NULL\n";
+//		return is_successful = false; 
+//	}
+//
+//	std::string table_name, col_name_1, col_name_2;
+//	std::vector<std::string> temp_name_vec, temp_val_vec;
+//
+//	table_name = "UDFentry";
+//	col_name_1 = "UDFID";
+//	col_name_2 = "Data";
+//
+//	temp_name_vec = { col_name_1, col_name_2};
+//	temp_val_vec  = { udfid		, data};
+//
+//	QueryContainer query;
+//
+//	query.table_name = table_name;
+//
+//	into_clause = query.table_name;
+//	into_clause += "(";
+//	into_clause += this->CommaSeparate(temp_name_vec);
+//	into_clause += ")";
+//	query.into_clause = into_clause;
+//
+//	value_clause = "(";
+//	value_clause += this->CommaSeparate(temp_val_vec, "'");
+//	value_clause += ")";
+//	query.value_clause = value_clause;
+//
+//	is_successful = this->database_.Insert(query);
+//
+//	return is_successful;
+//}
+//
+///*
+//* Deletes specified UDFentry record from database
+//*
+//* parameters:
+//* > row contains the column data required to identify the record to delete,
+//* in this case Data and associated UDFID are required to uniquely identify the record.
+//* Check "Database.h" for more information on RowContainer data type
+//*
+//* psuedo code:
+//* > RowContainer row = vector< {column_name = "UDFID", column_data = "[MyUDFID]"} 
+//*							{column_name = "Data" , column_data = "[MyData]"} >;
+//* > this.DeleteActivity(row);
+//*-------------------------------------------------------------
+//* Notes:
+//* > Requires an open connection to database
+//*/
+//bool Core::DeleteUdfEntry(const RowContainer &row) {
+//	std::stringstream ss;
+//	std::string err_msg_1;
+//
+//	ss << "Core Warning: Attempting to delete a UDFentry record "
+//		<< "with incompatible data\n";
+//	err_msg_1 = ss.str();
+//
+//	bool is_successful = false;
+//	std::string where_clause, col_name, col_val, udfid, data;
+//	QueryContainer query;
+//
+//	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
+//	for (auto column = row.begin(); column != row.end(); ++column) {
+//			 if(column->column_name == "Data")	{ data	= column->column_data;	}
+//		else if(column->column_name == "UDFID") { udfid = column->column_data;	}
+//		else { std::cerr << err_msg_1;  return is_successful = false; }
+//	}
+//	if ((udfid.empty() == true) || (data.empty() == true)) { 
+//		std::cerr << err_msg_1; 
+//		return is_successful = false; 
+//	}
+//
+//	query.table_name = "UDFentry";
+//
+//	col_name = "UDFID";
+//	col_val	 = udfid;
+//	where_clause += col_name;
+//	where_clause += "=";
+//	where_clause += "'";
+//	where_clause += col_val;
+//	where_clause += "'";
+//
+//	where_clause += " AND ";
+//
+//	col_name = "Data";
+//	col_val	 = data;
+//	where_clause += col_name;
+//	where_clause += "=";
+//	where_clause += "'";
+//	where_clause += col_val;
+//	where_clause += "'";
+//
+//	query.where_clause = where_clause;
+//	is_successful = this->database_.Delete(query);
+//
+//	return is_successful;
+//}
+//
+///*
+//* Replaces specified UDFentry record in database
+//*
+//* parameters:
+//* > row contains the column data required to identify the record to update. 
+//* in this case Data and associated UDFID are required to uniquely identify the record.
+//* Check "Database.h" for more information on RowContainer data type
+//*
+//* psuedo code:
+//* > RowContainer row = vector<
+//*	{column_name = "UDFID"		,	column_data = "[MyUDFID]"	}
+//*	{column_name = "Data"		,	column_data = "[MyName]		} >;
+//* > this.UpdateActivity(row);
+//*-------------------------------------------------------------
+//* Notes:
+//* > Requires an open connection to database
+//*/
+//bool Core::UpdateUdfEntry(const RowContainer &row) {
+//	bool is_successful = false;
+//
+//	std::stringstream ss;
+//	std::string err_msg_1;
+//
+//	ss << "Core Warning: attempting to update UDFentry record with "
+//		<< "incompatible data\n";
+//	err_msg_1 = ss.str();
+//
+//	if (row.size() != 2) {
+//		std::cerr << err_msg_1 << ", row size <" << row.size() << "> is invalid\n";
+//		return is_successful = false;
+//	}
+//
+//	std::string udfid, data;
+//	for (auto column = row.begin(); column != row.end(); ++column) {
+//		if (column->column_name		 == "UDFID") { udfid = column->column_data; }
+//		else if (column->column_name == "Data")  { data = column->column_data;  }
+//		else {
+//			std::cerr << err_msg_1 << ", attribute <" << column->column_name
+//				<< "> is invalid\n";
+//			is_successful = false;
+//		}
+//	}
+//
+//	if ( (udfid.empty() == true) || (data.empty() == true)) {
+//		std::cerr << err_msg_1 << "primary key UDFID and attribute data cannot be NULL\n";
+//		return is_successful = false;
+//	}
+//
+//	std::string set_clause, where_clause;
+//	QueryContainer query;
+//
+//	query.table_name = "UDFentry";
+//
+//	set_clause += "Data=";
+//	set_clause += "'";
+//	set_clause += data;
+//	set_clause += "'";
+//	query.set_clause = set_clause;
+//
+//	where_clause = "UDFID=";
+//	set_clause += "'";
+//	where_clause += udfid;
+//	set_clause += "'";
+//
+//	query.where_clause = where_clause;
+//	is_successful = this->database_.Update(query);
+//
+//	return is_successful;
+//}
+//
+//bool AddUdfListingM2M(const RowContainer &row);
+//bool InsertUdfListingM2M(const RowContainer &row);
+//bool DeleteUdfListingM2M(const RowContainer &row);
 
 //bool Insert(QueryContainer &query) {//TODO
 //
