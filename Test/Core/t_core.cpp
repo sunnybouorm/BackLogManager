@@ -373,7 +373,7 @@ SCENARIO("A single listing is added and deleted")
 			{
 				REQUIRE(creation_is_success == true);
 				REQUIRE(result == expected);
-				/*AND_WHEN("the listing is deleted")
+				AND_WHEN("the listing is deleted")
 				{
 					bool deletion_is_success = false;
 
@@ -384,7 +384,12 @@ SCENARIO("A single listing is added and deleted")
 					column.column_data = lid;
 					row.clear();
 					row.push_back(column);
-					deletion_is_success = core.DeleteListing(row);
+
+					query.table_name	= table_name;
+					query.search_params = row;
+					query.request		= DELETE;
+
+					deletion_is_success = core.SqlRequest(query);
 					REQUIRE(deletion_is_success == true);
 
 					core.database_.SqlCommand("SELECT * FROM Listing\n");
@@ -395,7 +400,7 @@ SCENARIO("A single listing is added and deleted")
 						REQUIRE(deletion_is_success == true);
 						REQUIRE(result.empty() == true);
 					}
-				}*/
+				}
 			}
 		}
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }

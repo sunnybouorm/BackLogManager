@@ -15,11 +15,15 @@ typedef std::vector <ColumnContainer> RowContainer;
 typedef std::vector <RowContainer> TableContainer;
 
 typedef struct QueryStruct {//used to generate an SQL query
-	Request request;
+	friend class Database;
+	friend class Core;
+public:
+	Request request;// make sql insert/update/delete request
 	std::string table_name;
 	std::vector<ColumnContainer> columns;
 	std::vector<ColumnContainer> search_params;
 
+private:
 	std::string select_clause;
 	std::string value_clause;
 	std::string set_clause;
@@ -40,6 +44,7 @@ const std::string kDbName("db.db3");
 class Database {
 
 public :
+
 	Database();
 	Database(const std::string &directory);
 

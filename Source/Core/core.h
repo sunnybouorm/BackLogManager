@@ -21,12 +21,10 @@ public:
 
 private:
 	const static std::multimap<const std::string, const std::string> init_db_map();
+	const static std::multimap<const std::string, const std::string> init_superkey_map();
 
 	const static DbMap kDatabaseMap_;
-
-	int GenerateUniqueIntId(const std::string &table_name, const std::string &id_name);
-	std::string Core::CommaSeparate(std::vector<std::string> &data,\
-		const std::string &character = "");
+	const static DbMap kSuperkeyMap_; // unique identifiers of each entity
 
 	bool Insert(QueryContainer &query);
 	bool Delete(QueryContainer &query);
@@ -51,6 +49,11 @@ private:
 	bool AddUdfListingM2M	(QueryContainer	&query);
 	bool InsertUdfListingM2M(QueryContainer	&query);
 	bool DeleteUdfListingM2M(QueryContainer	&query);
+
+	int GenerateUniqueIntId(const std::string &table_name, const std::string &id_name);
+	std::string Core::CommaSeparate(std::vector<std::string> &data, \
+		const std::string &character = "");
+	bool insert_params_check(QueryContainer query, std::string err_msg);
 };
 
 #endif//BACKLOGMANAGER_CORE_CORE_H_ 

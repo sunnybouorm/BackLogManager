@@ -32,6 +32,28 @@ const DbMap Core::init_db_map() {
 
 const DbMap Core::kDatabaseMap_ = Core::init_db_map();
 
+const DbMap Core::init_superkey_map() {
+
+	const std::multimap<const std::string, const std::string> DbMapContainer = {
+		{ "Activity", "ActivityID" },
+
+		{ "Listing"	, "LID" },
+
+		{ "UserDefinedField", "UDFID" },
+
+		{ "UDFentry", "Data" },
+		{ "UDFentry", "UDFID" },
+
+		{ "Listing_UDFentry", "LID" },
+		{ "Listing_UDFentry", "UDFID" },
+		{ "Listing_UDFentry", "EntryData" }
+	};
+
+	return DbMapContainer;
+}
+
+const DbMap Core::kSuperkeyMap_ = Core::init_superkey_map();
+
 /*
 * Extracts columns from a Rowcontainer object into a different container format
 * > Before:
@@ -54,6 +76,16 @@ std::pair<std::vector<std::string>, std::vector<std::string>> row_2_vect(const R
 
 Core::Core(Database &db) {
 	this->database_ = db;
+}
+
+/* 
+ * Performs a check on columns in query to ensure they are valid and returns true if 
+ * valid
+ */
+bool Core::insert_params_check(QueryContainer query, std::string err_msg) {
+	bool is_valid = false;
+
+	return is_valid;
 }
 
 /*
@@ -80,15 +112,15 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 	bool is_successful = false;
 
 	std::stringstream ss;
-	std::string err_msg_1;
+	std::string err_msg;
 
 	ss << "Core Warning: Attempting to make an SQL request with incompatible data";
-	err_msg_1 = ss.str();
+	err_msg = ss.str();
 
 	//check if table specififed exists in database
 	auto table_iter = kDatabaseMap_.find(query.table_name);
 	if (table_iter == kDatabaseMap_.end()) { 
-		std::cerr << err_msg_1 << ", table <" << query.table_name << "> is invalid\n";
+		std::cerr << err_msg << ", table <" << query.table_name << "> is invalid\n";
 		return is_successful = false;
 	}
 
@@ -103,7 +135,7 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 			}
 		}
 		if (is_exist == false) {
-			std::cerr << err_msg_1 << ", column <" << q_col->column_name << "> is invalid\n";
+			std::cerr << err_msg << ", column <" << q_col->column_name << "> is invalid\n";
 			return is_successful = false;
 		} else {is_exist = false;}
 	}
@@ -111,7 +143,8 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 	//check if search params valid where applicable
 	if ( (query.request == UPDATE) || (query.request == DELETE) ) {
 		if (query.search_params.empty()==true) {
-			std::cout << err_msg_1;
+			std::cout	<< err_msg
+						<< ", search params cannot be empty when updating or deleting records\n";
 
 			return is_successful = false;
 		}
@@ -119,14 +152,6 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 
 	//select relavent function to handle request
 	if ( (query.table_name == "Activity") && (query.request == INSERT) ) {
-
-		//error check
-		if (query.columns.size() !=  kDatabaseMap_.count(query.table_name) - 1) {
-			std::cerr	<< err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid."
-						<< " ensure ActivityID is not included in an insert query\n";
-			return is_successful = false;
-		}
-
 		std::string key_name = "ActivityID";
 		ColumnContainer column;
 
@@ -137,62 +162,14 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		is_successful = this->AddActivity(query);
 
 	} else if ((query.table_name == "Activity") && (query.request == UPDATE)) {
-		ss.clear();
-		ss << "Core Warning: Attempting to add an Activity record with incompatible data";
-		err_msg_1 = ss.str();
-
-		//error check
-		if	(query.columns.size() > kDatabaseMap_.count(query.table_name) && \
-			(query.columns.empty() == false) ) 
-		{
-			std::cerr << err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid.\n";
-
-			return is_successful = false;
-		}
 		is_successful = this->UpdateActivity(query);
 
 	} else if ((query.table_name == "Activity") && (query.request == DELETE)) {
-		ss.clear();
-		ss << "Core Warning: Attempting to Delete an Activity record with incompatible data";
-		err_msg_1 = ss.str();
-
-		//error check
-		if(query.search_params.size() != 1) 
-		{ 
-			std::cerr	<< err_msg_1
-						<< "primary keys size<" << query.search_params.size()
-						<< "> is invalid"
-						<< "\n";
-
-			return is_successful = false;
-
-		} else if (query.search_params.begin()->column_name != "ActivityID") {
-			std::cerr << err_msg_1
-				<< "primary key name <" << query.search_params.begin()->column_name
-				<< "> is invalid"
-				<< "\n";
-
-			return is_successful = false;
-		}
-
 		is_successful = this->DeleteActivity(query);
 	}
 
 
 	else if ((query.table_name == "Listing") && (query.request == INSERT)) {
-		ss.clear();
-		ss << "Core Warning: attempting to add a listing record with incompatible data\n";
-		err_msg_1 = ss.str();
-
-		//error check
-		if (query.columns.size() != kDatabaseMap_.count(query.table_name) - 1) {
-			std::cerr << err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid."
-				<< " ensure LID is not included in an insert query as it is automatically generated"
-				<< "\n";
-
-			return is_successful = false;
-		}
-
 		std::string key_name = "LID";
 		ColumnContainer column;
 
@@ -202,26 +179,11 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		query.columns.push_back(column);
 		is_successful = this->AddListing(query);
 
-	} else if ((query.table_name == "Listing") && (query.request == UPDATE)) {//TODO
-		ss.clear();
-		ss << "Core Warning: attempting to update Listing record with "
-			<< "incompatible data\n";
-		err_msg_1 = ss.str();
-
-		//error check
-		if	(query.columns.size() > kDatabaseMap_.count(query.table_name) &&
-			(query.columns.empty() == false))
-		{
-			std::cerr << err_msg_1 << ", rowsize <" << query.columns.size() << "> is invalid.\n";
-
-			return is_successful = false;
-		}
-
+	} else if ((query.table_name == "Listing") && (query.request == UPDATE)) {
 		is_successful = this->UpdateListing(query);
 
-
-	} else if (query.table_name == "") {//TODO
-
+	} else if ((query.table_name == "Listing") && (query.request == DELETE)) {
+		is_successful = this->DeleteListing(query);
 	}
 
 	else if (query.table_name == "") {
@@ -256,7 +218,7 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 
 	}
 	else {
-		std::cerr << err_msg_1 << ", failed to find SQL operation requested\n" ;
+		std::cerr << err_msg << ", failed to find SQL operation requested\n" ;
 	}
 
 	return is_successful;
@@ -328,9 +290,25 @@ std::string Core::CommaSeparate(std::vector<std::string> &data, const std::strin
 	return result;
 }
 
-bool Core::Insert(QueryContainer &query) {//TODO
+/*
+ * Inserts a new record into a table as specified by the query struct
+ *-------------------------------------------------------------
+ * Notes:
+ * > Requires an open connection to database
+ */
+bool Core::Insert(QueryContainer &query) {
 	bool is_successful = false;
 	std::pair< std::vector <std::string>, std::vector <std::string> > temp;
+
+	//error check
+	std::stringstream ss;
+	ss	<< "Core Warning: Invalid parameters passed to Insert operation"
+		<< ", rowsize <" << query.columns.size() << "> is invalid.";
+	std::string err_msg = ss.str();
+	if (query.columns.size() != kDatabaseMap_.count(query.table_name)) {
+		std::cerr << err_msg;
+		return is_successful = false;
+	}
 
 	temp = row_2_vect(query.columns);
 	std::vector <std::string> temp_name_vec = temp.first;
@@ -354,9 +332,31 @@ bool Core::Insert(QueryContainer &query) {//TODO
 	return is_successful;
 }
 
-bool Core::Delete(QueryContainer &query) {//TODO
+/*
+* Deletes records from a table as specified by the query struct
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::Delete(QueryContainer &query) {
 	bool is_successful = false;
 	std::string where_clause, col_name, col_val;
+
+	std::stringstream ss;
+	ss << "Core Warning: Invalid parameters passed to Delete operation";
+	std::string err_msg = ss.str();
+
+	//error check
+	if (query.search_params.size() !=  kSuperkeyMap_.count(query.table_name) )
+	{
+		std::cerr << err_msg
+			<< "primary keys size<" << query.search_params.size()
+			<< "> is invalid"
+			<< "\n";
+
+		return is_successful = false;
+
+	}
 
 	col_name = query.search_params.begin()->column_name;
 	col_val = query.search_params.begin()->column_data;
@@ -373,9 +373,30 @@ bool Core::Delete(QueryContainer &query) {//TODO
 	return is_successful;
 }
 
-bool Core::Update(QueryContainer &query) {//TODO
+
+/*
+* Updates records in a table as specified by the query struct
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::Update(QueryContainer &query) {
 	bool is_successful = false;
 	std::string set_clause, where_clause;
+
+	std::stringstream ss;
+	ss.clear();
+	ss << "Core Warning: Invalid parameters passed to Update operation";
+	std::string err_msg = ss.str();
+
+	//error check
+	if  (query.columns.size() > kDatabaseMap_.count(query.table_name) && \
+		(query.columns.empty() == true))
+	{
+		std::cerr << err_msg << ", rowsize <" << query.columns.size() << "> is invalid.\n";
+
+		return is_successful = false;
+	}
 
 	auto last_col = query.columns.end();
 	--last_col;
@@ -409,7 +430,6 @@ bool Core::Update(QueryContainer &query) {//TODO
 }
 
 /*
- * Inserts a new activity record into the database
  *-------------------------------------------------------------
  * Notes:
  * > Requires an open connection to database
@@ -423,11 +443,10 @@ bool Core::AddActivity(QueryContainer &query) {
 
 
 /*
-* Deletes specified activity record from database
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
+ *-------------------------------------------------------------
+ * Notes:
+ * > Requires an open connection to database
+ */
 bool Core::DeleteActivity(QueryContainer &query) {
 	bool is_successful = false;
 	is_successful = this->Delete(query);
@@ -436,11 +455,10 @@ bool Core::DeleteActivity(QueryContainer &query) {
 }
 
 /*
-* Updates specified activity record in database
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
+ *-------------------------------------------------------------
+ * Notes:
+ * > Requires an open connection to database
+ */
 bool Core::UpdateActivity(QueryContainer &query) {
 	bool is_successful = false;
 	is_successful = this->Update(query);
@@ -448,25 +466,11 @@ bool Core::UpdateActivity(QueryContainer &query) {
 	return is_successful;
 }
 
-
 /*
-* Inserts a new listing record into the database
-*
-* parameters:
-* > row contains the column data to insert into the new listing record,
-* in this case only a title and associated activity ID are required, no need to worry about
-* the listing ID as it is automatically generated.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector< 
-* {column_name = "Title"		, column_data = "[MyTitle]"		} 
-* {column_name = "ActivityID"	, column_data = "[MyActivityID]"} >;
-* > this.AddActivity(row);
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
+ *-------------------------------------------------------------
+ * Notes:
+ * > Requires an open connection to database
+ */
 bool Core::AddListing(QueryContainer &query) {
 	bool is_successful = false;
 	is_successful = this->Insert(query);
@@ -474,74 +478,23 @@ bool Core::AddListing(QueryContainer &query) {
 	return is_successful;
 }
 
-///*
-//* Deletes specified listing record from database
-//*
-//* parameters:
-//* > row contains the column data required to identify the record to delete,
-//* in this case only a listing ID is required.
-//* Check "Database.h" for more information on RowContainer data type
-//*
-//* psuedo code:
-//* > RowContainer row = vector< {column_name = "LID", column_data = "[MyLID]"} >;
-//* > this.DeleteActivity(row);
-//*-------------------------------------------------------------
-//* Notes:
-//* > Requires an open connection to database
-//*/
-//bool Core::DeleteListing(const RowContainer &row) {
-//	std::stringstream ss;
-//	std::string err_msg_1;
-//
-//	ss	<< "Core Warning: Attempting to delete a listing record "
-//		<< "with incompatible data\n";
-//	err_msg_1 = ss.str();
-//
-//	bool is_successful = false;
-//	std::string where_clause, col_name, col_val, lid;
-//	QueryContainer query;
-//
-//	if((row.begin()->column_name != "LID") || (row.begin()->column_data.empty() == true)) {
-//		std::cerr << err_msg_1;
-//		return is_successful = false;
-//	}
-//
-//	lid = row.begin()->column_data;
-//	query.table_name	= "Listing";
-//	col_name			= "LID";
-//	col_val				= lid;
-//
-//	where_clause += col_name;
-//	where_clause += "=";
-//	where_clause += "'";
-//	where_clause += col_val;
-//	where_clause += "'";
-//	query.where_clause = where_clause;
-//
-//	is_successful = this->database_.Delete(query);
-//
-//	return is_successful;
-//}
+/*
+ *-------------------------------------------------------------
+ * Notes:
+ * > Requires an open connection to database
+ */
+bool Core::DeleteListing(QueryContainer &query) {
+	bool is_successful = false;
+	is_successful = this->Delete(query);
+
+	return is_successful;
+}
 
 /*
-* Updates specified listing record in database
-*
-* parameters:
-* > row contains the column data required to identify the record to update. In this case
-* the primary key LID is compulsory, the other attributes are optional as long as a minimum 
-* of a single optional attribute is updated.
-* Check "Database.h" for more information on RowContainer data type
-*
-* psuedo code:
-* > RowContainer row = vector<
-*	{column_name = "LID"		,	column_data = "[MyLID]"			}
-*	{column_name = "Title"		,	column_data = "[MyTitle]		}
-*	{column_name = "ActivityID"	,	column_data = "[MyActivityID]"	}>;
-* > this.UpdateActivity(row);
-*-------------------------------------------------------------
-* Notes:
-* > Requires an open connection to database
-*/
+ *-------------------------------------------------------------
+ * Notes:
+ * > Requires an open connection to database
+ */
 bool Core::UpdateListing(QueryContainer &query) {
 	bool is_successful = false;
 	is_successful = this->Update(query);
@@ -573,18 +526,18 @@ bool Core::UpdateListing(QueryContainer &query) {
 //*/
 //bool Core::AddUserDefinedField(const RowContainer &row) {
 //	std::stringstream ss;
-//	std::string err_msg_1;
+//	std::string err_msg;
 //
 //	ss	<< "Core Warning: attempting to add UserDefinedField record with "
 //		<< "incompatible data\n";
-//	err_msg_1 = ss.str();
+//	err_msg = ss.str();
 //
 //	bool is_successful = false;
 //	std::string into_clause, value_clause;
 //	std::string udfid,name,data_type,description,activity_id;
 //	
 //	if (row.size() != 4) { 
-//		std::cerr << err_msg_1 << ", size <"<< row.size() << "> invalid\n"; 
+//		std::cerr << err_msg << ", size <"<< row.size() << "> invalid\n"; 
 //		return is_successful = false; 
 //	}
 //	for (auto column = row.begin(); column != row.end(); ++column) {
@@ -593,7 +546,7 @@ bool Core::UpdateListing(QueryContainer &query) {
 //		else if (column->column_name == "Description")	{description = column->column_data; }
 //		else if (column->column_name == "ActivityID")	{activity_id = column->column_data; }
 //		else { 
-//			std::cerr<<err_msg_1 << ", attribute <" << column->column_name << "> invalid\n";
+//			std::cerr<<err_msg << ", attribute <" << column->column_name << "> invalid\n";
 //			return is_successful = false;
 //		}
 //	}
@@ -650,18 +603,18 @@ bool Core::UpdateListing(QueryContainer &query) {
 //*/
 //bool Core::DeleteUserDefinedField(const RowContainer &row) {
 //	std::stringstream ss;
-//	std::string err_msg_1;
+//	std::string err_msg;
 //
 //	ss << "Core Warning: Attempting to delete a UDF record "
 //		<< "with incompatible data\n";
-//	err_msg_1 = ss.str();
+//	err_msg = ss.str();
 //
 //	bool is_successful = false;
 //	std::string where_clause, col_name, col_val, udfid;
 //	QueryContainer query;
 //
 //	if ((row.begin()->column_name != "UDFID") || (row.begin()->column_data.empty() == true)) {
-//		std::cerr << err_msg_1;
+//		std::cerr << err_msg;
 //		return is_successful = false;
 //	}
 //
@@ -707,14 +660,14 @@ bool Core::UpdateListing(QueryContainer &query) {
 //	bool is_successful = false;
 //
 //	std::stringstream ss;
-//	std::string err_msg_1;
+//	std::string err_msg;
 //
 //	ss << "Core Warning: attempting to update UDF record with "
 //		<< "incompatible data\n";
-//	err_msg_1 = ss.str();
+//	err_msg = ss.str();
 //
 //	if (row.size() < 2) { 
-//		std::cerr << err_msg_1 << ", row size <" << row.size() <<"> is invalid\n";
+//		std::cerr << err_msg << ", row size <" << row.size() <<"> is invalid\n";
 //		return is_successful = false; 
 //	}
 //
@@ -726,14 +679,14 @@ bool Core::UpdateListing(QueryContainer &query) {
 //		else if (column->column_name == "Description")	{ description = column->column_data;	}
 //		else if (column->column_name == "ActivityID")	{ activity_id = column->column_data;	}
 //		else { 
-//			std::cerr << err_msg_1 << ", attribute <" << column->column_name 
+//			std::cerr << err_msg << ", attribute <" << column->column_name 
 //					  << "> is invalid\n";  
 //			is_successful = false; 
 //		}
 //	}
 //
 //	if (udfid.empty() == true) { 
-//		std::cerr << err_msg_1 << "primary key UDFID cannot be null\n";
+//		std::cerr << err_msg << "primary key UDFID cannot be null\n";
 //		return is_successful = false; 
 //	}
 //
@@ -809,27 +762,27 @@ bool Core::UpdateListing(QueryContainer &query) {
 //*/
 //bool Core::AddUdfEntry(const RowContainer &row) {
 //	std::stringstream ss;
-//	std::string err_msg_1;
+//	std::string err_msg;
 //
 //	ss << "Core Warning: attempting to add UDFentry record with "
 //		<< "incompatible data\n";
-//	err_msg_1 = ss.str();
+//	err_msg = ss.str();
 //
 //	bool is_successful = false;
 //	std::string into_clause, value_clause;
 //	std::string udfid, data;
 //
-//	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
+//	if (row.size() != 2) { std::cerr << err_msg; return is_successful = false; }
 //	for (auto column = row.begin(); column != row.end(); ++column) {
 //			 if (column->column_name == "UDFID") { udfid = column->column_data; }
 //		else if (column->column_name == "Data" ) { data  = column->column_data; }
 //		else { 
-//			std::cerr << err_msg_1 << ", column < " << column->column_name <<"> is invalid\n";
+//			std::cerr << err_msg << ", column < " << column->column_name <<"> is invalid\n";
 //			return is_successful = false; 
 //		}
 //	}
 //	if ((udfid.empty() == true) || (data.empty() == true)) {
-//		std::cerr << err_msg_1 << ", data and UDFID cannot be NULL\n";
+//		std::cerr << err_msg << ", data and UDFID cannot be NULL\n";
 //		return is_successful = false; 
 //	}
 //
@@ -881,24 +834,24 @@ bool Core::UpdateListing(QueryContainer &query) {
 //*/
 //bool Core::DeleteUdfEntry(const RowContainer &row) {
 //	std::stringstream ss;
-//	std::string err_msg_1;
+//	std::string err_msg;
 //
 //	ss << "Core Warning: Attempting to delete a UDFentry record "
 //		<< "with incompatible data\n";
-//	err_msg_1 = ss.str();
+//	err_msg = ss.str();
 //
 //	bool is_successful = false;
 //	std::string where_clause, col_name, col_val, udfid, data;
 //	QueryContainer query;
 //
-//	if (row.size() != 2) { std::cerr << err_msg_1; return is_successful = false; }
+//	if (row.size() != 2) { std::cerr << err_msg; return is_successful = false; }
 //	for (auto column = row.begin(); column != row.end(); ++column) {
 //			 if(column->column_name == "Data")	{ data	= column->column_data;	}
 //		else if(column->column_name == "UDFID") { udfid = column->column_data;	}
-//		else { std::cerr << err_msg_1;  return is_successful = false; }
+//		else { std::cerr << err_msg;  return is_successful = false; }
 //	}
 //	if ((udfid.empty() == true) || (data.empty() == true)) { 
-//		std::cerr << err_msg_1; 
+//		std::cerr << err_msg; 
 //		return is_successful = false; 
 //	}
 //
@@ -949,14 +902,14 @@ bool Core::UpdateListing(QueryContainer &query) {
 //	bool is_successful = false;
 //
 //	std::stringstream ss;
-//	std::string err_msg_1;
+//	std::string err_msg;
 //
 //	ss << "Core Warning: attempting to update UDFentry record with "
 //		<< "incompatible data\n";
-//	err_msg_1 = ss.str();
+//	err_msg = ss.str();
 //
 //	if (row.size() != 2) {
-//		std::cerr << err_msg_1 << ", row size <" << row.size() << "> is invalid\n";
+//		std::cerr << err_msg << ", row size <" << row.size() << "> is invalid\n";
 //		return is_successful = false;
 //	}
 //
@@ -965,14 +918,14 @@ bool Core::UpdateListing(QueryContainer &query) {
 //		if (column->column_name		 == "UDFID") { udfid = column->column_data; }
 //		else if (column->column_name == "Data")  { data = column->column_data;  }
 //		else {
-//			std::cerr << err_msg_1 << ", attribute <" << column->column_name
+//			std::cerr << err_msg << ", attribute <" << column->column_name
 //				<< "> is invalid\n";
 //			is_successful = false;
 //		}
 //	}
 //
 //	if ( (udfid.empty() == true) || (data.empty() == true)) {
-//		std::cerr << err_msg_1 << "primary key UDFID and attribute data cannot be NULL\n";
+//		std::cerr << err_msg << "primary key UDFID and attribute data cannot be NULL\n";
 //		return is_successful = false;
 //	}
 //
