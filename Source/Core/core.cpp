@@ -35,11 +35,11 @@ const DbMap Core::kDatabaseMap_ = Core::init_db_map();
 const DbMap Core::init_superkey_map() {
 
 	const std::multimap<const std::string, const std::string> DbMapContainer = {
-		{ "Activity", "ActivityID" },
+		{ "Activity", "ActivityID" },	//automatically generated on insert
 
-		{ "Listing"	, "LID" },
+		{ "Listing"	, "LID" },			//automatically generated on insert
 
-		{ "UserDefinedField", "UDFID" },
+		{ "UserDefinedField", "UDFID" },//automatically generated on insert
 
 		{ "UDFentry", "Data" },
 		{ "UDFentry", "UDFID" },
@@ -108,7 +108,7 @@ bool Core::insert_params_check(QueryContainer query, std::string err_msg) {
  * > Unique IDs are automatically generated when inserting new records, ensure
  *   automatically generated IDs are not included when making an insert request.
  */
-bool Core::SqlRequest(QueryContainer &query) {//TODO
+bool Core::SqlRequest(QueryContainer &query) {
 	bool is_successful = false;
 
 	std::stringstream ss;
