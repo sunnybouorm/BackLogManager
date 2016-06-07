@@ -47,7 +47,7 @@ private:
 	bool UpdateUdfEntry	(QueryContainer	&query);
 
 	bool AddUdfListingM2M	(QueryContainer	&query);
-	bool InsertUdfListingM2M(QueryContainer	&query);
+	bool UpdateUdfListingM2M(QueryContainer	&query);
 	bool DeleteUdfListingM2M(QueryContainer	&query);
 
 	int GenerateUniqueIntId(const std::string &table_name, const std::string &id_name);

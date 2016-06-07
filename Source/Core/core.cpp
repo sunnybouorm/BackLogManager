@@ -219,15 +219,15 @@ bool Core::SqlRequest(QueryContainer &query) {//TODO
 		is_successful = this->DeleteUdfEntry(query);
 	}
 
-
-	else if (query.table_name == "") {
-
+	
+	else if ((query.table_name == "Listing_UDFentry") && (query.request == INSERT)) {
+		is_successful = this->AddUdfListingM2M(query);
 	}
-	else if (query.table_name == "") {
-
+	else if ((query.table_name == "Listing_UDFentry") && (query.request == UPDATE)) {
+		is_successful = this->UpdateUdfListingM2M(query);
 	}
-	else if (query.table_name == "") {
-
+	else if ((query.table_name == "Listing_UDFentry") && (query.request == DELETE)) {
+		is_successful = this->DeleteUdfListingM2M(query);
 	}
 	else {
 		std::cerr << err_msg << ", failed to find SQL operation requested\n" ;
@@ -579,7 +579,6 @@ bool Core::DeleteUdfEntry(QueryContainer &query) {
 }
 
 /*
- * Replaces specified UDFentry record in database
  *-------------------------------------------------------------
  * Notes:
  * > Requires an open connection to database
@@ -591,7 +590,39 @@ bool Core::UpdateUdfEntry(QueryContainer &query) {
 	return is_successful;
 }
 
-//TODO
-//bool AddUdfListingM2M(const RowContainer &row);
-//bool InsertUdfListingM2M(const RowContainer &row);
-//bool DeleteUdfListingM2M(const RowContainer &row);
+
+/*
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::AddUdfListingM2M(QueryContainer &query) {
+	bool is_successful = false;
+	is_successful = this->Insert(query);
+
+	return is_successful;
+}
+
+/*
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::DeleteUdfListingM2M(QueryContainer &query) {
+	bool is_successful = false;
+	is_successful = this->Delete(query);
+
+	return is_successful;
+}
+
+/*
+*-------------------------------------------------------------
+* Notes:
+* > Requires an open connection to database
+*/
+bool Core::UpdateUdfListingM2M(QueryContainer &query) {
+	bool is_successful = false;
+	is_successful = this->Update(query);
+
+	return is_successful;
+}

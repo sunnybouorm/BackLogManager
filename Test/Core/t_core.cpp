@@ -969,3 +969,112 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 	}
 
 }
+
+SCENARIO("A single Listing_UDFentry many to many releationship is added updated and deleted") {
+	GIVEN("a clean database") {
+
+		std::string sql_filename = "BacklogManager.sql";
+		File sql_file(sql_filename, db_dir);
+
+		Database database(db_dir);
+		Core core(database);
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
+
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
+
+		WHEN("a new Listing_UDFentry record is added") {
+			bool is_added_successfully = false;
+			QueryContainer query;
+			ColumnContainer column;
+			RowContainer row;
+
+			std::string table_name = "Listing_UDFentry";
+			query.table_name = table_name;
+
+			column.column_name = "LID";
+			column.column_data = "1";
+			row.push_back(column);
+
+			column.column_name = "UDFID";
+			column.column_data = "1";
+			row.push_back(column);
+
+			column.column_name = "EntryData";
+			column.column_data = "comedy";
+			row.push_back(column);
+
+			query.columns = row;
+			query.request = INSERT;
+			is_added_successfully = core.SqlRequest(query);
+
+			TableContainer result, expected;
+			std::string sql;
+
+			expected.push_back(row);
+			sql = "SELECT * FROM Listing_UDFentry";
+			REQUIRE(core.database_.SqlCommand(sql) == true);
+			result = core.database_.read_result_buffer();
+
+			THEN("it must be registered by the database correctly") {
+				REQUIRE(is_added_successfully == true);
+				REQUIRE(result == expected);
+
+				AND_WHEN("a new Listing_UDFentry record is updated") {
+					bool is_updated_successfuly = false;
+
+					query.search_params = row;
+					row.clear();
+					column.column_name = "LID";
+					column.column_data = "2";
+					row.push_back(column);
+
+					column.column_name = "UDFID";
+					column.column_data = "2";
+					row.push_back(column);
+
+					column.column_name = "EntryData";
+					column.column_data = "Action";
+					row.push_back(column);
+
+					query.columns = row;
+					query.request = UPDATE;
+					is_updated_successfuly = core.SqlRequest(query);
+
+					expected.clear();
+					expected.push_back(row);
+					sql = "SELECT * FROM Listing_UDFentry";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+
+					THEN("the changes must be registered by the database correctly") {
+						REQUIRE(is_updated_successfuly == true);
+						REQUIRE(result == expected);
+
+						AND_WHEN("the record is deleted") {
+							bool is_deleted_successfully = false;
+
+							query.search_params = row;
+							query.columns.clear();
+							query.request = DELETE;
+							is_deleted_successfully = core.SqlRequest(query);
+
+							sql = "SELECT * FROM Listing_UDFentry";
+							REQUIRE(core.database_.SqlCommand(sql) == true);
+							result = core.database_.read_result_buffer();
+
+							THEN("it must not exist in the database") {
+								REQUIRE(is_deleted_successfully == true);
+								REQUIRE(result.empty() == true);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
+	}
+
+}
