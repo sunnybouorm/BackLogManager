@@ -58,9 +58,9 @@ public :
 	bool ImportSql(File file);
 	bool SqlCommand(const std::string &statement);
 
-	bool Insert(const QueryContainer &table);
-	bool Delete(const QueryContainer &table);
-	bool Update(const QueryContainer &table);
+	bool Insert(const QueryContainer &query);
+	bool Delete(const QueryContainer &query);
+	bool Update(const QueryContainer &query);
 
 	std::vector<RowContainer> read_result_buffer() { return this->result_buffer_; }
 	bool is_exist();//checks if this instance's database file exists

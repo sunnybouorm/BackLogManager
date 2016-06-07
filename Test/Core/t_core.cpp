@@ -855,105 +855,117 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 	}
 }
 
-//SCENARIO("a single user defined field data entry is added, updated, and deleted")
-//{
-//	GIVEN("a clean database")
-//	{
-//		std::string sql_filename = "BacklogManager.sql";
-//		File sql_file(sql_filename, db_dir);
-//
-//		Database database(db_dir);
-//		Core core(database);
-//		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
-//		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
-//
-//		core.database_.OpenConnection();
-//		core.database_.ImportSql(sql_file);
-//
-//		WHEN("a user defined field data entry is added")
-//		{
-//			bool is_added_successfully = false;
-//			ColumnContainer column;
-//			RowContainer row;
-//			row.clear();
-//
-//			TableContainer result, expected;
-//			std::string udfid, data, sql;
-//
-//			udfid		= "1";
-//			data		= "Comedy";
-//
-//			column.column_name = "Data";
-//			column.column_data = data;
-//			row.push_back(column);
-//
-//			column.column_name = "UDFID";
-//			column.column_data = udfid;
-//			row.push_back(column);
-//
-//			is_added_successfully = core.AddUdfEntry(row);
-//
-//			expected.clear();
-//			expected.push_back(row);
-//
-//			THEN("the change must be registered by the database")
-//			{
-//				sql = "SELECT * FROM UDFentry";
-//				REQUIRE(core.database_.SqlCommand(sql) == true);
-//				result = core.database_.read_result_buffer();
-//				REQUIRE(result.size() == 1);
-//				REQUIRE(is_added_successfully == true);
-//				REQUIRE(result == expected);
-//
-//				AND_WHEN("the data entry is updated")
-//				{
-//					bool is_updated_successfully = false;
-//
-//					udfid = "1";
-//					data  = "Action";
-//					row.clear();
-//
-//					column.column_name = "Data";
-//					column.column_data = data;
-//					row.push_back(column);
-//
-//					column.column_name = "UDFID";
-//					column.column_data = udfid;
-//					row.push_back(column);
-//
-//					is_updated_successfully = core.UpdateUdfEntry(row);
-//
-//					expected.clear();
-//					expected.push_back(row);
-//
-//					THEN("the change must be registered by the database")
-//					{
-//						sql = "SELECT * FROM UDFentry";
-//						REQUIRE(core.database_.SqlCommand(sql) == true);
-//						result = core.database_.read_result_buffer();
-//						REQUIRE(is_updated_successfully == true);
-//						REQUIRE(result == expected);
-//
-//						AND_WHEN("the data entry is deleted")
-//						{
-//							bool is_deleted_successfully = false;
-//							is_deleted_successfully = core.DeleteUdfEntry(row);
-//
-//							THEN("it must seize to exist")
-//							{
-//								REQUIRE(is_deleted_successfully == true);
-//								sql = "SELECT * FROM UDFentry";
-//								REQUIRE(core.database_.SqlCommand(sql) == true);
-//								result = core.database_.read_result_buffer();
-//								REQUIRE(result.empty() == true);
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-//		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
-//	}
-//
-//}
+SCENARIO("a single user defined field data entry is added, updated, and deleted")
+{
+	GIVEN("a clean database")
+	{
+		std::string sql_filename = "BacklogManager.sql";
+		File sql_file(sql_filename, db_dir);
+
+		Database database(db_dir);
+		Core core(database);
+		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
+
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
+
+		WHEN("a user defined field data entry is added")
+		{
+			bool is_added_successfully = false;
+			QueryContainer query;
+			ColumnContainer column;
+			RowContainer row;
+			row.clear();
+
+			std::string table_name = "UDFentry";
+			query.table_name = table_name;
+
+			TableContainer result, expected;
+			std::string udfid, data, sql;
+
+			udfid	= "1";
+			data	= "Comedy";
+
+			column.column_name = "Data";
+			column.column_data = data;
+			row.push_back(column);
+
+			column.column_name = "UDFID";
+			column.column_data = udfid;
+			row.push_back(column);
+
+			query.columns = row;
+			query.request = INSERT;
+			is_added_successfully = core.SqlRequest(query);
+
+			expected.clear();
+			expected.push_back(row);
+
+			THEN("the change must be registered by the database")
+			{
+				sql = "SELECT * FROM UDFentry";
+				REQUIRE(core.database_.SqlCommand(sql) == true);
+				result = core.database_.read_result_buffer();
+				REQUIRE(result.size() == 1);
+				REQUIRE(is_added_successfully == true);
+				REQUIRE(result == expected);
+
+				AND_WHEN("the data entry is updated")
+				{
+					bool is_updated_successfully = false;
+
+					query.search_params = row;
+
+					udfid = "1";
+					data  = "Action";
+					row.clear();
+
+					column.column_name = "Data";
+					column.column_data = data;
+					row.push_back(column);
+
+					column.column_name = "UDFID";
+					column.column_data = udfid;
+					row.push_back(column);
+					query.columns = row;
+					query.request = UPDATE;
+					
+					is_updated_successfully = core.SqlRequest(query);
+
+					expected.clear();
+					expected.push_back(row);
+
+					THEN("the change must be registered by the database")
+					{
+						sql = "SELECT * FROM UDFentry";
+						REQUIRE(core.database_.SqlCommand(sql) == true);
+						result = core.database_.read_result_buffer();
+						REQUIRE(is_updated_successfully == true);
+						REQUIRE(result == expected);
+
+						AND_WHEN("the data entry is deleted")
+						{
+							bool is_deleted_successfully = false;
+							query.search_params = row;
+							query.request = DELETE;
+							is_deleted_successfully = core.SqlRequest(query);
+
+							THEN("it must seize to exist")
+							{
+								REQUIRE(is_deleted_successfully == true);
+								sql = "SELECT * FROM UDFentry";
+								REQUIRE(core.database_.SqlCommand(sql) == true);
+								result = core.database_.read_result_buffer();
+								REQUIRE(result.empty() == true);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
+	}
+
+}

@@ -189,14 +189,14 @@ bool Database::SqlCommand(const std::string &statement) {
 /*
  * Sends an sql INSERT query based on table data given
  */
-bool Database::Insert(const QueryContainer &table) {
+bool Database::Insert(const QueryContainer &query) {
 	bool is_successful = false;
 	std::string sql, column_names, values;
 
 	sql  = "INSERT INTO ";
-	sql += table.into_clause;
+	sql += query.into_clause;
 	sql += " VALUES ";
-	sql += table.value_clause;
+	sql += query.value_clause;
 	sql += ";";
 	is_successful = this->SqlCommand(sql);
 
@@ -206,16 +206,16 @@ bool Database::Insert(const QueryContainer &table) {
 /*
 * Sends an sql DELETE query based on table data given
 */
-bool Database::Delete(const QueryContainer &table) {
+bool Database::Delete(const QueryContainer &query) {
 	bool is_successful = false;
 	std::string sql;
 
 	sql = "DELETE FROM ";
-	sql += table.table_name;
+	sql += query.table_name;
 
-	if (table.where_clause.empty() == false) {
+	if (query.where_clause.empty() == false) {
 		sql += " WHERE ";
-		sql += table.where_clause;
+		sql += query.where_clause;
 	}
 	sql += ";";
 
@@ -226,17 +226,17 @@ bool Database::Delete(const QueryContainer &table) {
 /*
 * Sends an sql UPDATE query based on table data given
 */
-bool Database::Update(const QueryContainer &table) {
+bool Database::Update(const QueryContainer &query) {
 	bool is_successful = false;
 
 	std::string sql, set_values, where_values;
 			
 	sql  = "UPDATE ";
-	sql += table.table_name;
+	sql += query.table_name;
 	sql += " SET ";
-	sql += table.set_clause;
+	sql += query.set_clause;
 	sql += " WHERE ";
-	sql += table.where_clause;
+	sql += query.where_clause;
 	sql += ";";
 
 	is_successful = this->SqlCommand(sql);
