@@ -706,138 +706,155 @@ SCENARIO("A single listing is updated")
 	}
 }
 
-//SCENARIO("a single user defined field is added, updated and deleted") {
-//	GIVEN("a clean database")
-//	{
-//		std::string sql_filename = "BacklogManager.sql";
-//		File sql_file(sql_filename, db_dir);
-//
-//		Database database(db_dir);
-//		Core core(database);
-//		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
-//		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
-//
-//		core.database_.OpenConnection();
-//		core.database_.ImportSql(sql_file);
-//
-//		WHEN("a user defined field is added")
-//		{
-//			bool is_added_successfully = false;
-//			ColumnContainer column;
-//			RowContainer row;
-//			row.clear();
-//
-//			TableContainer result, expected;
-//
-//			std::string name, data_type, description, activity_id, sql;
-//
-//			name		= "Genre";
-//			data_type	= "string";
-//			description = "";
-//			activity_id = "1";
-//
-//			column.column_name = "Name";
-//			column.column_data = name;
-//			row.push_back(column);
-//
-//			column.column_name = "DataType";
-//			column.column_data = data_type;
-//			row.push_back(column);
-//
-//			column.column_name = "Description";
-//			column.column_data = description;
-//			row.push_back(column);
-//
-//			column.column_name = "ActivityID";
-//			column.column_data = activity_id;
-//			row.push_back(column);
-//
-//			is_added_successfully = core.AddUserDefinedField(row);
-//
-//			expected.clear();
-//			expected.push_back(row);
-//
-//			THEN("the change must be registered by the database correctly")
-//			{
-//				sql = "SELECT UDFID FROM UserDefinedField";
-//				REQUIRE(core.database_.SqlCommand(sql) == true);
-//				result = core.database_.read_result_buffer();
-//				REQUIRE(result.begin()->size() == 1);
-//
-//				std::string  udfid = result.begin()->begin()->column_data;
-//
-//				sql = "SELECT Name,Datatype,Description,ActivityID FROM UserDefinedField";
-//				REQUIRE(core.database_.SqlCommand(sql) == true);
-//				result = core.database_.read_result_buffer();
-//				REQUIRE(is_added_successfully == true);
-//				REQUIRE(result == expected);
-//
-//				AND_WHEN("the user defined field is updated")
-//				{
-//					bool is_updated_successfully = false;
-//					name		= "Genres";
-//					data_type	= "int";
-//					description = "some description";
-//					activity_id = "2";
-//
-//					row.clear();
-//
-//					column.column_name = "UDFID";
-//					column.column_data = udfid;
-//					row.push_back(column);
-//
-//					column.column_name = "Name";
-//					column.column_data = name;
-//					row.push_back(column);
-//
-//					column.column_name = "DataType";
-//					column.column_data = data_type;
-//					row.push_back(column);
-//
-//					column.column_name = "Description";
-//					column.column_data = description;
-//					row.push_back(column);
-//
-//					column.column_name = "ActivityID";
-//					column.column_data = activity_id;
-//					row.push_back(column);
-//
-//					is_updated_successfully = core.UpdateUserDefinedField(row);
-//
-//					expected.clear();
-//					expected.push_back(row);
-//
-//					THEN("the change must be registered by the database")
-//					{
-//						sql = "SELECT * FROM UserDefinedField";
-//						REQUIRE(core.database_.SqlCommand(sql) == true);
-//						result = core.database_.read_result_buffer();
-//						REQUIRE(is_updated_successfully == true);
-//						REQUIRE(result == expected);
-//
-//						AND_WHEN("the user defined field is deleted")
-//						{
-//							bool is_deleted_successfully = false;
-//							is_deleted_successfully = core.DeleteUserDefinedField(row);
-//
-//							THEN("it must seize to exist")
-//							{
-//								REQUIRE(is_deleted_successfully == true);
-//								sql = "SELECT * FROM UserDefinedField";
-//								REQUIRE(core.database_.SqlCommand(sql) == true);
-//								result = core.database_.read_result_buffer();
-//								REQUIRE(result.empty() == true);
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-//		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
-//	}
-//}
-//
+SCENARIO("a single user defined field is added, updated and deleted") {
+	GIVEN("a clean database")
+	{
+		std::string sql_filename = "BacklogManager.sql";
+		File sql_file(sql_filename, db_dir);
+
+		Database database(db_dir);
+		Core core(database);
+		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
+
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
+
+		WHEN("a user defined field is added")
+		{
+			bool is_added_successfully = false;
+			QueryContainer query;
+			ColumnContainer column;
+			RowContainer row;
+			row.clear();
+
+			std::string table_name = "UserDefinedField";
+			query.table_name = table_name;
+
+			TableContainer result, expected;
+
+			std::string name, data_type, description, activity_id, sql;
+
+			name		= "Genre";
+			data_type	= "string";
+			description = "";
+			activity_id = "1";
+
+			column.column_name = "Name";
+			column.column_data = name;
+			row.push_back(column);
+
+			column.column_name = "DataType";
+			column.column_data = data_type;
+			row.push_back(column);
+
+			column.column_name = "Description";
+			column.column_data = description;
+			row.push_back(column);
+
+			column.column_name = "ActivityID";
+			column.column_data = activity_id;
+			row.push_back(column);
+
+			query.columns = row;
+			query.request = INSERT;
+			is_added_successfully = core.SqlRequest(query);
+
+			expected.clear();
+			expected.push_back(row);
+
+			THEN("the change must be registered by the database correctly")
+			{
+				sql = "SELECT UDFID FROM UserDefinedField";
+				REQUIRE(core.database_.SqlCommand(sql) == true);
+				result = core.database_.read_result_buffer();
+				REQUIRE(result.begin()->size() == 1);
+
+				std::string  udfid = result.begin()->begin()->column_data;
+
+				sql = "SELECT Name,Datatype,Description,ActivityID FROM UserDefinedField";
+				REQUIRE(core.database_.SqlCommand(sql) == true);
+				result = core.database_.read_result_buffer();
+				REQUIRE(is_added_successfully == true);
+				REQUIRE(result == expected);
+
+				AND_WHEN("the user defined field is updated")
+				{
+					bool is_updated_successfully = false;
+					name		= "Genres";
+					data_type	= "int";
+					description = "some description";
+					activity_id = "2";
+
+					row.clear();
+
+					column.column_name = "UDFID";
+					column.column_data = udfid;
+					row.push_back(column);
+					query.search_params = row;
+					row.clear();
+
+					column.column_name = "Name";
+					column.column_data = name;
+					row.push_back(column);
+
+					column.column_name = "DataType";
+					column.column_data = data_type;
+					row.push_back(column);
+
+					column.column_name = "Description";
+					column.column_data = description;
+					row.push_back(column);
+
+					column.column_name = "ActivityID";
+					column.column_data = activity_id;
+					row.push_back(column);
+
+					query.columns = row;
+					query.request = UPDATE;
+					is_updated_successfully = core.SqlRequest(query);
+
+					expected.clear();
+					expected.push_back(row);
+
+					THEN("the change must be registered by the database")
+					{
+						sql = "SELECT Name,Datatype,Description,ActivityID FROM UserDefinedField";
+						REQUIRE(core.database_.SqlCommand(sql) == true);
+						result = core.database_.read_result_buffer();
+						REQUIRE(is_updated_successfully == true);
+						REQUIRE(result == expected);
+
+						AND_WHEN("the user defined field is deleted")
+						{
+							bool is_deleted_successfully = false;
+
+							row.clear();
+							column.column_name = "UDFID";
+							column.column_data = udfid;
+							row.push_back(column);
+							query.search_params = row;
+							query.request = DELETE;
+							is_deleted_successfully = core.SqlRequest(query);
+
+							THEN("it must seize to exist")
+							{
+								REQUIRE(is_deleted_successfully == true);
+								sql = "SELECT * FROM UserDefinedField";
+								REQUIRE(core.database_.SqlCommand(sql) == true);
+								result = core.database_.read_result_buffer();
+								REQUIRE(result.empty() == true);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
+	}
+}
+
 //SCENARIO("a single user defined field data entry is added, updated, and deleted")
 //{
 //	GIVEN("a clean database")
