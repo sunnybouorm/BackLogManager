@@ -37,6 +37,8 @@ public:
 	std::string get_directory() { return this->directory_; }
 
 	void Write(const std::string &text);
+	void ReadToDelimiter(std::string &output, const char &delimiter = ';',\
+						 const bool &is_inclusive=false);
 	void ReadLine(std::string &output);
 	void Clear();//clears file by destroying and recreating it
 };

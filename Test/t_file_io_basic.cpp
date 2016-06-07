@@ -125,6 +125,7 @@ SCENARIO("Multiple lines of text are written and read from a file")
 			{
 				REQUIRE(input_1 == output_1);
 				REQUIRE(input_2 == output_2);
+
 				file.Destroy();
 			}
 		}

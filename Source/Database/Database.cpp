@@ -255,7 +255,7 @@ bool Database::ImportSql(const std::string &filename, const std::string &filedir
 	std::string sql;
 
 	while (file.i_flags_.is_good == true) {//loop until EoF reached or bad file operation
-		file.ReadLine(sql);
+		file.ReadToDelimiter(sql);
 		status = this->SqlCommand(sql);
 		if (status == false) { exit; }
 	}

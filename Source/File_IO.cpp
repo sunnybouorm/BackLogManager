@@ -120,6 +120,71 @@ void File::SetInputFlagsEof() {
 	this->i_flags_.is_eof  = true;
 }
 
+
+/*
+* reads current file instance until the specified delimiter is reached
+* output		:	serves as a container for the text read
+* delmiter		:	determines what point to stop reading characters
+* is_inclusive	:	determines whether to include delimiter character(true) or discard it(false)
+*--------------------------------------------------------------------------------------------------
+* Note:
+* > after ReadToDelimiter() is called, the input stream file pointer ipos is updated to where
+*  the last character was read. A second call of ReadToDelimiter() will continue from the position
+*  determined by ipos.
+*/
+void File::ReadToDelimiter(std::string &output, const char &delimiter, const bool &is_inclusive) {
+	output.clear();
+	
+	std::fstream fs;
+	int mode = std::fstream::in;
+	const char* filename = nullptr;
+	std::string path = this->directory_ + this->filename_;
+	filename = (path).c_str();
+
+	if ((this->Exists()) == true) {
+		//clear error flags
+		fs.clear();
+		this->ResetInputFlags();
+
+		fs.open(path, mode);
+		fs.seekg(this->ipos_);
+
+		char character;
+		fs.get(character);
+		while (fs.good()) {
+			if (character == delimiter) {
+				if (is_inclusive == true) {
+					if (character != '\r') { output += character; }
+				}
+				this->ipos_ = fs.tellg();
+				break;
+			}
+			if (character != '\r') { output += character; }
+			this->ipos_ = fs.tellg();
+			fs.get(character);
+		}
+
+		//check stream status and raise flags as necessary
+		if (fs.good()) {
+			SetInputFlagsGood();
+		}
+		else if (fs.bad()) {
+			SetInputFlagsBad();
+		}
+		else if (fs.eof()) {
+			SetInputFlagsEof();
+		}
+
+		fs.close();
+	}
+	else {
+		std::cerr << "File_io Warning: "
+			<< "attempted to Read from a file that does not exist, "
+			<< "filename<" << this->filename_ << ">, directory<" << this->directory_
+			<< ">" << "\n";
+	}
+}
+
 /*
  * reads a line in the current File instance
  * output serves as a container for the text read
@@ -130,38 +195,40 @@ void File::SetInputFlagsEof() {
  *  determined by ipos.
  */
 void File::ReadLine(std::string &output) {
-	std::fstream fs;
-	int mode = std::fstream::in;
-	const char* filename = nullptr;
-	std::string path = this->directory_ + this->filename_;
-	filename = (path).c_str();
 
-	if ( (this->Exists()) == true) {
-		//clear error flags
-		fs.clear();
-		this->ResetInputFlags();
+	this->ReadToDelimiter(output, '\n');
+	//std::fstream fs;
+	//int mode = std::fstream::in;
+	//const char* filename = nullptr;
+	//std::string path = this->directory_ + this->filename_;
+	//filename = (path).c_str();
 
-		fs.open(path, mode);
-		fs.seekg(this->ipos_);
-		getline(fs, output);
+	//if ( (this->Exists()) == true) {
+	//	//clear error flags
+	//	fs.clear();
+	//	this->ResetInputFlags();
 
-		//check stream status and raise flags as necessary
-		if(fs.good()){
-			SetInputFlagsGood();
-		} else if (fs.bad()) {
-			SetInputFlagsBad();
-		} else if (fs.eof()) {
-			SetInputFlagsEof();
-		}
+	//	fs.open(path, mode);
+	//	fs.seekg(this->ipos_);
+	//	getline(fs, output);
 
-		this->ipos_ = fs.tellg();
-		fs.close();
-	} else {
-		std::cerr   << "File_io Warning: "
-					<< "attempted to ReadLine from a file that does not exist, "
-					<< "filename<" << this->filename_ << ">, directory<" << this->directory_
-					<< ">" << "\n";
-	}
+	//	//check stream status and raise flags as necessary
+	//	if(fs.good()){
+	//		SetInputFlagsGood();
+	//	} else if (fs.bad()) {
+	//		SetInputFlagsBad();
+	//	} else if (fs.eof()) {
+	//		SetInputFlagsEof();
+	//	}
+
+	//	this->ipos_ = fs.tellg();
+	//	fs.close();
+	//} else {
+	//	std::cerr   << "File_io Warning: "
+	//				<< "attempted to ReadLine from a file that does not exist, "
+	//				<< "filename<" << this->filename_ << ">, directory<" << this->directory_
+	//				<< ">" << "\n";
+	//}
 }
 
 /*
