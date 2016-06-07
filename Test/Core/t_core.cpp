@@ -146,167 +146,196 @@ SCENARIO("A single activity is added, updated and deleted")
 	}
 }
 
-//SCENARIO("Multiple activities are added and deleted")
-//{
-//	GIVEN("a clean database")
-//	{
-//		std::string sql_filename = "BacklogManager.sql";
-//		File sql_file(sql_filename, db_dir);
-//
-//		Database database(db_dir);
-//		Core core(database);
-//		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-//		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
-//
-//		core.database_.OpenConnection();
-//		core.database_.ImportSql(sql_file);
-//
-//		WHEN("multiple activities are added")
-//		{
-//			ColumnContainer column;
-//			RowContainer row;
-//			bool creation_is_success = false;
-//
-//			column.column_name = "Name";
-//
-//			std::string activity_name1 = "Games";
-//			column.column_data = activity_name1;
-//			row.clear();
-//			row.push_back(column);
-//			creation_is_success = core.AddActivity(row);
-//
-//			std::string activity_name2 = "Music";
-//			column.column_data = activity_name2;
-//			row.clear();
-//			row.push_back(column);
-//			creation_is_success &= core.AddActivity(row);
-//
-//			std::string activity_name3 = "Movies";
-//			column.column_data = activity_name3;
-//			row.clear();
-//			row.push_back(column);
-//			creation_is_success &= core.AddActivity(row);
-//
-//			//generate expected result as a basis of comparison
-//			//-------------------------------------------------
-//			ColumnContainer col_res;
-//			RowContainer row_res;
-//			TableContainer expected;
-//
-//			col_res.column_name = "Name";
-//
-//			col_res.column_data = activity_name1;
-//			row_res.push_back(col_res);
-//			expected.push_back(row_res);
-//			row_res.clear();
-//
-//			col_res.column_data = activity_name2;
-//			row_res.push_back(col_res);
-//			expected.push_back(row_res);
-//			row_res.clear();
-//
-//			col_res.column_data = activity_name3;
-//			row_res.push_back(col_res);
-//			expected.push_back(row_res);
-//			//-------------------------------------------------
-//
-//			core.database_.SqlCommand("SELECT Name FROM Activity\n");
-//			TableContainer result = core.database_.read_result_buffer();
-//
-//			THEN("the changes must be regisitered by the database correctly")
-//			{
-//				REQUIRE(creation_is_success == true);
-//				REQUIRE(result == expected);
-//
-//				AND_WHEN("all activities are deleted")
-//				{
-//					bool deletion_is_success = false;
-//					std::string activity_id_1, activity_id_2, activity_id_3;
-//					std::string sql;
-//
-//					sql = "SELECT ActivityID FROM Activity WHERE Name='Games';";
-//					REQUIRE(core.database_.SqlCommand(sql) == true);
-//					result = core.database_.read_result_buffer();
-//					activity_id_1 = result.begin()->begin()->column_data;
-//
-//					sql = "SELECT ActivityID FROM Activity WHERE Name='Music';";
-//					REQUIRE(core.database_.SqlCommand(sql) == true);
-//					result = core.database_.read_result_buffer();
-//					activity_id_2 = result.begin()->begin()->column_data;
-//
-//					sql = "SELECT ActivityID FROM Activity WHERE Name='Movies';";
-//					REQUIRE(core.database_.SqlCommand(sql) == true);
-//					result = core.database_.read_result_buffer();
-//					activity_id_3 = result.begin()->begin()->column_data;
-//
-//					column.column_name = "ActivityID";
-//					column.column_data = activity_id_1;
-//					row.clear();
-//					row.push_back(column);
-//					deletion_is_success  = core.DeleteActivity(row);
-//
-//					column.column_data = activity_id_2;
-//					row.clear();
-//					row.push_back(column);
-//					deletion_is_success &= core.DeleteActivity(row);
-//
-//					column.column_data = activity_id_3;
-//					row.clear();
-//					row.push_back(column);
-//					deletion_is_success &= core.DeleteActivity(row);
-//
-//					core.database_.SqlCommand("SELECT Name FROM Activity\n");
-//					TableContainer result = core.database_.read_result_buffer();
-//					THEN("all activity records must seize to exist")
-//					{
-//						REQUIRE(deletion_is_success == true);
-//						REQUIRE(result.empty() == true);
-//					}
-//				}
-//
-//				AND_WHEN("specific activities are deleted")
-//				{
-//					bool deletion_is_success = false;
-//					std::string activity_id_1, activity_id_2;
-//					std::string sql;
-//
-//					sql = "SELECT ActivityID FROM Activity WHERE Name='Games';";
-//					REQUIRE(core.database_.SqlCommand(sql) == true);
-//					result = core.database_.read_result_buffer();
-//					activity_id_1 = result.begin()->begin()->column_data;
-//
-//					sql = "SELECT ActivityID FROM Activity WHERE Name='Movies';";
-//					REQUIRE(core.database_.SqlCommand(sql) == true);
-//					result = core.database_.read_result_buffer();
-//					activity_id_2 = result.begin()->begin()->column_data;
-//
-//					column.column_name = "ActivityID";
-//					column.column_data = activity_id_1;
-//					row.clear();
-//					row.push_back(column);
-//					deletion_is_success  = core.DeleteActivity(row);
-//					column.column_data = activity_id_2;
-//					row.clear();
-//					row.push_back(column);
-//					deletion_is_success &= core.DeleteActivity(row);
-//
-//					core.database_.SqlCommand("SELECT Name FROM Activity\n");
-//					TableContainer result = core.database_.read_result_buffer();
-//
-//					expected.pop_back();
-//					expected.erase(expected.begin());
-//					THEN("only the specified activities must be deleted")
-//					{
-//						REQUIRE(result.empty() == false);
-//						REQUIRE(result == expected);
-//					}
-//				}
-//			}
-//		}
-//		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-//		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
-//	}
-//}
+SCENARIO("Multiple activities are added and deleted")
+{
+	GIVEN("a clean database")
+	{
+		std::string sql_filename = "BacklogManager.sql";
+		File sql_file(sql_filename, db_dir);
+
+		Database database(db_dir);
+		Core core(database);
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
+
+		core.database_.OpenConnection();
+		core.database_.ImportSql(sql_file);
+
+		WHEN("multiple activities are added")
+		{
+			QueryContainer query;
+			ColumnContainer column;
+			RowContainer row;
+			bool creation_is_success = false;
+
+			column.column_name = "Name";
+
+			std::string table_name = "Activity";
+
+			std::string activity_name1 = "Games";
+			column.column_data = activity_name1;
+			row.clear();
+			row.push_back(column);
+
+			query.table_name = table_name;
+			query.columns = row;
+			query.request = INSERT;
+			creation_is_success = core.SqlRequest(query);
+
+			std::string activity_name2 = "Music";
+			column.column_data = activity_name2;
+			row.clear();
+			row.push_back(column);
+
+			query.columns = row;
+			query.request = INSERT;
+			creation_is_success = core.SqlRequest(query);
+
+			std::string activity_name3 = "Movies";
+			column.column_data = activity_name3;
+			row.clear();
+			row.push_back(column);
+
+			query.columns = row;
+			query.request = INSERT;
+			creation_is_success = core.SqlRequest(query);
+
+			//generate expected result as a basis of comparison
+			//-------------------------------------------------
+			ColumnContainer col_res;
+			RowContainer row_res;
+			TableContainer expected;
+
+			col_res.column_name = "Name";
+
+			col_res.column_data = activity_name1;
+			row_res.push_back(col_res);
+			expected.push_back(row_res);
+			row_res.clear();
+
+			col_res.column_data = activity_name2;
+			row_res.push_back(col_res);
+			expected.push_back(row_res);
+			row_res.clear();
+
+			col_res.column_data = activity_name3;
+			row_res.push_back(col_res);
+			expected.push_back(row_res);
+			//-------------------------------------------------
+
+			core.database_.SqlCommand("SELECT Name FROM Activity\n");
+			TableContainer result = core.database_.read_result_buffer();
+
+			THEN("the changes must be regisitered by the database correctly")
+			{
+				REQUIRE(creation_is_success == true);
+				REQUIRE(result == expected);
+
+				AND_WHEN("all activities are deleted")
+				{
+					bool deletion_is_success = false;
+					std::string activity_id_1, activity_id_2, activity_id_3;
+					std::string sql;
+
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Games';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_1 = result.begin()->begin()->column_data;
+
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Music';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_2 = result.begin()->begin()->column_data;
+
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Movies';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_3 = result.begin()->begin()->column_data;
+
+					column.column_name = "ActivityID";
+					column.column_data = activity_id_1;
+					row.clear();
+					row.push_back(column);
+
+					query.search_params = row;
+					query.request = DELETE;
+					deletion_is_success = core.SqlRequest(query);
+
+					column.column_data = activity_id_2;
+					row.clear();
+					row.push_back(column);
+
+					query.search_params = row;
+					query.request = DELETE;
+					deletion_is_success = core.SqlRequest(query);
+
+					column.column_data = activity_id_3;
+					row.clear();
+					row.push_back(column);
+
+					query.search_params = row;
+					query.request = DELETE;
+					deletion_is_success = core.SqlRequest(query);
+
+					core.database_.SqlCommand("SELECT Name FROM Activity\n");
+					TableContainer result = core.database_.read_result_buffer();
+					THEN("all activity records must seize to exist")
+					{
+						REQUIRE(deletion_is_success == true);
+						REQUIRE(result.empty() == true);
+					}
+				}
+
+				AND_WHEN("specific activities are deleted")
+				{
+					bool deletion_is_success = false;
+					std::string activity_id_1, activity_id_2;
+					std::string sql;
+
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Games';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_1 = result.begin()->begin()->column_data;
+
+					sql = "SELECT ActivityID FROM Activity WHERE Name='Movies';";
+					REQUIRE(core.database_.SqlCommand(sql) == true);
+					result = core.database_.read_result_buffer();
+					activity_id_2 = result.begin()->begin()->column_data;
+
+					column.column_name = "ActivityID";
+					column.column_data = activity_id_1;
+					row.clear();
+					row.push_back(column);
+
+					query.search_params = row;
+					query.request = DELETE;
+					deletion_is_success = core.SqlRequest(query);
+
+					column.column_data = activity_id_2;
+					row.clear();
+					row.push_back(column);
+
+					query.search_params = row;
+					query.request = DELETE;
+					deletion_is_success = core.SqlRequest(query);
+
+					core.database_.SqlCommand("SELECT Name FROM Activity\n");
+					TableContainer result = core.database_.read_result_buffer();
+
+					expected.pop_back();
+					expected.erase(expected.begin());
+					THEN("only the specified activities must be deleted")
+					{
+						REQUIRE(result.empty() == false);
+						REQUIRE(result == expected);
+					}
+				}
+			}
+		}
+		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
+		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
+	}
+}
 
 SCENARIO("A single listing is added and deleted")
 {
