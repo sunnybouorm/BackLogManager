@@ -128,7 +128,16 @@ bool Database::OpenConnection(const int &flags) {
 			is_successful = true;
 			this->is_connected_ = true;
 
-		} else { return is_successful = true; }//already connected
+			//Enable foreign key Constraints
+			this->SqlCommand("PRAGMA foreign_keys = ON");
+
+		} else {//already connected
+
+			//Enable foreign key Constraints
+			this->SqlCommand("PRAGMA foreign_keys = ON");
+
+			return is_successful = true; 
+		}
 	}
 
 	return is_successful;

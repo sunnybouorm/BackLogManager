@@ -326,18 +326,35 @@ SCENARIO("A single listing is added and deleted")
 
 		Database database(kdb_dir);
 		Core core(database);
-		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
+		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection();	}
+		if (core.database_.is_exist()		== true) { core.database_.Exterminate();		}
 
 		core.database_.OpenConnection();
 		core.database_.ImportSql(sql_file);
 
+		QueryContainer	query;
+		std::string column_name, column_data, table_name, title;
+		std::string activity_name, activity_id, lid;
+		RowContainer	row;
+
+		//Activity record 1
+		table_name			= "Activity";
+		activity_name		= "Movies";
+		
+		column_name			= "Name";
+		column_data			= activity_name;
+		row[column_name]	= column_data;
+
+		query.table_name	= table_name;
+		query.columns		= row;
+		query.request		= INSERT;
+		row.clear();
+
+		REQUIRE(core.SqlRequest(query) == true);
+
 		WHEN("a listing is added")
 		{
-			std::string table_name = "Listing";
-			QueryContainer query;
-			std::string column_name, column_data;
-			RowContainer row;
+			table_name = "Listing";
 			
 			bool creation_is_success = false;
 
@@ -407,7 +424,7 @@ SCENARIO("A single listing is added and deleted")
 
 SCENARIO("Multiple listings are added and deleted")
 {
-	GIVEN("a clean database")
+	GIVEN("a database with multiple activity records")
 	{
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
@@ -419,6 +436,56 @@ SCENARIO("Multiple listings are added and deleted")
 
 		core.database_.OpenConnection();
 		core.database_.ImportSql(sql_file);
+
+		QueryContainer	query;
+		std::string column_name, column_data, table_name, title;
+		std::string activity_name, activity_id, lid;
+		RowContainer	row;
+
+		//Activity record 1
+		table_name = "Activity";
+		activity_name = "Movies";
+
+		column_name = "Name";
+		column_data = activity_name;
+		row[column_name] = column_data;
+
+		query.table_name = table_name;
+		query.columns = row;
+		query.request = INSERT;
+		row.clear();
+		REQUIRE(core.SqlRequest(query) == true);
+
+		//Activity record 2
+		table_name = "Activity";
+		activity_name = "Games";
+
+		column_name = "Name";
+		column_data = activity_name;
+		row[column_name] = column_data;
+
+		query.table_name = table_name;
+		query.columns = row;
+		query.request = INSERT;
+		row.clear();
+
+		REQUIRE(core.SqlRequest(query) == true);
+
+		//Activity record 3
+		table_name = "Activity";
+		activity_name = "TV Shows";
+
+		column_name = "Name";
+		column_data = activity_name;
+		row[column_name] = column_data;
+
+		query.table_name = table_name;
+		query.columns = row;
+		query.request = INSERT;
+		row.clear();
+
+		REQUIRE(core.SqlRequest(query) == true);
+
 
 		WHEN("multiple listings are added")
 		{
@@ -573,7 +640,7 @@ SCENARIO("Multiple listings are added and deleted")
 
 SCENARIO("A single listing is updated")
 {
-	GIVEN("a database with a single listing")
+	GIVEN("a database with a single activity record and a single listing record")
 	{
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
@@ -586,15 +653,30 @@ SCENARIO("A single listing is updated")
 		core.database_.OpenConnection();
 		core.database_.ImportSql(sql_file);
 
-		std::string table_name = "Listing";
-		QueryContainer query;
-		std::string column_name, column_data;
-		RowContainer row;
-		
+		QueryContainer	query;
+		std::string column_name, column_data, table_name, title;
+		std::string activity_name, activity_id, lid;
+		RowContainer	row;
 
+		//Activity record
+		table_name			= "Activity";
+		activity_name		= "Movies";
+
+		column_name			= "Name";
+		column_data			= activity_name;
+		row[column_name]	= column_data;
+
+		query.table_name	= table_name;
+		query.columns		= row;
+		query.request		= INSERT;
+		row.clear();
+		REQUIRE(core.SqlRequest(query) == true);
+
+		//Listing record
+		table_name = "Listing";
 		query.table_name = table_name;
-		std::string title = "The Great Escape";
-		std::string activity_id = "1";
+		title = "The Great Escape";
+		activity_id = "1";
 
 		column_name = "Title";
 		column_data = title;
@@ -650,7 +732,7 @@ SCENARIO("A single listing is updated")
 }
 
 SCENARIO("a single user defined field is added, updated and deleted") {
-	GIVEN("a clean database")
+	GIVEN("a database with a two activity records")
 	{
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
@@ -663,13 +745,42 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 		core.database_.OpenConnection();
 		core.database_.ImportSql(sql_file);
 
+		QueryContainer	query;
+		std::string column_name, column_data, table_name, title;
+		std::string activity_name, activity_id, lid;
+		RowContainer	row;
+
+		//Activity record 1
+		table_name			= "Activity";
+		activity_name		= "Movies";
+
+		column_name			= "Name";
+		column_data			= activity_name;
+		row[column_name]	= column_data;
+
+		query.table_name	= table_name;
+		query.columns		= row;
+		query.request		= INSERT;
+		row.clear();
+		REQUIRE(core.SqlRequest(query) == true);
+
+		//Activity record 2
+		table_name			= "Activity";
+		activity_name		= "TV shows";
+
+		column_name			= "Name";
+		column_data			= activity_name;
+		row[column_name]	= column_data;
+
+		query.table_name	= table_name;
+		query.columns		= row;
+		query.request		= INSERT;
+		row.clear();
+		REQUIRE(core.SqlRequest(query) == true);
+
 		WHEN("a user defined field is added")
 		{
-			bool is_added_successfully = false;
-			QueryContainer query;
-			std::string column_name, column_data;
-			RowContainer row;
-			
+			bool is_added_successfully = false;	
 
 			std::string table_name = "UserDefinedField";
 			query.table_name = table_name;
@@ -678,30 +789,30 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 
 			std::string name, data_type, description, activity_id, sql;
 
-			name		= "Genre";
-			data_type	= "string";
-			description = "";
-			activity_id = "1";
+			name					= "Genre";
+			data_type				= "string";
+			description				= "";
+			activity_id				= "1";
 
-			column_name = "Name";
-			column_data = name;
-			row[column_name] = column_data;
+			column_name				= "Name";
+			column_data				= name;
+			row[column_name]		= column_data;
 
-			column_name = "DataType";
-			column_data = data_type;
-			row[column_name] = column_data;
+			column_name				= "DataType";
+			column_data				= data_type;
+			row[column_name]		= column_data;
 
-			column_name = "Description";
-			column_data = description;
-			row[column_name] = column_data;
+			column_name				= "Description";
+			column_data				= description;
+			row[column_name]		= column_data;
 
-			column_name = "ActivityID";
-			column_data = activity_id;
-			row[column_name] = column_data;
+			column_name				= "ActivityID";
+			column_data				= activity_id;
+			row[column_name]		= column_data;
 
-			query.columns = row;
-			query.request = INSERT;
-			is_added_successfully = core.SqlRequest(query);
+			query.columns			= row;
+			query.request			= INSERT;
+			is_added_successfully	= core.SqlRequest(query);
 
 			expected.clear();
 			expected.push_back(row);
@@ -772,7 +883,6 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 						{
 							bool is_deleted_successfully = false;
 
-							
 							column_name = "UDFID";
 							column_data = udfid;
 							row[column_name] = column_data;
@@ -801,7 +911,7 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 
 SCENARIO("a single user defined field data entry is added, updated, and deleted")
 {
-	GIVEN("a clean database")
+	GIVEN("a database with a single activity and UDF record")
 	{
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
@@ -814,34 +924,80 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 		core.database_.OpenConnection();
 		core.database_.ImportSql(sql_file);
 
+		QueryContainer	query;
+		std::string column_name, column_data, table_name, title;
+		std::string activity_name, activity_id, lid, name, data_type, description;
+		RowContainer	row;
+
+		//Activity record 1
+		table_name = "Activity";
+		activity_name = "Movies";
+
+		column_name = "Name";
+		column_data = activity_name;
+		row[column_name] = column_data;
+
+		query.table_name = table_name;
+		query.columns = row;
+		query.request = INSERT;
+		REQUIRE(core.SqlRequest(query) == true);
+		row.clear();
+
+		//UDF record
+		table_name			= "UserDefinedField";
+		name				= "Genre";
+		data_type			= "string";
+		description			= "";
+		activity_id			= "1";
+
+		column_name			= "Name";
+		column_data			= name;
+		row[column_name]	= column_data;
+
+		column_name			= "DataType";
+		column_data			= data_type;
+		row[column_name]	= column_data;
+
+		column_name			= "Description";
+		column_data			= description;
+		row[column_name]	= column_data;
+
+		column_name			= "ActivityID";
+		column_data			= activity_id;
+		row[column_name]	= column_data;
+
+		query.table_name	= table_name;
+		query.columns		= row;
+		query.request		= INSERT;
+
+		REQUIRE(core.SqlRequest(query) == true);
+		row.clear();
+
 		WHEN("a user defined field data entry is added")
 		{
 			bool is_added_successfully = false;
-			QueryContainer query;
-			std::string column_name, column_data;
-			RowContainer row;
-			
 
-			std::string table_name = "UDFentry";
+			table_name = "UDFentry";
 			query.table_name = table_name;
 
 			TableContainer result, expected;
 			std::string udfid, data, sql;
 
-			udfid	= "1";
-			data	= "Comedy";
+			udfid					= "1";
+			data					= "Comedy";
 
-			column_name = "Data";
-			column_data = data;
-			row[column_name] = column_data;
+			column_name				= "Data";
+			column_data				= data;
+			row[column_name]		= column_data;
 
-			column_name = "UDFID";
-			column_data = udfid;
-			row[column_name] = column_data;
+			column_name				= "UDFID";
+			column_data				= udfid;
+			row[column_name]		= column_data;
 
-			query.columns = row;
-			query.request = INSERT;
-			is_added_successfully = core.SqlRequest(query);
+			query.table_name		= table_name;
+			query.columns			= row;
+			query.request			= INSERT;
+			is_added_successfully	= core.SqlRequest(query);
 
 			expected.clear();
 			expected.push_back(row);
@@ -917,7 +1073,7 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 }
 
 SCENARIO("A single Listing_UDFentry many to many releationship is added updated and deleted") {
-	GIVEN("a clean database") {
+	GIVEN("a database with Activity,UDF,Listing, and Entry records inserted") {
 
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
@@ -930,30 +1086,197 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 		core.database_.OpenConnection();
 		core.database_.ImportSql(sql_file);
 
+		QueryContainer	query;
+		std::string column_name, column_data, table_name, title, data, udfid;
+		std::string activity_name, activity_id, lid, name, data_type, description;
+		RowContainer row;
+
+		//Activity record 1
+		table_name			= "Activity";
+		query.table_name = table_name;
+		activity_name		= "Movies";
+
+		column_name			= "Name";
+		column_data			= activity_name;
+		row[column_name]	= column_data;
+
+		query.columns		= row;
+		query.request		= INSERT;
+		REQUIRE(core.SqlRequest(query) == true);
+		row.clear();
+
+		//Activity record 2
+		table_name			= "Activity";
+		query.table_name	= table_name;
+		activity_name		= "TV Shows";
+
+		column_name			= "Name";
+		column_data			= activity_name;
+		row[column_name]	= column_data;
+
+		query.columns		= row;
+		query.request		= INSERT;
+		REQUIRE(core.SqlRequest(query) == true);
+		row.clear();
+
+		//UDF record 1
+		table_name			= "UserDefinedField";
+		query.table_name = table_name;
+		name				= "Genre";
+		data_type			= "string";
+		description			= "";
+		activity_id			= "1";
+
+		column_name			= "Name";
+		column_data			= name;
+		row[column_name]	= column_data;
+
+		column_name			= "DataType";
+		column_data			= data_type;
+		row[column_name]	= column_data;
+
+		column_name			= "Description";
+		column_data			= description;
+		row[column_name]	= column_data;
+
+		column_name			= "ActivityID";
+		column_data			= activity_id;
+		row[column_name]	= column_data;
+
+		query.columns		= row;
+		query.request		= INSERT;
+
+		//UDF record 2
+		table_name			= "UserDefinedField";
+		query.table_name	= table_name;
+		name				= "Genre";
+		data_type			= "string";
+		description			= "";
+		activity_id			= "2";
+
+		column_name			= "Name";
+		column_data			= name;
+		row[column_name]	= column_data;
+
+		column_name			= "DataType";
+		column_data			= data_type;
+		row[column_name]	= column_data;
+
+		column_name			= "Description";
+		column_data			= description;
+		row[column_name]	= column_data;
+
+		column_name			= "ActivityID";
+		column_data			= activity_id;
+		row[column_name]	= column_data;
+
+		query.columns		= row;
+		query.request		= INSERT;
+
+		REQUIRE(core.SqlRequest(query) == true);
+		row.clear();
+
+		//Listing record 1
+		table_name			= "Listing";
+		query.table_name	= table_name;
+		title				= "The Great Escape";
+		activity_id			= "1";
+
+		column_name			= "Title";
+		column_data			= title;
+		row[column_name]	= column_data;
+
+		column_name			= "ActivityID";
+		column_data			= activity_id;
+		row[column_name]	= column_data;
+
+		query.columns = row;
+		query.request = INSERT;
+		row.clear();
+
+		REQUIRE(core.SqlRequest(query) == true);
+
+		//Listing record 2
+		table_name			= "Listing";
+		query.table_name	= table_name;
+		title				= "The Great Escape";
+		activity_id			= "2";
+
+		column_name			= "Title";
+		column_data			= title;
+		row[column_name]	= column_data;
+
+		column_name			= "ActivityID";
+		column_data			= activity_id;
+		row[column_name]	= column_data;
+
+		query.columns		= row;
+		query.request		= INSERT;
+		row.clear();
+
+		REQUIRE(core.SqlRequest(query) == true);
+
+		//UDFentry record 1
+		table_name			= "UDFentry";
+		query.table_name	= table_name;
+		data				= "comedy";
+		udfid				= "1";
+
+		column_name			= "Data";
+		column_data			= data;
+		row[column_name]	= column_data;
+
+		column_name			= "UDFID";
+		column_data			= udfid;
+		row[column_name]	= column_data;
+
+		query.columns		= row;
+		query.request		= INSERT;
+		row.clear();
+
+		REQUIRE(core.SqlRequest(query) == true);
+
+		//UDFentry record 2
+		table_name				= "UDFentry";
+		query.table_name		= table_name;
+		data					= "Action";
+		udfid					= "1";
+
+		column_name				= "Data";
+		column_data				= data;
+		row[column_name]		= column_data;
+
+		column_name				= "UDFID";
+		column_data				= udfid;
+		row[column_name]		= column_data;
+
+		query.columns			= row;
+		query.request			= INSERT;
+		row.clear();
+
+		REQUIRE(core.SqlRequest(query) == true);
+
 		WHEN("a new Listing_UDFentry record is added") {
 			bool is_added_successfully = false;
-			QueryContainer query;
-			std::string column_name, column_data;
-			RowContainer row;
 
-			std::string table_name = "Listing_UDFentry";
-			query.table_name = table_name;
+			table_name				= "Listing_UDFentry";
+			query.table_name		= table_name;
 
-			column_name = "LID";
-			column_data = "1";
-			row[column_name] = column_data;
+			column_name				= "LID";
+			column_data				= "1";
+			row[column_name]		= column_data;
 
-			column_name = "UDFID";
-			column_data = "1";
-			row[column_name] = column_data;
+			column_name				= "UDFID";
+			column_data				= "1";
+			row[column_name]		= column_data;
 
-			column_name = "EntryData";
-			column_data = "comedy";
-			row[column_name] = column_data;
+			column_name				= "EntryData";
+			column_data				= "comedy";
+			row[column_name]		= column_data;
 
-			query.columns = row;
-			query.request = INSERT;
-			is_added_successfully = core.SqlRequest(query);
+			query.columns			= row;
+			query.request			= INSERT;
+			is_added_successfully	= core.SqlRequest(query);
 
 			TableContainer result, expected;
 			std::string sql;

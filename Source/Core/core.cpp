@@ -1,8 +1,6 @@
 #include "../stdafx.h"
 #include "core.h"
 
-
-
 const DbMap Core::init_db_map() {
 
 	const std::multimap<const std::string, const std::string> DbMapContainer = {
@@ -123,21 +121,24 @@ bool Core::SqlRequest(QueryContainer &query) {
 		std::cerr << err_msg << ", table <" << query.table_name << "> is invalid\n";
 		return is_successful = false;
 	}
-
+	
 	//check if query columns specified exist in database
 	bool is_exist = false;
 	auto table_range = kDatabaseMap_.equal_range(query.table_name);
 	for (auto q_col = query.columns.begin(); q_col != query.columns.end(); ++q_col) {
+
+		//iterate through predefined mapped columns specific to the table name requested in query
 		for (auto db_col = table_range.first; db_col != table_range.second; ++db_col) {
-			if (db_col->second == q_col->first) { 
-				is_exist = true; 
+			if (db_col->second == q_col->first) {
+				is_exist = true;
 				break;
 			}
 		}
 		if (is_exist == false) {
 			std::cerr << err_msg << ", column <" << q_col->first << "> is invalid\n";
 			return is_successful = false;
-		} else {is_exist = false;}
+		}
+		else { is_exist = false; }
 	}
 
 	//check if search params valid where applicable
@@ -486,8 +487,29 @@ bool Core::UpdateActivity(QueryContainer &query) {
  * Notes:
  * > Requires an open connection to database
  */
-bool Core::AddListing(QueryContainer &query) {
+bool Core::AddListing(QueryContainer &query) { //TODO enable foreign key support in sqlite
 	bool is_successful = false;
+
+	//check that activity ID exists to prevent creation of an orphaned record
+	//std::stringstream ss;
+	//ss  << "SELECT"
+	//	<< " ActivityID FROM "
+	//	<< query.table_name
+	//	<< " WHERE ActivityID="
+	//	<< query.columns["ActivityID"];
+
+	//if (this->database_.SqlCommand(ss.str()) == false) { return is_successful = false; }
+
+	//TableContainer result = this->database_.read_result_buffer();
+	//if(result.empty() == true){
+	//	std::cerr 
+	//		<< "Core Warning: Operation AddListing failed, ActivityID<"
+	//		<< query.columns["ActivityID"]
+	//		<< "> does not exist, aborted operation to prevent the insertion of an"
+	//		<< "orphaned record\n";
+	//	return is_successful = false; 
+	//}
+
 	is_successful = this->Insert(query);
 
 	return is_successful;
