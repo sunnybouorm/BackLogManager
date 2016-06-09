@@ -451,18 +451,6 @@ bool Core::Update(QueryContainer &query) {
  */
 bool Core::AddActivity(QueryContainer &query) {
 	bool is_successful = false;
-
-	//TODO
-	//duplicate name check
-	//std::stringstream ss;
-	//ss	<< "SELECT"
-	//	<< " Name FROM "
-	//	<< query.table_name
-	//	<< " WHERE "
-	//	<< "Name="
-	//	<< ";";
-
-	std::string sql;
 	is_successful = this->Insert(query);
 
 	return is_successful;
