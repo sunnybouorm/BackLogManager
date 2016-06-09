@@ -21,7 +21,7 @@ SCENARIO("A single activity is added, updated and deleted")
 		WHEN("an activity is added")
 		{
 			QueryContainer	query;
-			ColumnContainer column;
+			std::string column_name, column_data;
 			RowContainer	row;
 			RowContainer	search_params;
 
@@ -31,32 +31,33 @@ SCENARIO("A single activity is added, updated and deleted")
 			std::string activity_name = "Movies";
 			std::string activity_id	  = "1";
 
-			column.column_name		  = "Name";
-			column.column_data		  = activity_name;
-			row.clear();
-			row.push_back(column);
+			column_name		  = "Name";
+			column_data		  = activity_name;
+			
+			row[column_name] = column_data;
 
 			query.table_name = table_name;
 			query.columns	 = row;
 			query.request	 = INSERT;
 
 			creation_is_success = core.SqlRequest(query);
+			row.clear();
 
 			//generate expected result as a basis of comparison
 			//-------------------------------------------------
-			ColumnContainer col_res;
 			RowContainer row_res;
 
-			col_res.column_name = "ActivityID";
-			col_res.column_data = activity_id;
-			row_res.push_back(col_res);
+			column_name = "ActivityID";
+			column_data = activity_id;
+			row_res[column_name] = column_data;
 
-			col_res.column_name = "Name";
-			col_res.column_data = activity_name;
-			row_res.push_back(col_res);
+			column_name = "Name";
+			column_data = activity_name;
+			row_res[column_name] = column_data;
 
 			TableContainer expected;
 			expected.push_back(row_res);
+			row_res.clear();
 			//-------------------------------------------------
 
 			core.database_.SqlCommand("SELECT * FROM Activity\n");
@@ -71,26 +72,25 @@ SCENARIO("A single activity is added, updated and deleted")
 				{
 					bool update_is_successful = false;
 					std::string activity_id;
-					ColumnContainer column;
+					std::string column_name, column_data;
 
 					core.database_.SqlCommand("SELECT ActivityID FROM Activity");
 					result = core.database_.read_result_buffer();
-					REQUIRE(result.begin()->begin()->column_name == "ActivityID");
+					REQUIRE(result.begin()->count("ActivityID") == 1);
 					
-					activity_id = result.begin()->begin()->column_data;
-					column.column_name = "ActivityID";
-					column.column_data = activity_id;
+					activity_id = result.begin()->at("ActivityID");
+					column_name = "ActivityID";
+					column_data = activity_id;
 					search_params.clear();
-					search_params.push_back(column);
+					search_params[column_name] = column_data;
+			
+					column_name = "ActivityID";
+					column_data = activity_id;
+					row[column_name] = column_data;
 
-					row.clear();
-					column.column_name = "ActivityID";
-					column.column_data = activity_id;
-					row.push_back(column);
-
-					column.column_name = "Name";
-					column.column_data = "TV";
-					row.push_back(column);
+					column_name = "Name";
+					column_data = "TV";
+					row[column_name] = column_data;
 					
 					query.table_name	= table_name;
 					query.columns		= row;
@@ -101,6 +101,7 @@ SCENARIO("A single activity is added, updated and deleted")
 
 					expected.clear();
 					expected.push_back(row);
+					row.clear();
 
 					core.database_.SqlCommand("SELECT * FROM Activity");
 					result = core.database_.read_result_buffer();
@@ -117,11 +118,10 @@ SCENARIO("A single activity is added, updated and deleted")
 					bool deletion_is_success = false;
 					core.database_.SqlCommand("SELECT ActivityID FROM Activity WHERE Name='Movies';");
 					result = core.database_.read_result_buffer();
-					std::string activity_id = result.begin()->begin()->column_data;
-					column.column_name = "ActivityID";
-					column.column_data = activity_id;
-					row.clear();
-					row.push_back(column);
+					std::string activity_id = result.begin()->at("ActivityID");
+					column_name = "ActivityID";
+					column_data = activity_id;
+					row[column_name] = column_data;
 
 					query.columns.clear();
 					query.table_name	= table_name;
@@ -129,6 +129,7 @@ SCENARIO("A single activity is added, updated and deleted")
 					query.request		= DELETE;
 
 					deletion_is_success = core.SqlRequest(query);
+					row.clear();
 
 					core.database_.SqlCommand("SELECT * FROM Activity;");
 					TableContainer result = core.database_.read_result_buffer();
@@ -164,64 +165,47 @@ SCENARIO("Multiple activities are added and deleted")
 		WHEN("multiple activities are added")
 		{
 			QueryContainer query;
-			ColumnContainer column;
+			std::string column_name, column_data;
 			RowContainer row;
 			bool creation_is_success = false;
+			TableContainer expected;
 
-			column.column_name = "Name";
+			column_name = "Name";
 
 			std::string table_name = "Activity";
 
 			std::string activity_name1 = "Games";
-			column.column_data = activity_name1;
-			row.clear();
-			row.push_back(column);
+			column_data = activity_name1;
+			
+			row[column_name] = column_data;
 
 			query.table_name = table_name;
 			query.columns = row;
 			query.request = INSERT;
 			creation_is_success = core.SqlRequest(query);
+			expected.push_back(row);
 
 			std::string activity_name2 = "Music";
-			column.column_data = activity_name2;
-			row.clear();
-			row.push_back(column);
+			column_data = activity_name2;
+			
+			row[column_name] = column_data;
 
 			query.columns = row;
 			query.request = INSERT;
 			creation_is_success &= core.SqlRequest(query);
+			expected.push_back(row);
 
 			std::string activity_name3 = "Movies";
-			column.column_data = activity_name3;
-			row.clear();
-			row.push_back(column);
+			column_data = activity_name3;
+			
+			row[column_name] = column_data;
 
 			query.columns = row;
 			query.request = INSERT;
 			creation_is_success &= core.SqlRequest(query);
+			expected.push_back(row);
 
-			//generate expected result as a basis of comparison
-			//-------------------------------------------------
-			ColumnContainer col_res;
-			RowContainer row_res;
-			TableContainer expected;
-
-			col_res.column_name = "Name";
-
-			col_res.column_data = activity_name1;
-			row_res.push_back(col_res);
-			expected.push_back(row_res);
-			row_res.clear();
-
-			col_res.column_data = activity_name2;
-			row_res.push_back(col_res);
-			expected.push_back(row_res);
-			row_res.clear();
-
-			col_res.column_data = activity_name3;
-			row_res.push_back(col_res);
-			expected.push_back(row_res);
-			//-------------------------------------------------
+			row.clear();
 
 			core.database_.SqlCommand("SELECT Name FROM Activity\n");
 			TableContainer result = core.database_.read_result_buffer();
@@ -240,42 +224,40 @@ SCENARIO("Multiple activities are added and deleted")
 					sql = "SELECT ActivityID FROM Activity WHERE Name='Games';";
 					REQUIRE(core.database_.SqlCommand(sql) == true);
 					result = core.database_.read_result_buffer();
-					activity_id_1 = result.begin()->begin()->column_data;
+					activity_id_1 = result.begin()->at("ActivityID");
 
 					sql = "SELECT ActivityID FROM Activity WHERE Name='Music';";
 					REQUIRE(core.database_.SqlCommand(sql) == true);
 					result = core.database_.read_result_buffer();
-					activity_id_2 = result.begin()->begin()->column_data;
+					activity_id_2 = result.begin()->at("ActivityID");
 
 					sql = "SELECT ActivityID FROM Activity WHERE Name='Movies';";
 					REQUIRE(core.database_.SqlCommand(sql) == true);
 					result = core.database_.read_result_buffer();
-					activity_id_3 = result.begin()->begin()->column_data;
+					activity_id_3 = result.begin()->at("ActivityID");
 
-					column.column_name = "ActivityID";
-					column.column_data = activity_id_1;
-					row.clear();
-					row.push_back(column);
+					column_name = "ActivityID";
+					column_data = activity_id_1;
+					row[column_name] = column_data;
 
 					query.search_params = row;
 					query.request = DELETE;
 					deletion_is_success = core.SqlRequest(query);
 
-					column.column_data = activity_id_2;
-					row.clear();
-					row.push_back(column);
+					column_data = activity_id_2;
+					row[column_name] = column_data;
 
 					query.search_params = row;
 					query.request = DELETE;
 					deletion_is_success &= core.SqlRequest(query);
 
-					column.column_data = activity_id_3;
-					row.clear();
-					row.push_back(column);
+					column_data = activity_id_3;
+					row[column_name] = column_data;
 
 					query.search_params = row;
 					query.request = DELETE;
 					deletion_is_success &= core.SqlRequest(query);
+					row.clear();
 
 					core.database_.SqlCommand("SELECT Name FROM Activity\n");
 					TableContainer result = core.database_.read_result_buffer();
@@ -295,29 +277,28 @@ SCENARIO("Multiple activities are added and deleted")
 					sql = "SELECT ActivityID FROM Activity WHERE Name='Games';";
 					REQUIRE(core.database_.SqlCommand(sql) == true);
 					result = core.database_.read_result_buffer();
-					activity_id_1 = result.begin()->begin()->column_data;
+					activity_id_1 = result.begin()->at("ActivityID");
 
 					sql = "SELECT ActivityID FROM Activity WHERE Name='Movies';";
 					REQUIRE(core.database_.SqlCommand(sql) == true);
 					result = core.database_.read_result_buffer();
-					activity_id_2 = result.begin()->begin()->column_data;
+					activity_id_2 = result.begin()->at("ActivityID");
 
-					column.column_name = "ActivityID";
-					column.column_data = activity_id_1;
-					row.clear();
-					row.push_back(column);
+					column_name = "ActivityID";
+					column_data = activity_id_1;
+					row[column_name] = column_data;
 
 					query.search_params = row;
 					query.request = DELETE;
 					deletion_is_success = core.SqlRequest(query);
 
-					column.column_data = activity_id_2;
-					row.clear();
-					row.push_back(column);
+					column_data = activity_id_2;
+					row[column_name] = column_data;
 
 					query.search_params = row;
 					query.request = DELETE;
 					deletion_is_success &= core.SqlRequest(query);
+					row.clear();
 
 					core.database_.SqlCommand("SELECT Name FROM Activity\n");
 					TableContainer result = core.database_.read_result_buffer();
@@ -357,21 +338,21 @@ SCENARIO("A single listing is added and deleted")
 		{
 			std::string table_name = "Listing";
 			QueryContainer query;
-			ColumnContainer column;
+			std::string column_name, column_data;
 			RowContainer row;
-			row.clear();
+			
 			bool creation_is_success = false;
 
 			std::string title		= "The Great Escape";
 			std::string activity_id = "1";
 
-			column.column_name = "Title";
-			column.column_data = title;
-			row.push_back(column);
+			column_name = "Title";
+			column_data = title;
+			row[column_name] = column_data;
 
-			column.column_name = "ActivityID";
-			column.column_data = activity_id;
-			row.push_back(column);
+			column_name = "ActivityID";
+			column_data = activity_id;
+			row[column_name] = column_data;
 
 			query.table_name	= table_name;
 			query.columns		= row;
@@ -379,22 +360,9 @@ SCENARIO("A single listing is added and deleted")
 
 			creation_is_success	=  core.SqlRequest(query);
 
-			//generate expected result as a basis of comparison
-			//-------------------------------------------------
-			ColumnContainer col_res;
-			RowContainer row_res;
-
-			col_res.column_name = "Title";
-			col_res.column_data = title;
-			row_res.push_back(col_res);
-
-			col_res.column_name = "ActivityID";
-			col_res.column_data = activity_id;
-			row_res.push_back(col_res);
-
 			TableContainer expected;
-			expected.push_back(row_res);
-			//-------------------------------------------------
+			expected.push_back(row);
+			row.clear();
 
 			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing;");
 			TableContainer result = core.database_.read_result_buffer();
@@ -409,15 +377,16 @@ SCENARIO("A single listing is added and deleted")
 
 					core.database_.SqlCommand("SELECT LID FROM Listing\n");
 					result = core.database_.read_result_buffer();
-					std::string lid = result.begin()->begin()->column_data;
-					column.column_name = "LID";
-					column.column_data = lid;
-					row.clear();
-					row.push_back(column);
+					std::string lid = result.begin()->at("LID");
+					column_name = "LID";
+					column_data = lid;
+					
+					row[column_name] = column_data;
 
 					query.table_name	= table_name;
 					query.search_params = row;
 					query.request		= DELETE;
+					row.clear();
 
 					deletion_is_success = core.SqlRequest(query);
 					REQUIRE(deletion_is_success == true);
@@ -456,9 +425,10 @@ SCENARIO("Multiple listings are added and deleted")
 		WHEN("multiple listings are added")
 		{
 			QueryContainer query;
-			ColumnContainer column;
+			std::string column_name, column_data;
 			RowContainer row;
-			row.clear();
+			TableContainer expected;
+			
 			bool creation_is_success = false;
 
 			std::string title1, title2, title3, activity_id_1, activity_id_2, activity_id_3;
@@ -469,80 +439,52 @@ SCENARIO("Multiple listings are added and deleted")
 			title1 = "The Great Escape";
 			activity_id_1 = "1";
 
-			column.column_name = "Title";
-			column.column_data = title1;
-			row.push_back(column);
+			column_name = "Title";
+			column_data = title1;
+			row[column_name] = column_data;
 
-			column.column_name = "ActivityID";
-			column.column_data = activity_id_1;
-			row.push_back(column);
+			column_name = "ActivityID";
+			column_data = activity_id_1;
+			row[column_name] = column_data;
 
 			query.columns = row;
 			query.request = INSERT;
 			creation_is_success = core.SqlRequest(query);
-			row.clear();
+			expected.push_back(row);
 
 			title2 = "Drackula Souls 3";
 			activity_id_2 = "2";
 
-			column.column_name = "Title";
-			column.column_data = title2;
-			row.push_back(column);
+			column_name = "Title";
+			column_data = title2;
+			row[column_name] = column_data;
 
-			column.column_name = "ActivityID";
-			column.column_data = activity_id_2;
-			row.push_back(column);
+			column_name = "ActivityID";
+			column_data = activity_id_2;
+			row[column_name] = column_data;
 
 			query.columns = row;
 			query.request = INSERT;
 			creation_is_success &= core.SqlRequest(query);
-			row.clear();
+			expected.push_back(row);			
 
 			title3 = "Ghost Husslers";
 			activity_id_3 = "3";
 
-			column.column_name = "Title";
-			column.column_data = title3;
-			row.push_back(column);
+			column_name = "Title";
+			column_data = title3;
+			row[column_name] = column_data;
 
-			column.column_name = "ActivityID";
-			column.column_data = activity_id_3;
-			row.push_back(column);
+			column_name = "ActivityID";
+			column_data = activity_id_3;
+			row[column_name] = column_data;
 
 			query.columns = row;
 			query.request = INSERT;
 			creation_is_success &= core.SqlRequest(query);
+			expected.push_back(row);
+
 			row.clear();
-
-			//generate expected result as a basis of comparison
-			//-------------------------------------------------
-			ColumnContainer col_res1, col_res2;
-			RowContainer row_res;
-			TableContainer expected;
-
-			col_res1.column_name = "Title";
-			col_res2.column_name = "ActivityID";
-
-			col_res1.column_data = title1;
-			row_res.push_back(col_res1);
-			col_res2.column_data = activity_id_1;
-			row_res.push_back(col_res2);
-			expected.push_back(row_res);
-			row_res.clear();
-
-			col_res1.column_data = title2;
-			row_res.push_back(col_res1);
-			col_res2.column_data = activity_id_2;
-			row_res.push_back(col_res2);
-			expected.push_back(row_res);
-			row_res.clear();
-
-			col_res1.column_data = title3;
-			row_res.push_back(col_res1);
-			col_res2.column_data = activity_id_3;
-			row_res.push_back(col_res2);
-			expected.push_back(row_res);
-			//-------------------------------------------------
 
 			core.database_.SqlCommand("SELECT Title,ActivityID FROM Listing\n");
 			TableContainer result = core.database_.read_result_buffer();
@@ -560,17 +502,17 @@ SCENARIO("Multiple listings are added and deleted")
 					result = core.database_.read_result_buffer();
 					std::string lid;
 					for (auto i = result.begin(); i != result.end(); ++i) {
-						lid = i->begin()->column_data;
+						lid = i->at("LID");
 
-						row.clear();
-						column.column_name = "LID";
-						column.column_data = lid;
-						row.push_back(column);
+						column_name = "LID";
+						column_data = lid;
+						row[column_name] = column_data;
 
 						query.search_params = row;
 						query.request = DELETE;
 						is_deleted	 &= core.SqlRequest(query);
 						row.clear();
+						
 					}
 					THEN("all listing records must seize to exist")
 					{
@@ -586,33 +528,34 @@ SCENARIO("Multiple listings are added and deleted")
 				{
 					bool is_deleted = true;
 					std::string lid;
-					row.clear();
+					
 
 					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityID= '1';");
 					result = core.database_.read_result_buffer();
-					lid = result.begin()->begin()->column_data;
-					column.column_name = "LID";
-					column.column_data = lid;
-					row.push_back(column);
+					lid = result.begin()->at("LID");
+					column_name = "LID";
+					column_data = lid;
+					row[column_name] = column_data;
 
 					query.search_params = row;
 					query.request = DELETE;
 					is_deleted &= core.SqlRequest(query);
 					REQUIRE(is_deleted == true);
-					row.clear();
+					
 
 					core.database_.SqlCommand("SELECT LID FROM Listing WHERE ActivityID= '3';");
 					result = core.database_.read_result_buffer();
-					lid = result.begin()->begin()->column_data;
-					column.column_name = "LID";
-					column.column_data = lid;
-					row.push_back(column);
+					lid = result.begin()->at("LID");
+					column_name = "LID";
+					column_data = lid;
+					row[column_name] = column_data;
 
 					query.search_params = row;
 					query.request = DELETE;
 					is_deleted &= core.SqlRequest(query);
-					REQUIRE(is_deleted == true);
 					row.clear();
+					REQUIRE(is_deleted == true);
+					
 
 					core.database_.SqlCommand("SELECT ActivityID FROM Listing");
 					result = core.database_.read_result_buffer();
@@ -620,7 +563,7 @@ SCENARIO("Multiple listings are added and deleted")
 					THEN("only the specified listings must be deleted")
 					{
 						REQUIRE(result.size() == 1);
-						REQUIRE(result.begin()->begin()->column_data == "2");
+						REQUIRE(result.begin()->at("ActivityID") == "2");
 					}
 				}
 			}
@@ -647,24 +590,26 @@ SCENARIO("A single listing is updated")
 
 		std::string table_name = "Listing";
 		QueryContainer query;
-		ColumnContainer column;
+		std::string column_name, column_data;
 		RowContainer row;
-		row.clear();
+		
 
 		query.table_name = table_name;
 		std::string title = "The Great Escape";
 		std::string activity_id = "1";
 
-		column.column_name = "Title";
-		column.column_data = title;
-		row.push_back(column);
+		column_name = "Title";
+		column_data = title;
+		row[column_name] = column_data;
 
-		column.column_name = "ActivityID";
-		column.column_data = activity_id;
-		row.push_back(column);
+		column_name = "ActivityID";
+		column_data = activity_id;
+		row[column_name] = column_data;
 
 		query.columns = row;
 		query.request = INSERT;
+		row.clear();
+
 		REQUIRE(core.SqlRequest(query) == true);
 
 		WHEN("the listing is updated")
@@ -674,31 +619,31 @@ SCENARIO("A single listing is updated")
 
 			REQUIRE(core.database_.SqlCommand("SELECT LID FROM Listing WHERE Title='The Great Escape'"));
 			result = core.database_.read_result_buffer();
-			REQUIRE(result.begin()->begin()->column_name == "LID");
-			std::string lid = result.begin()->begin()->column_data;
+			REQUIRE(result.begin()->count("LID") == 1);
+			std::string lid = result.begin()->at("LID");
 
-			row.clear();
-			column.column_name = "LID";
-			column.column_data = lid;
-			row.push_back(column);
+			column_name = "LID";
+			column_data = lid;
+			row[column_name] = column_data;
 			query.search_params = row;
-
-			row.clear();
-			column.column_name = "Title";
-			column.column_data = "The Terrible Escape";
-			row.push_back(column);
+			
+			column_name = "Title";
+			column_data = "The Terrible Escape";
+			row[column_name] = column_data;
 
 			query.columns = row;
 			query.request = UPDATE;
 			update_is_successful = core.SqlRequest(query);
 			expected.push_back(row);
+			row.clear();
 
 			THEN("the changes must be registered correctly by the database")
 			{
-				core.database_.SqlCommand("SELECT Title FROM Listing WHERE Title='The Terrible Escape'");
+				core.database_.SqlCommand("SELECT LID,Title FROM Listing WHERE Title='The Terrible Escape'");
 				result = core.database_.read_result_buffer();
+
 				REQUIRE(update_is_successful == true);
-				REQUIRE(expected == result);
+				REQUIRE(result == expected);
 			}
 		}
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
@@ -724,9 +669,9 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 		{
 			bool is_added_successfully = false;
 			QueryContainer query;
-			ColumnContainer column;
+			std::string column_name, column_data;
 			RowContainer row;
-			row.clear();
+			
 
 			std::string table_name = "UserDefinedField";
 			query.table_name = table_name;
@@ -740,21 +685,21 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 			description = "";
 			activity_id = "1";
 
-			column.column_name = "Name";
-			column.column_data = name;
-			row.push_back(column);
+			column_name = "Name";
+			column_data = name;
+			row[column_name] = column_data;
 
-			column.column_name = "DataType";
-			column.column_data = data_type;
-			row.push_back(column);
+			column_name = "DataType";
+			column_data = data_type;
+			row[column_name] = column_data;
 
-			column.column_name = "Description";
-			column.column_data = description;
-			row.push_back(column);
+			column_name = "Description";
+			column_data = description;
+			row[column_name] = column_data;
 
-			column.column_name = "ActivityID";
-			column.column_data = activity_id;
-			row.push_back(column);
+			column_name = "ActivityID";
+			column_data = activity_id;
+			row[column_name] = column_data;
 
 			query.columns = row;
 			query.request = INSERT;
@@ -762,6 +707,7 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 
 			expected.clear();
 			expected.push_back(row);
+			row.clear();
 
 			THEN("the change must be registered by the database correctly")
 			{
@@ -770,7 +716,7 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 				result = core.database_.read_result_buffer();
 				REQUIRE(result.begin()->size() == 1);
 
-				std::string  udfid = result.begin()->begin()->column_data;
+				std::string  udfid = result.begin()->at("UDFID");
 
 				sql = "SELECT Name,Datatype,Description,ActivityID FROM UserDefinedField";
 				REQUIRE(core.database_.SqlCommand(sql) == true);
@@ -786,29 +732,26 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 					description = "some description";
 					activity_id = "2";
 
-					row.clear();
+					column_name = "UDFID";
+					column_data = udfid;
+					row[column_name] = column_data;
+					query.search_params = row;			
 
-					column.column_name = "UDFID";
-					column.column_data = udfid;
-					row.push_back(column);
-					query.search_params = row;
-					row.clear();
+					column_name = "Name";
+					column_data = name;
+					row[column_name] = column_data;
 
-					column.column_name = "Name";
-					column.column_data = name;
-					row.push_back(column);
+					column_name = "DataType";
+					column_data = data_type;
+					row[column_name] = column_data;
 
-					column.column_name = "DataType";
-					column.column_data = data_type;
-					row.push_back(column);
+					column_name = "Description";
+					column_data = description;
+					row[column_name] = column_data;
 
-					column.column_name = "Description";
-					column.column_data = description;
-					row.push_back(column);
-
-					column.column_name = "ActivityID";
-					column.column_data = activity_id;
-					row.push_back(column);
+					column_name = "ActivityID";
+					column_data = activity_id;
+					row[column_name] = column_data;
 
 					query.columns = row;
 					query.request = UPDATE;
@@ -816,12 +759,14 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 
 					expected.clear();
 					expected.push_back(row);
+					row.clear();
 
 					THEN("the change must be registered by the database")
 					{
-						sql = "SELECT Name,Datatype,Description,ActivityID FROM UserDefinedField";
+						sql = "SELECT * FROM UserDefinedField";
 						REQUIRE(core.database_.SqlCommand(sql) == true);
 						result = core.database_.read_result_buffer();
+
 						REQUIRE(is_updated_successfully == true);
 						REQUIRE(result == expected);
 
@@ -829,12 +774,13 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 						{
 							bool is_deleted_successfully = false;
 
-							row.clear();
-							column.column_name = "UDFID";
-							column.column_data = udfid;
-							row.push_back(column);
+							
+							column_name = "UDFID";
+							column_data = udfid;
+							row[column_name] = column_data;
 							query.search_params = row;
 							query.request = DELETE;
+							row.clear();
 							is_deleted_successfully = core.SqlRequest(query);
 
 							THEN("it must seize to exist")
@@ -874,9 +820,9 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 		{
 			bool is_added_successfully = false;
 			QueryContainer query;
-			ColumnContainer column;
+			std::string column_name, column_data;
 			RowContainer row;
-			row.clear();
+			
 
 			std::string table_name = "UDFentry";
 			query.table_name = table_name;
@@ -887,13 +833,13 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 			udfid	= "1";
 			data	= "Comedy";
 
-			column.column_name = "Data";
-			column.column_data = data;
-			row.push_back(column);
+			column_name = "Data";
+			column_data = data;
+			row[column_name] = column_data;
 
-			column.column_name = "UDFID";
-			column.column_data = udfid;
-			row.push_back(column);
+			column_name = "UDFID";
+			column_data = udfid;
+			row[column_name] = column_data;
 
 			query.columns = row;
 			query.request = INSERT;
@@ -916,19 +862,19 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 					bool is_updated_successfully = false;
 
 					query.search_params = row;
+					row.clear();
 
 					udfid = "1";
 					data  = "Action";
-					row.clear();
 
-					column.column_name = "Data";
-					column.column_data = data;
-					row.push_back(column);
+					column_name = "Data";
+					column_data = data;
+					row[column_name] = column_data;
 
-					column.column_name = "UDFID";
-					column.column_data = udfid;
-					row.push_back(column);
-					query.columns = row;
+					column_name = "UDFID";
+					column_data = udfid;
+					row[column_name] = column_data;
+					query.columns		= row;
 					query.request = UPDATE;
 					
 					is_updated_successfully = core.SqlRequest(query);
@@ -949,6 +895,8 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 							bool is_deleted_successfully = false;
 							query.search_params = row;
 							query.request = DELETE;
+							row.clear();
+
 							is_deleted_successfully = core.SqlRequest(query);
 
 							THEN("it must seize to exist")
@@ -987,23 +935,23 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 		WHEN("a new Listing_UDFentry record is added") {
 			bool is_added_successfully = false;
 			QueryContainer query;
-			ColumnContainer column;
+			std::string column_name, column_data;
 			RowContainer row;
 
 			std::string table_name = "Listing_UDFentry";
 			query.table_name = table_name;
 
-			column.column_name = "LID";
-			column.column_data = "1";
-			row.push_back(column);
+			column_name = "LID";
+			column_data = "1";
+			row[column_name] = column_data;
 
-			column.column_name = "UDFID";
-			column.column_data = "1";
-			row.push_back(column);
+			column_name = "UDFID";
+			column_data = "1";
+			row[column_name] = column_data;
 
-			column.column_name = "EntryData";
-			column.column_data = "comedy";
-			row.push_back(column);
+			column_name = "EntryData";
+			column_data = "comedy";
+			row[column_name] = column_data;
 
 			query.columns = row;
 			query.request = INSERT;
@@ -1013,6 +961,7 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 			std::string sql;
 
 			expected.push_back(row);
+
 			sql = "SELECT * FROM Listing_UDFentry";
 			REQUIRE(core.database_.SqlCommand(sql) == true);
 			result = core.database_.read_result_buffer();
@@ -1026,17 +975,18 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 
 					query.search_params = row;
 					row.clear();
-					column.column_name = "LID";
-					column.column_data = "2";
-					row.push_back(column);
+					
+					column_name = "LID";
+					column_data = "2";
+					row[column_name] = column_data;
 
-					column.column_name = "UDFID";
-					column.column_data = "2";
-					row.push_back(column);
+					column_name = "UDFID";
+					column_data = "2";
+					row[column_name] = column_data;
 
-					column.column_name = "EntryData";
-					column.column_data = "Action";
-					row.push_back(column);
+					column_name = "EntryData";
+					column_data = "Action";
+					row[column_name] = column_data;
 
 					query.columns = row;
 					query.request = UPDATE;
@@ -1044,6 +994,7 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 
 					expected.clear();
 					expected.push_back(row);
+
 					sql = "SELECT * FROM Listing_UDFentry";
 					REQUIRE(core.database_.SqlCommand(sql) == true);
 					result = core.database_.read_result_buffer();
@@ -1059,6 +1010,7 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 							query.columns.clear();
 							query.request = DELETE;
 							is_deleted_successfully = core.SqlRequest(query);
+							row.clear();
 
 							sql = "SELECT * FROM Listing_UDFentry";
 							REQUIRE(core.database_.SqlCommand(sql) == true);
@@ -1073,8 +1025,8 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 				}
 			}
 		}
-		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
+		if (core.database_.IsConnected() == true)	{ core.database_.CloseConnection(); }
+		if (core.database_.is_exist() == true)		{ core.database_.Exterminate();		}
 	}
 
 }

@@ -57,7 +57,7 @@ const DbMap Core::kSuperkeyMap_ = Core::init_superkey_map();
 /*
 * Extracts columns from a Rowcontainer object into a different container format
 * > Before:
-*	vector<ColumnContainer>
+*	RowContainer
 *   [ {column_name_0, column_data_0}, {column_name_1, column_data_1}, ...]
 * > After
 * pair[ vector<string>, vector<string> ]
@@ -67,8 +67,8 @@ std::pair<std::vector<std::string>, std::vector<std::string>> row_2_vect(const R
 	std::pair<std::vector<std::string>, std::vector<std::string>> result;
 
 	for (auto column = row.begin(); column != row.end(); ++column) {
-		result.first.push_back (column->column_name);
-		result.second.push_back(column->column_data);
+		result.first.push_back (column->first);
+		result.second.push_back(column->second);
 	}
 
 	return result;
@@ -129,13 +129,13 @@ bool Core::SqlRequest(QueryContainer &query) {
 	auto table_range = kDatabaseMap_.equal_range(query.table_name);
 	for (auto q_col = query.columns.begin(); q_col != query.columns.end(); ++q_col) {
 		for (auto db_col = table_range.first; db_col != table_range.second; ++db_col) {
-			if (db_col->second == q_col->column_name) { 
+			if (db_col->second == q_col->first) { 
 				is_exist = true; 
 				break;
 			}
 		}
 		if (is_exist == false) {
-			std::cerr << err_msg << ", column <" << q_col->column_name << "> is invalid\n";
+			std::cerr << err_msg << ", column <" << q_col->first << "> is invalid\n";
 			return is_successful = false;
 		} else {is_exist = false;}
 	}
@@ -152,13 +152,12 @@ bool Core::SqlRequest(QueryContainer &query) {
 
 	//select relavent function to handle request
 	if ( (query.table_name == "Activity") && (query.request == INSERT) ) {
-		std::string key_name = "ActivityID";
-		ColumnContainer column;
+		std::string key_name, key_data;
 
+		key_name = "ActivityID";
 		int activity_id = this->GenerateUniqueIntId(query.table_name, key_name);
-		column.column_name = key_name;
-		column.column_data = std::to_string(activity_id);
-		query.columns.push_back(column);
+		key_data = std::to_string(activity_id);
+		query.columns[key_name] = key_data;
 		is_successful = this->AddActivity(query);
 
 	} 
@@ -172,13 +171,12 @@ bool Core::SqlRequest(QueryContainer &query) {
 
 
 	else if ((query.table_name == "Listing") && (query.request == INSERT)) {
-		std::string key_name = "LID";
-		ColumnContainer column;
+		std::string key_name, key_data;
 
+		key_name = "LID";
 		int lid = this->GenerateUniqueIntId(query.table_name, key_name);
-		column.column_name = key_name;
-		column.column_data = std::to_string(lid);
-		query.columns.push_back(column);
+		key_data = std::to_string(lid);
+		query.columns[key_name] = key_data;
 		is_successful = this->AddListing(query);
 
 	} 
@@ -192,13 +190,12 @@ bool Core::SqlRequest(QueryContainer &query) {
 
 
 	else if( (query.table_name == "UserDefinedField") && (query.request == INSERT) ){
-		std::string key_name = "UDFID";
-		ColumnContainer column;
+		std::string key_name, key_data;
 
+		key_name = "UDFID";
 		int udfid = this->GenerateUniqueIntId(query.table_name, key_name);
-		column.column_name = key_name;
-		column.column_data = std::to_string(udfid);
-		query.columns.push_back(column);
+		key_data = std::to_string(udfid);
+		query.columns[key_name] = key_data;
 		is_successful = this->AddUserDefinedField(query);
 	}
 	else if( (query.table_name == "UserDefinedField") && (query.request == UPDATE) ){
@@ -262,10 +259,10 @@ int Core::GenerateUniqueIntId(const std::string &table_name, const std::string &
 	int current_id, previous_id;
 	previous_id = 0;
 	if (raw_result.empty() == true) { return (id = 1); }
-	for (std::vector<RowContainer>::iterator i = raw_result.begin(); i != raw_result.end(); ++i)
+	for (TableContainer::iterator row = raw_result.begin(); row != raw_result.end(); ++row)
 	{
-		auto j = i->begin();
-		current_id = std::stoi(j->column_data);
+		auto column = row->begin();
+		current_id = std::stoi(column->second);
 		if ((current_id - previous_id) > 1) { return (id = current_id - 1); }//spot found
 		previous_id = current_id;
 	}
@@ -345,7 +342,7 @@ bool Core::Insert(QueryContainer &query) {
 }
 
 /*
-* Deletes records from a table as specified by the query struct
+* Deletes a record from a table as specified by the query struct
 *-------------------------------------------------------------
 * Notes:
 * > Requires an open connection to database
@@ -370,14 +367,20 @@ bool Core::Delete(QueryContainer &query) {
 
 	}
 
-	col_name = query.search_params.begin()->column_name;
-	col_val = query.search_params.begin()->column_data;
+	auto last_col = query.search_params.end();
+	--last_col;
+	for (auto col = query.search_params.begin(); col != query.search_params.end(); ++col) {
+		col_name = col->first;
+		col_val	 = col->second;
 
-	where_clause = col_name;
-	where_clause += "=";
-	where_clause += "'";
-	where_clause += col_val;
-	where_clause += "'";
+		where_clause = col_name;
+		where_clause += "=";
+		where_clause += "'";
+		where_clause += col_val;
+		where_clause += "'";
+
+		if (col != last_col) { where_clause += " AND "; };
+	}
 	query.where_clause = where_clause;
 
 	is_successful = this->database_.Delete(query);
@@ -387,7 +390,7 @@ bool Core::Delete(QueryContainer &query) {
 
 
 /*
-* Updates records in a table as specified by the query struct
+* Updates a record in a table as specified by the query struct
 *-------------------------------------------------------------
 * Notes:
 * > Requires an open connection to database
@@ -413,10 +416,10 @@ bool Core::Update(QueryContainer &query) {
 	auto last_col = query.columns.end();
 	--last_col;
 	for (auto column = query.columns.begin(); column != query.columns.end(); ++column) {
-		set_clause += column->column_name;
+		set_clause += column->first;
 		set_clause += "=";
 		set_clause += "'";
-		set_clause += column->column_data;
+		set_clause += column->second;
 		set_clause += "'";
 
 		if (column != last_col) { set_clause += ","; }
@@ -426,10 +429,10 @@ bool Core::Update(QueryContainer &query) {
 	last_col = query.search_params.end();
 	--last_col;
 	for (auto key = query.search_params.begin(); key != query.search_params.end(); ++key) {
-		where_clause += key->column_name;
+		where_clause += key->first;
 		where_clause += "=";
 		where_clause += "'";
-		where_clause += key->column_data;
+		where_clause += key->second;
 		where_clause += "'";
 
 		if (key != last_col) { where_clause += " AND "; }
@@ -448,6 +451,18 @@ bool Core::Update(QueryContainer &query) {
  */
 bool Core::AddActivity(QueryContainer &query) {
 	bool is_successful = false;
+
+	//TODO
+	//duplicate name check
+	//std::stringstream ss;
+	//ss	<< "SELECT"
+	//	<< " Name FROM "
+	//	<< query.table_name
+	//	<< " WHERE "
+	//	<< "Name="
+	//	<< ";";
+
+	std::string sql;
 	is_successful = this->Insert(query);
 
 	return is_successful;

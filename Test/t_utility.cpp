@@ -12,10 +12,10 @@ void PrintTableResult(TableContainer data) {
 		for (auto row = data.begin(); row != data.end(); row++) {
 			std::cout << "row#<" << std::to_string(row_count) << ">\n";
 			row_count++;
-			for (auto col = row->begin(); col != row->end(); col++) {
+			for (auto col = row->begin(); col != row->end(); ++col) {
 				std::cout
-					<< "<" << col->column_name << ">"
-					<< "<" << col->column_data << ">" << "\n";
+					<< "<" << col->first << ">"
+					<< "<" << col->second << ">" << "\n";
 			}
 			std::cout << "\n";
 		}

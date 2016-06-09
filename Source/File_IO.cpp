@@ -197,38 +197,6 @@ void File::ReadToDelimiter(std::string &output, const char &delimiter, const boo
 void File::ReadLine(std::string &output) {
 
 	this->ReadToDelimiter(output, '\n');
-	//std::fstream fs;
-	//int mode = std::fstream::in;
-	//const char* filename = nullptr;
-	//std::string path = this->directory_ + this->filename_;
-	//filename = (path).c_str();
-
-	//if ( (this->Exists()) == true) {
-	//	//clear error flags
-	//	fs.clear();
-	//	this->ResetInputFlags();
-
-	//	fs.open(path, mode);
-	//	fs.seekg(this->ipos_);
-	//	getline(fs, output);
-
-	//	//check stream status and raise flags as necessary
-	//	if(fs.good()){
-	//		SetInputFlagsGood();
-	//	} else if (fs.bad()) {
-	//		SetInputFlagsBad();
-	//	} else if (fs.eof()) {
-	//		SetInputFlagsEof();
-	//	}
-
-	//	this->ipos_ = fs.tellg();
-	//	fs.close();
-	//} else {
-	//	std::cerr   << "File_io Warning: "
-	//				<< "attempted to ReadLine from a file that does not exist, "
-	//				<< "filename<" << this->filename_ << ">, directory<" << this->directory_
-	//				<< ">" << "\n";
-	//}
 }
 
 /*

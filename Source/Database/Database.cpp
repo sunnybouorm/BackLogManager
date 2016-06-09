@@ -3,33 +3,35 @@
 
 /*overloaded operators*/
 //------------------------------------------------------------------------------------------------
-bool operator==(const RowContainer &res1, const RowContainer &res2) {
-	if (res1.size() != res2.size()) {return false; }
-	else {
-		for (std::vector<ColumnContainer>::size_type i = 0; i!= res1.size() ; i++){
+//complete equality (key and value)
+bool operator==(const RowContainer &lhs, const RowContainer &rhs) {
+	bool is_equal = false;
+	if (lhs.size() != rhs.size()) { return is_equal = false; }
 
-			if (res1[i].column_data != res2[i].column_data) { return false; }
-			if (res1[i].column_name != res2[i].column_name) { return false; }
-		}
+	//check that each key's value in lhs has the same value in rhs
+	for (auto it_lhs = lhs.begin(); it_lhs != lhs.end(); ++it_lhs) {
+		if (rhs.at(it_lhs->first) != it_lhs->second) { return is_equal = false; }
 	}
-	return true;
+
+	return is_equal = true;
 }
-bool operator!=(const RowContainer &res1, const RowContainer &res2) {
-	if (res1 == res2) { return false; }
-	else { return true; }
+bool operator!=(const RowContainer &lhs, const RowContainer &rhs) {
+	return !(lhs == rhs);
 }
 
-bool operator==(const std::vector<RowContainer> &res1, const std::vector<RowContainer> &res2) {
-	if (res1.size() != res2.size()) { return false; }
-	else {
-		for (std::vector<RowContainer>::size_type i = 0; i != res1.size(); i++) {
-			if (res1[i] != res2[i]) { return false; }
-		}
-	} return true;
+bool operator==(const std::vector<RowContainer> &lhs, const std::vector<RowContainer> &rhs) {
+	bool is_equal = false;
+
+	if (lhs.size() != rhs.size()) { return is_equal = false; }
+
+	for (int i = 0; i != lhs.size(); i++) {
+		if (lhs[i] != rhs[i]) { return is_equal = false; }
+	}
+
+	return is_equal = true;
 }
-bool operator!=(const std::vector<RowContainer> &res1, const std::vector<RowContainer> &res2) {
-	if (res1 == res2) { return false; }
-	else { return true; }
+bool operator!=(const std::vector<RowContainer> &lhs, const std::vector<RowContainer> &rhs) {
+	return !(lhs == rhs);
 }
 //------------------------------------------------------------------------------------------------
 
@@ -39,21 +41,34 @@ bool operator!=(const std::vector<RowContainer> &res1, const std::vector<RowCont
 * count		:	The number of columns in the table
 * data		:	An array of strings representing fields in the row
 * col_names	:	An array of strings representing column names
+*
+* returns exit_code, where 0 means the opertation completed successfully.
 */
 static int StatementCallback(void *db_object, int count, char **data, char **az_col_name) {
-	int i;
+	int i, exit_code;
+	bool is_duplicate = false;
+	exit_code = 0;
+	std::string column_name, column_data;
+
 	Database *this_db = static_cast <Database *> (db_object);
-	ColumnContainer col_res;
 	RowContainer row_res;
 	for (i = 0; i < count; i++) {
-		col_res.column_name = az_col_name[i];
-		col_res.column_data = data[i] ? data[i] : "NULL";// if data[i] then data[i] else "NULL"
-		row_res.push_back(col_res);
+		column_name = az_col_name[i];
+		column_data = data[i] ? data[i] : "NULL";// if data[i] then data[i] else "NULL"
+
+		auto ret = row_res.insert(StringPair(column_name, column_data));
+		is_duplicate = !ret.second;
+
+		if (is_duplicate == true) { 
+			std::cerr	<< "Database Warning: StatementCallback failed, duplicate column<"
+						<< ret.first->first
+						<< "> encountered\n";
+			return exit_code = 1; }
 	}
 	//append row result data to database instance that requested the callback
 	this_db->push_to_result_buffer(row_res);
 
-	return 0;
+	return exit_code;
 }
 
 //Constructors
@@ -257,7 +272,7 @@ bool Database::ImportSql(const std::string &filename, const std::string &filedir
 	while (file.i_flags_.is_good == true) {//loop until EoF reached or bad file operation
 		file.ReadToDelimiter(sql);
 		status = this->SqlCommand(sql);
-		if (status == false) { exit; }
+		if (status == false) { break; }
 	}
 
 	//if sql execution fails or a bad file read operation then return failure
@@ -287,13 +302,13 @@ void Database::PrintResultBuffer() {
 		<< "Database<" << this->db_dir_uri_ << ">" << "\n"
 		<< "----------------------\n";
 	if (this->result_buffer_.empty() == false) {
-		for (auto row = result_buffer_.begin(); row != result_buffer_.end(); row++) {
+		for (auto row = result_buffer_.begin(); row != result_buffer_.end(); ++row) {
 			std::cout << "row#<"<< std::to_string(row_count) << ">\n";
 			row_count++;
 			for (auto col = row->begin(); col != row->end(); col++) {
 				std::cout
-					<< "<" << col->column_name	<< ">"
-					<< "<" << col->column_data	<< ">"	<< "\n";
+					<< "<" << col->first	<< ">"
+					<< "<" << col->second	<< ">"	<< "\n";
 			}
 			std::cout << "\n";
 		}

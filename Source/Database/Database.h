@@ -6,12 +6,8 @@
 
 enum Request { INSERT, UPDATE, DELETE };
 
-typedef struct ColumnStruct {//stores a single column element
-	std::string column_name;
-	std::string column_data;
-} ColumnContainer;
-
-typedef std::vector <ColumnContainer> RowContainer;
+typedef std::pair<std::string, std::string> StringPair;
+typedef std::map<std::string, std::string> RowContainer;//column_name as key, column_data as value
 typedef std::vector <RowContainer> TableContainer;
 
 typedef struct QueryStruct {//used to generate an SQL query
@@ -19,9 +15,9 @@ typedef struct QueryStruct {//used to generate an SQL query
 	friend class Core;
 public:
 	Request request;// make sql insert/update/delete request
-	std::string table_name;
-	std::vector<ColumnContainer> columns;
-	std::vector<ColumnContainer> search_params;
+	std::string	 table_name;
+	RowContainer columns;
+	RowContainer search_params;
 
 private:
 	std::string select_clause;
@@ -33,10 +29,10 @@ private:
 
 } QueryContainer;
 
-bool operator==(const RowContainer &res1, const RowContainer &res2);
-bool operator!=(const RowContainer &res1, const RowContainer &res2);
-bool operator==(const std::vector<RowContainer> &res1, const std::vector<RowContainer> &res2);
-bool operator!=(const std::vector<RowContainer> &res1, const std::vector<RowContainer> &res2);
+bool operator==(const RowContainer &lhs, const RowContainer &rhs);
+bool operator!=(const RowContainer &lhs, const RowContainer &rhs);
+bool operator==(const std::vector<RowContainer> &lhs, const std::vector<RowContainer> &rhs);
+bool operator!=(const std::vector<RowContainer> &lhs, const std::vector<RowContainer> &rhs);
 
 //Database model file
 const std::string kDbName("db.db3");

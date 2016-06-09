@@ -76,7 +76,7 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 		if (database.IsConnected()	== true) { database.CloseConnection(); }
 		if (database.is_exist()		== true) { database.Exterminate(); }
 
-		ColumnContainer temp_CR;
+		std::string column_name, column_data;
 		RowContainer    temp_RR;
 		std::string temp_str_insert, temp_str_cols, temp_str_data;
 		std::vector<RowContainer> expected, result;
@@ -103,9 +103,9 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 			temp_RR.clear();
 
 			for (std::vector<std::string>::size_type col = 0; col != col_names.size(); col++) {
-				temp_CR.column_name = col_names[col];
-				temp_CR.column_data = d_row[col];
-				temp_RR.push_back(temp_CR);
+				column_name = col_names[col];
+				column_data = d_row[col];
+				temp_RR[column_name] = column_data;
 
 				if ( (row == 0)) { temp_str_cols += col_names[col]; }
 				if ( (row == 0) && (col != col_names.size()-1)){temp_str_cols += ",";	}
@@ -115,6 +115,7 @@ SCENARIO("SQL statements are executed and read for a multiple column table with 
 
 			}
 			expected.push_back(temp_RR);
+			temp_RR.clear();
 
 			temp_str_insert = "INSERT INTO " + table_name + "(" + temp_str_cols + ") " +\
 				"VALUES(" + temp_str_data + ")";
