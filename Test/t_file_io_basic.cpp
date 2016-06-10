@@ -15,6 +15,7 @@ SCENARIO("A file is created and destroyed using static members")
 		{
 			bool is_created = false;
 			bool is_destroyed = false;
+			std::fstream fs;
 			File::Create(filename, dir);
 			is_created = File::Exists(filename, dir);
 			File::Destroy(filename, dir);
@@ -43,9 +44,9 @@ SCENARIO("A file is created and destroyed using non-static members")
 			bool is_created   = false;
 			bool is_destroyed = false;
 			file.Create();
-			is_created   = File::Exists(filename, dir);
+			is_created   = file.Exists();
 			file.Destroy();
-			is_destroyed = File::Exists(filename, dir);
+			is_destroyed = file.Exists();
 
 			THEN("the result of checking if the file exists must correlate")
 			{
@@ -72,7 +73,7 @@ SCENARIO("A line of text is written and read from a file")
 			std::string input;
 			file.Write(output + "\n");
 			file.ReadLine(input);
-			REQUIRE(file.i_flags_.is_bad == false);
+			REQUIRE(file.get_iflags().is_bad == false);
 			
 			THEN("said line of text must match the one initially written")
 			{
@@ -83,7 +84,7 @@ SCENARIO("A line of text is written and read from a file")
 				file.Clear();
 				std::string input;
 				file.ReadLine(input);
-				REQUIRE(file.i_flags_.is_bad == false);
+				REQUIRE(file.get_iflags().is_bad == false);
 
 				THEN("no contents in the file must exist and the file must exist")
 				{
@@ -116,10 +117,10 @@ SCENARIO("Multiple lines of text are written and read from a file")
 			file.Write(output_2 + "\n");
 
 			file.ReadLine(input_1);
-			REQUIRE(file.i_flags_.is_bad == false);
+			REQUIRE(file.get_iflags().is_bad == false);
 
 			file.ReadLine(input_2);
-			REQUIRE(file.i_flags_.is_bad == false);
+			REQUIRE(file.get_iflags().is_bad == false);
 
 			THEN("the text read must match the text written")
 			{
@@ -150,20 +151,20 @@ SCENARIO("A line of text is read and EOF is reached") {
 			THEN("Whatever text was before EOF must be read and i_flags must be correct")
 			{
 				REQUIRE(input==output);
-				REQUIRE(file.i_flags_.is_eof  == true);
-				REQUIRE(file.i_flags_.is_good == false);
-				REQUIRE(file.i_flags_.is_bad  == false);
+				REQUIRE(file.get_iflags().is_eof  == true);
+				REQUIRE(file.get_iflags().is_good == false);
+				REQUIRE(file.get_iflags().is_bad  == false);
 				AND_WHEN("another line is read without reaching EOF")
 				{
 					file.Write(output + "\n");
 					file.ReadLine(input);
-					REQUIRE(file.i_flags_.is_bad == false);
+					REQUIRE(file.get_iflags().is_bad == false);
 					THEN("the text and i_flags must be correct")
 					{
 						REQUIRE(input==output);
-						REQUIRE(file.i_flags_.is_eof  == false);
-						REQUIRE(file.i_flags_.is_good == true);
-						REQUIRE(file.i_flags_.is_bad  == false);
+						REQUIRE(file.get_iflags().is_eof  == false);
+						REQUIRE(file.get_iflags().is_good == true);
+						REQUIRE(file.get_iflags().is_bad  == false);
 					}
 				}
 			}

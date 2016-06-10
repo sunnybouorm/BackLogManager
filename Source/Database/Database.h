@@ -40,18 +40,18 @@ const std::string kDbName("db.db3");
 class Database {
 
 public :
-
 	Database();
 	Database(const std::string &directory);
 
 	void SetDirectory(const std::string &directory);
+	std::string get_directory() { return this->db_dir_; }
 
 	bool IsConnected();
 	bool OpenConnection(const int &flags= default_flags_ );
 	bool CloseConnection();
 	bool Exterminate();
 	bool ImportSql(const std::string &filename, const std::string &filedir);
-	bool ImportSql(File file);
+	bool ImportSql(File &file);
 	bool SqlCommand(const std::string &statement);
 
 	bool Insert(const QueryContainer &query);
@@ -77,6 +77,7 @@ private:
 	const static int default_flags_ = SQLITE_OPEN_URI | SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
 	sqlite3 *db_;
 	TableContainer result_buffer_;
+
 	File db_file_;
 };
 

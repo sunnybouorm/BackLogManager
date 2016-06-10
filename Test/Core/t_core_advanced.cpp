@@ -8,8 +8,9 @@ SCENARIO("duplicate activity names are inserted") {
 
 		Database database(kdb_dir);
 		Core core(database);
-		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
+
+		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection();	}
+		if (core.database_.is_exist()		== true) { core.database_.Exterminate();		}
 
 		core.database_.OpenConnection();
 		core.database_.ImportSql(sql_file);

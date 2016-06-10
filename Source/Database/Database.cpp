@@ -86,15 +86,15 @@ Database::Database(const std::string &directory) {
 void Database::SetDirectory(const std::string &directory) {
 	this->db_dir_ = directory;
 	this->db_dir_uri_ = "file:///" + directory;
-	File file(kDbName, directory);
-	this->db_file_ = file;
+	this->db_file_.set_filename(kDbName);
+	this->db_file_.set_directory(directory);
 }
 
 /*
 * checks whether database file exists, returns true if the file exists
 */
 bool Database::is_exist() {
-	return File::Exists(kDbName, this->db_dir_);
+	return this->db_file_.Exists();
 }
 
 /*
@@ -278,14 +278,14 @@ bool Database::ImportSql(const std::string &filename, const std::string &filedir
 	File file(filename, filedir);
 	std::string sql;
 
-	while (file.i_flags_.is_good == true) {//loop until EoF reached or bad file operation
+	while (file.get_iflags().is_good == true) {//loop until EoF reached or bad file operation
 		file.ReadToDelimiter(sql);
 		status = this->SqlCommand(sql);
 		if (status == false) { break; }
 	}
 
 	//if sql execution fails or a bad file read operation then return failure
-	if ( (status = false) || (file.i_flags_.is_bad == true) ) {
+	if ( (status = false) || (file.get_iflags().is_bad == true) ) {
 		is_successful = false; 
 		std::cerr << "Database Warning: failed to import SQL file\n";
 	} else { is_successful = true; }
@@ -293,7 +293,7 @@ bool Database::ImportSql(const std::string &filename, const std::string &filedir
 	return is_successful;
 }
 
-bool Database::ImportSql(File file) {
+bool Database::ImportSql(File &file) {
 	bool is_successful = false;
 	is_successful = this->ImportSql(file.get_filename(),file.get_directory());
 

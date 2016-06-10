@@ -8,9 +8,11 @@
 
 int main()
 {
-	//TODO: implement Database Class
-	//TODO: implement Core class
-	//TODO: implement GUI class
+	//Initialize database
+	//TODO
+
+	//run GUI
+	//TODO
 
     return 0;
 }
