@@ -1093,7 +1093,7 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 
 		//Activity record 1
 		table_name			= "Activity";
-		query.table_name = table_name;
+		query.table_name	= table_name;
 		activity_name		= "Movies";
 
 		column_name			= "Name";
@@ -1145,6 +1145,9 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 
 		query.columns		= row;
 		query.request		= INSERT;
+
+		REQUIRE(core.SqlRequest(query) == true);
+		row.clear();
 
 		//UDF record 2
 		table_name			= "UserDefinedField";
@@ -1240,7 +1243,7 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 		table_name				= "UDFentry";
 		query.table_name		= table_name;
 		data					= "Action";
-		udfid					= "1";
+		udfid					= "2";
 
 		column_name				= "Data";
 		column_data				= data;
