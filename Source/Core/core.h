@@ -16,7 +16,7 @@ typedef std::multimap<const std::string, const std::string> DbMap;
 class Core {
 
 public:
-	Core(Database &db);
+	Core();
 	bool SqlRequest(QueryContainer &query);
 	Database database_;
 	ConfigFile cfg_;

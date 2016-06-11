@@ -59,15 +59,19 @@ bool ConfigFile::Create() {
 	//Insert default parameters
 	is_successful  = this->write_header_start("directories");
 
-	tag_name  = "schema directory";
-	tag_value = "";
-	is_successful &= this->write_tag(tag_name,tag_value);
+	tag_name		= "schema filename";
+	tag_value		= "BacklogManager.sql";
+	is_successful  &= this->write_tag(tag_name, tag_value);
 
-	tag_name = "database directory";
-	tag_value = "";
-	is_successful &= this->write_tag(tag_name, tag_value);
+	tag_name		 = "schema directory";
+	tag_value		 = "";
+	is_successful	&= this->write_tag(tag_name,tag_value);
 
-	is_successful &= this->write_header_end  ("directories");
+	tag_name		= "database directory";
+	tag_value		= "";
+	is_successful  &= this->write_tag(tag_name, tag_value);
+
+	is_successful  &= this->write_header_end  ("directories");
 
 	return is_successful;
 }

@@ -54,6 +54,10 @@ public:
 
 	ConfigFileContainer get_cache() { return this->config_cache_; }
 
+	std::string get_tag_value(const std::string &header_name, const std::string &tag_name) {
+		return this->config_cache_.header_map.at(header_name).tag_map.at(tag_name);
+	}
+
 private:
 	static const std::string kfile_name_;
 	static const std::string kfile_dir_;

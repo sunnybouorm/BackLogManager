@@ -8,8 +8,10 @@ SCENARIO("A single activity is added, updated and deleted")
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
+		
+
 		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
 
@@ -152,8 +154,9 @@ SCENARIO("Multiple activities are added and deleted")
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
+		
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
 
@@ -324,8 +327,9 @@ SCENARIO("A single listing is added and deleted")
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
+		
 		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection();	}
 		if (core.database_.is_exist()		== true) { core.database_.Exterminate();		}
 
@@ -429,8 +433,9 @@ SCENARIO("Multiple listings are added and deleted")
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
+		
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()    == true) { core.database_.Exterminate(); }
 
@@ -645,8 +650,9 @@ SCENARIO("A single listing is updated")
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
+		
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()    == true) { core.database_.Exterminate(); }
 
@@ -737,8 +743,9 @@ SCENARIO("a single user defined field is added, updated and deleted") {
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
+		
 		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
 
@@ -916,8 +923,9 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
+		
 		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
 
@@ -1078,8 +1086,9 @@ SCENARIO("A single Listing_UDFentry many to many releationship is added updated 
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
+		
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
 

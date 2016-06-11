@@ -73,19 +73,41 @@ std::pair<std::vector<std::string>, std::vector<std::string>> row_2_vect(const R
 }
 
 bool Core::InitializeFromConfigFile() {//TODO
+	std::stringstream ss;
+
+	ss << "Core Warning: Failed to initialize from config file";
+	std::string err_msg_1 = ss.str();
+	ss.str(std::string());
+
+	ss << ", bad read encountered";
+	std::string err_msg_2 = ss.str();
+	ss.str(std::string());
+
 	bool is_successful = false;
 
-	this->cfg_.ScanAndCache();
+	if (this->cfg_.ScanAndCache() == false) { 
+		std::cerr << err_msg_1 << err_msg_2 << "\n";
+		return is_successful = false;
+	}
 
-	//TODO: set directories in core
+	//set database directory
+	std::string db_dir = this->cfg_.get_tag_value("directories", "database directory");
+	this->database_.SetDirectory(db_dir);
+
+	//set schema directory and import the schema
+	std::string schema_fn, schema_dir;
+	File schema;
+	schema_dir	= this->cfg_.get_tag_value("directories", "schema directory");
+	schema_fn	= this->cfg_.get_tag_value("directories", "schema filename");
+	schema.set_filename (schema_fn);
+	schema.set_directory(schema_dir);
+	
+	this->database_.ImportSql(schema);
 
 	return  is_successful;
 }
 
-Core::Core(Database &db) {
-	this->database_ = db;
-	ConfigFile c;
-	this->cfg_ = c;
+Core::Core() {
 }
 
 /* 

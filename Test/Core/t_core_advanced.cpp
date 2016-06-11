@@ -6,8 +6,8 @@ SCENARIO("duplicate activity names are inserted") {
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
 
 		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection();	}
 		if (core.database_.is_exist()		== true) { core.database_.Exterminate();		}
@@ -71,8 +71,9 @@ SCENARIO("duplicate listing titles are inserted") {
 		std::string sql_filename = "BacklogManager.sql";
 		File sql_file(sql_filename, kdb_dir);
 
-		Database database(kdb_dir);
-		Core core(database);
+		Core core;
+		core.database_.SetDirectory(kdb_dir);
+
 		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
 		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
 
