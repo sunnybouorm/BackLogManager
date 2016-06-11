@@ -23,6 +23,7 @@ typedef std::map<std::string, std::string>	StringMap;// key = tag_name, value= t
 
 typedef struct HeaderContainerStruct
 {
+	bool is_good = false;//data integrity check
 	StringMap tag_map;
 	
 } HeaderContainer;
@@ -32,6 +33,7 @@ typedef std::map <std::string, HeaderContainer> HeaderMap;// key = header_name
 
 typedef struct ConfigFileContainerStruct
 {
+	bool is_good = false;//data integrity check
 	HeaderMap header_map;
 
 } ConfigFileContainer;
@@ -39,13 +41,17 @@ typedef struct ConfigFileContainerStruct
 class ConfigFile {
 
 public:
+	static bool ConfigFile::CheckCacheIntegrity(const ConfigFileContainer &cache);
+
 	ConfigFile();
 
 	bool Create ();
 	bool Destroy();
 	bool Exists () { return this->config_file_.Exists(); }
 
-	bool InitializeFromConfigFile(Core &core);
+	bool InitializeCore(Core &core);
+
+	ConfigFileContainer get_cache() { return this->config_cache_; }
 
 private:
 	static const std::string kfile_name_;
@@ -58,6 +64,6 @@ private:
 	bool write_header_end	(const std::string &header_name);
 	bool write_tag(const std::string& tag_name, const std::string &value);
 
-	std::string ScanHeader();
+	bool ScanHeader(std::string &header_string);
 	bool ScanAndCache();//scans config file and stores result in config_cache_
 };

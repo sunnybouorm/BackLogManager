@@ -81,22 +81,95 @@ bool ConfigFile::Destroy() {
 /*
  * Read header title from file and return it, returns null if no header is found
  */
-std::string ConfigFile::ScanHeader() {
-	std::string header_string;
-	this->config_file_.ReadBetweenDelimiters(header_string, '<', '>');
-
-	return header_string;
+bool ConfigFile::ScanHeader(std::string &header_string) {
+	header_string.clear();
+	return (this->config_file_.ReadBetweenDelimiters(header_string, '<', '>'));
 }
 
 HeaderContainer ParseTags(const std::string &input) {
+	std::stringstream ss;
+	ss << "Configfile Warning: failed to parse config file";
+	std::string err_msg_1 = ss.str();
+	ss.str(std::string());
+
+	ss << ", character [";
+	std::string err_msg_2 = ss.str();
+	ss.str(std::string());
+
+	ss << "] with is_rhs=[";
+	std::string err_msg_3 = ss.str();
+	ss.str(std::string());
+
+	ss << "] is invalid, ensure config file format is valid";
+	std::string err_msg_4 = ss.str();
+	ss.str(std::string());
+
 	HeaderContainer header_container;
 	if (input.empty() == true) {
+		header_container.is_good = true;
 		return header_container;
 	}
 
-	//TODO
+	std::string tag_name;
+	std::string tag_value;
+	bool is_rhs = false;
+
+	// parse input string for keys and values to map to header_container
+	for (auto it = input.begin(); it != input.end(); ++it) {
+
+		if (*it == '<') {//invalid character
+			header_container.is_good = false;
+			std::cerr << err_msg_1 << err_msg_2 << *it << err_msg_3 << is_rhs << err_msg_4 << "\n";
+			return header_container;
+		}
+		else if (*it == '>') {//invalid character
+			std::cerr << err_msg_1 << err_msg_2 << *it << err_msg_3 << is_rhs << err_msg_4 << "\n";
+			header_container.is_good = false;
+			return header_container;
+		}
+		else if ( (is_rhs == false) && (*it != '\n') && (*it != '=') ) {
+			tag_name += *it;
+		}
+		else if ((is_rhs == true) && (*it != '\n') && (*it != '=')) {
+			tag_value += *it;
+		}
+		else if ( (*it == '=') && (is_rhs == false) ) {
+			is_rhs = true;
+		} 
+		else if (*it == '\n') {
+			header_container.is_good = true;
+			if (tag_name.empty() == false) {
+				header_container.tag_map.insert(std::make_pair(tag_name, tag_value));
+			}
+
+			is_rhs = false;
+			tag_name.clear();
+			tag_value.clear();
+		}
+		else {//invalid format
+			std::cerr << err_msg_1 << err_msg_2 << *it << err_msg_3 << is_rhs << err_msg_4 << "\n";
+			header_container.is_good = false;
+			return header_container;
+		}
+	}
 
 	return header_container;
+}
+
+/*
+ * Scans through the ConfigFileContainer and checks if all its HeaderContainers
+ * have a good signature
+ */
+bool ConfigFile::CheckCacheIntegrity(const ConfigFileContainer &cache) {
+	bool is_valid = false;
+
+	for (auto header = cache.header_map.begin(); header != cache.header_map.end(); ++header) {
+		if (header->second.is_good == false) { 
+			return is_valid = false; 
+		}
+	}
+
+	return is_valid = true;
 }
 
 /* 
@@ -108,21 +181,50 @@ HeaderContainer ParseTags(const std::string &input) {
  * config_cache_ is updated after any changes to the config file are made.
  */
 bool ConfigFile::ScanAndCache() {
-	bool is_successful = false;
+	std::stringstream ss;
 
-	ConfigFileContainer cache;
+	ss << "Configfile Warning: ScanAndCache operation failed";
+	std::string err_msg_1 = ss.str();
+	ss.str(std::string());
+
+	ss << ", header delimiter invalid or does not exist";
+	std::string err_msg_2 = ss.str();
+	ss.str(std::string());
+
+	ss << ", parse operation failed";
+	std::string err_msg_3 = ss.str();
+	ss.str(std::string());
+
+	ss << ", ensure config file format is valid";
+	std::string err_msg_4 = ss.str();
+	ss.str(std::string());
+
+	ss << "Configfile WARNING: Encountered bad read operation when caching config file";
+	std::string err_msg_5 = ss.str();
+	ss.str(std::string());
+
+	bool is_successful = false;
+	std::string header_name, header_name_end;
 
 	//read file until eof is reached
 	while (this->config_file_.get_iflags().is_good == true) {
-		std::string header_name;
-		while ( (header_name.empty() == false) && 
-				(this->config_file_.get_iflags().is_good == true) ) 
-		{
-			header_name = this->ScanHeader();
+
+		//find a header
+		if (this->ScanHeader(header_name) == false) {
+			std::cerr << err_msg_5 << "\n";
+			return is_successful = false;
 		}
+		else if (header_name.empty() == true) {//operation complete, no more headers to process
+			break;
+		}
+
 		//grab all text inside header and decrement ipos to allow header end delimiter to be found
 		std::string buffer;
-		this->config_file_.ReadToDelimiter(buffer, '<');
+		if (this->config_file_.ReadToDelimiter(buffer, '<') == false) {
+			std::cerr << err_msg_5 << "\n";
+			return is_successful = false;
+		}
+
 		std::streampos ipos;
 		ipos = this->config_file_.get_ipos();
 		this->config_file_.set_ipos(ipos-=1);
@@ -130,22 +232,40 @@ bool ConfigFile::ScanAndCache() {
 		HeaderContainer header;
 		header = ParseTags(buffer);
 
+		//check parse operation success
+		if (header.is_good == false) {
+			std::cerr << err_msg_1 << err_msg_3 << err_msg_4 << "\n";
+			return is_successful = false;
+		}
+
+		//check if header delimiter is valid
+		if (this->ScanHeader(header_name_end) == false) {
+			std::cerr << err_msg_5 << "\n";
+			return is_successful = false;
+		}
+
+		if (header_name_end != (header_name + " end")) {
+			
+			std::cerr << err_msg_1 << err_msg_2 << err_msg_4 << "\n";
+			return is_successful = false;
+		}
+
+		//Map headers, tags and their associated values to the cache
 		if ((header_name.empty() == false) && (header.tag_map.empty() == false)) {
-			cache.header_map.insert(std::make_pair(header_name, header));
+			this->config_cache_.header_map.insert(std::make_pair(header_name, header));
 		}
 	}
-	if (this->config_file_.get_iflags().is_bad == true) { 
-		std::cerr 
-			<< "Configfile WARNING: Encountered bad read operation when caching config file"
-			<<"\n";
-		return is_successful = false; 
-	}
 
-	return is_successful;
+	return is_successful = true;
 }
 
-bool ConfigFile::InitializeFromConfigFile(Core &core) {
+bool ConfigFile::InitializeCore(Core &core) {//TODO
 	bool is_successful = false;
+
+	//Parse and cache the config file
+	is_successful = this->ScanAndCache();
+
+	//TODO: set directories in core
 
 	return is_successful;
 }

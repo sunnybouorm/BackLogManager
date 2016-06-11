@@ -33,13 +33,13 @@ public:
 	void set_directory(const std::string &directory) {this->directory_ = directory; }
 
 	bool Write(const std::string &text);
-	void ReadToDelimiter(std::string &output, const char &delimiter = ';', \
+	bool ReadToDelimiter(std::string &output, const char &delimiter = ';', \
 		const bool &is_inclusive = false);
 
-	void ReadBetweenDelimiters(std::string &output, const char &lhs_delimiter,\
+	bool ReadBetweenDelimiters(std::string &output, const char &lhs_delimiter,\
 		const char &rhs_delimiter);
 
-	void ReadLine(std::string &output);
+	bool ReadLine(std::string &output);
 	void Clear();//clears file by destroying and recreating it
 
 	IFlags get_iflags() { return this->i_flags_; }

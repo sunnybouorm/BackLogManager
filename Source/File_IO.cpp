@@ -138,19 +138,22 @@ void File::SetInputFlagsEof() {
 
 
 /*
-* reads current file instance until the specified delimiter is reached
-* output		:	serves as a container for the text read
-* delmiter		:	determines what point to stop reading characters
-* is_inclusive	:	determines whether to include delimiter character(true) or discard it(false)
-*--------------------------------------------------------------------------------------------------
-* Note:
-* > after ReadToDelimiter() is called, the input stream file pointer ipos is updated to where
-*  the last character was read. A second call of ReadToDelimiter() will continue from the position
-*  determined by ipos_.
-*/
-void File::ReadToDelimiter(std::string &output, const char &delimiter, const bool &is_inclusive) {
+ * reads current file instance until the specified delimiter is reached
+ * output		:	serves as a container for the text read
+ * delmiter		:	determines what point to stop reading characters
+ * is_inclusive	:	determines whether to include delimiter character(true) or discard it(false)
+ *
+ * returns true if operation did not raise a bad read flag
+ *--------------------------------------------------------------------------------------------------
+ * Note:
+ * > after ReadToDelimiter() is called, the input stream file pointer ipos is updated to where
+ *  the last character was read. A second call of ReadToDelimiter() will continue from the position
+ *  determined by ipos_.
+ */
+bool File::ReadToDelimiter(std::string &output, const char &delimiter, const bool &is_inclusive) {
 	output.clear();
 	
+	bool is_successful = false;
 	std::fstream fs;
 	int mode = std::fstream::in;
 	const char* filename = nullptr;
@@ -183,12 +186,15 @@ void File::ReadToDelimiter(std::string &output, const char &delimiter, const boo
 		//check stream status and raise flags as necessary
 		if (fs.good()) {
 			SetInputFlagsGood();
+			is_successful = true;
 		}
 		else if (fs.bad()) {
 			SetInputFlagsBad();
+			is_successful = false;
 		}
 		else if (fs.eof()) {
 			SetInputFlagsEof();
+			is_successful = true;
 		}
 
 		fs.close();
@@ -199,6 +205,8 @@ void File::ReadToDelimiter(std::string &output, const char &delimiter, const boo
 			<< "filename<" << this->filename_ << ">, directory<" << this->directory_
 			<< ">" << "\n";
 	}
+
+	return is_successful;
 }
 
 /*
@@ -212,16 +220,22 @@ void File::ReadToDelimiter(std::string &output, const char &delimiter, const boo
  * > after ReadBetweenDelimiters() is called, the input stream file pointer ipos is updated to
  * where the last character was read. A second call of ReadBetweenDelimiters() will continue from
  * the position determined by ipos_.
+ *
+ * returns true if operation did not raise a bad read flag
  */
-void File::ReadBetweenDelimiters(std::string &output, const char &lhs_delimiter, \
+bool File::ReadBetweenDelimiters(std::string &output, const char &lhs_delimiter, \
 	const char &rhs_delimiter)
 {
+	bool is_successful = false;
+
 	//discard first read where the lhs delimiter is reached
 	std::string ignored;
-	this->ReadToDelimiter(ignored, lhs_delimiter);
+	is_successful = this->ReadToDelimiter(ignored, lhs_delimiter);
 
 	//fetch contents from the current file ipos until rhs delimiter is reached
-	this->ReadToDelimiter(output, rhs_delimiter);
+	is_successful &= this->ReadToDelimiter(output, rhs_delimiter);
+
+	return is_successful;
 }
 
 /*
@@ -232,10 +246,11 @@ void File::ReadBetweenDelimiters(std::string &output, const char &lhs_delimiter,
  * > after ReadLine() is called, the input stream file pointer ipos is updated to where
  *  getline has read. A second call of ReadLine() will continue from the position
  *  determined by ipos.
+ *
+ * returns true if operation did not raise a bad read flag
  */
-void File::ReadLine(std::string &output) {
-
-	this->ReadToDelimiter(output, '\n');
+bool File::ReadLine(std::string &output) {
+	return this->ReadToDelimiter(output, '\n');
 }
 
 /*

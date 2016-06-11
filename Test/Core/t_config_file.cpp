@@ -26,3 +26,20 @@ SCENARIO("a config file is created and destroyed") {
 		}
 	}
 }
+
+SCENARIO("a fresh config file is cached") {
+	GIVEN("an initialized config file and core") {
+		ConfigFile cfg;
+		Database database;
+		Core core(database);
+
+		WHEN("the file is cached") {
+			bool is_successful = cfg.InitializeCore(core);
+
+			THEN("the cache contents must be valid") {
+
+				REQUIRE(is_successful == true);
+			}
+		}
+	}
+}

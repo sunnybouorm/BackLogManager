@@ -401,7 +401,7 @@ bool Core::Update(QueryContainer &query) {
 	std::string set_clause, where_clause;
 
 	std::stringstream ss;
-	ss.clear();
+	ss.str(std::string());
 	ss << "Core Warning: Invalid parameters passed to Update operation";
 	std::string err_msg = ss.str();
 
