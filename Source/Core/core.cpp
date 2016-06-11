@@ -72,8 +72,20 @@ std::pair<std::vector<std::string>, std::vector<std::string>> row_2_vect(const R
 	return result;
 }
 
+bool Core::InitializeFromConfigFile() {//TODO
+	bool is_successful = false;
+
+	this->cfg_.ScanAndCache();
+
+	//TODO: set directories in core
+
+	return  is_successful;
+}
+
 Core::Core(Database &db) {
 	this->database_ = db;
+	ConfigFile c;
+	this->cfg_ = c;
 }
 
 /* 

@@ -1,6 +1,7 @@
 #ifndef BACKLOGMANAGER_CORE_CORE_H_
 #define BACKLOGMANAGER_CORE_CORE_H_
 #include "../Database/database.h"
+#include "config_file.h"
 
 
 typedef std::multimap<const std::string, const std::string> DbMap;
@@ -18,6 +19,9 @@ public:
 	Core(Database &db);
 	bool SqlRequest(QueryContainer &query);
 	Database database_;
+	ConfigFile cfg_;
+
+	bool InitializeFromConfigFile();
 
 private:
 	const static std::multimap<const std::string, const std::string> init_db_map();

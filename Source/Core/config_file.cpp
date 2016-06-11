@@ -79,7 +79,43 @@ bool ConfigFile::Destroy() {
 }
 
 /*
- * Read header title from file and return it, returns null if no header is found
+ * Read tag name from config file and return it, returns null if no tag name is found
+ *
+ * NOTES:
+ * > position in file must be between enclosed by header delimiters
+ */
+bool ConfigFile::ScanTag(std::string &tag_name) {//TODO
+	bool is_successful = false;
+	char character;
+
+	do {
+		is_successful = this->config_file_.ReadChar(character);
+
+		if (character == '\n') {
+			//TODO 
+		}
+
+	} while (is_successful == true);
+
+	return is_successful;
+}
+
+bool ConfigFile::WriteToHeader(std::string &header_name, std::string &tag_name, std::string &tag_value) {//TODO
+	bool is_successful = false;
+
+	std::string cfg_header_name;
+
+	if (this->ScanHeader(cfg_header_name) == false) {
+	//TODO error
+	}
+
+	if (cfg_header_name == header_name) {}
+
+	return is_successful;
+}
+
+/*
+ * Read header title from config file and return it, returns null if no header is found
  */
 bool ConfigFile::ScanHeader(std::string &header_string) {
 	header_string.clear();
@@ -257,15 +293,4 @@ bool ConfigFile::ScanAndCache() {
 	}
 
 	return is_successful = true;
-}
-
-bool ConfigFile::InitializeCore(Core &core) {//TODO
-	bool is_successful = false;
-
-	//Parse and cache the config file
-	is_successful = this->ScanAndCache();
-
-	//TODO: set directories in core
-
-	return is_successful;
 }

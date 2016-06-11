@@ -39,6 +39,7 @@ public:
 	bool ReadBetweenDelimiters(std::string &output, const char &lhs_delimiter,\
 		const char &rhs_delimiter);
 
+	bool ReadChar(char &output);
 	bool ReadLine(std::string &output);
 	void Clear();//clears file by destroying and recreating it
 

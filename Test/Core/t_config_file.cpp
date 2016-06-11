@@ -28,17 +28,48 @@ SCENARIO("a config file is created and destroyed") {
 }
 
 SCENARIO("a fresh config file is cached") {
-	GIVEN("an initialized config file and core") {
+	GIVEN("an initialized config file") {
 		ConfigFile cfg;
-		Database database;
-		Core core(database);
 
 		WHEN("the file is cached") {
-			bool is_successful = cfg.InitializeCore(core);
+			bool is_successful = false;
+			is_successful = cfg.ScanAndCache();
 
 			THEN("the cache contents must be valid") {
-
 				REQUIRE(is_successful == true);
+				REQUIRE(cfg.get_cache().header_map.count("directories") == 1);
+
+				REQUIRE(cfg.get_cache().header_map.at("directories").tag_map.count("schema directory")	== 1);
+				REQUIRE(cfg.get_cache().header_map.at("directories").tag_map.at("schema directory")		== "");
+
+				REQUIRE(cfg.get_cache().header_map.at("directories").tag_map.at("database directory")		== "");
+				REQUIRE(cfg.get_cache().header_map.at("directories").tag_map.count("database directory")	== 1);
+
+				AND_WHEN("the file is destroyed") {
+					cfg.Destroy();
+					THEN("it must seize to exists") {
+						REQUIRE(cfg.Exists() == false);
+					}
+				}
+			}
+		}
+	}
+}
+
+SCENARIO("a fresh config file is written to and cached") {
+	GIVEN("an initialized config file") {
+		ConfigFile cfg;
+		std::string header_name, tag_name, tag_value;
+
+		WHEN("the config file is written to and cached") {
+			header_name = "directories";
+			tag_name = "schema directory";
+			tag_value = "D:\\Development\\Projects\\BacklogManager\\Database\\";
+
+			REQUIRE(cfg.WriteToHeader(header_name, tag_name, tag_value) == true);
+
+			THEN("the data must be mapped correctly") {
+				REQUIRE(false);
 			}
 		}
 	}

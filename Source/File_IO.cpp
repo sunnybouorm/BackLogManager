@@ -136,6 +136,60 @@ void File::SetInputFlagsEof() {
 	this->i_flags_.is_eof  = true;
 }
 
+/*
+ * Reads a character and updates ipos in file object instance
+ *
+ * returns true if operation is successful
+ */
+bool File::ReadChar(char &output) {//TODO
+	output = NULL;
+	bool is_successful = false;
+	std::fstream fs;
+	int mode = std::fstream::in;
+	const char* filename = nullptr;
+	std::string path = this->directory_ + this->filename_;
+	filename = (path).c_str();
+
+	if ((this->Exists()) == true) {
+		//clear error flags
+		fs.clear();
+		this->ResetInputFlags();
+
+		fs.open(path, mode);
+		fs.seekg(this->ipos_);
+
+		char character;
+		fs.get(character);
+
+		if (fs.good()) {
+			output = character;
+			this->ipos_ = fs.tellg();
+		}
+
+		if (fs.good()) {
+			SetInputFlagsGood();
+			is_successful = true;
+		}
+		else if (fs.bad()) {
+			SetInputFlagsBad();
+			is_successful = false;
+		}
+		else if (fs.eof()) {
+			SetInputFlagsEof();
+			is_successful = true;
+		}
+
+		fs.close();
+	}
+	else {
+		std::cerr << "File_io Warning: "
+			<< "attempted to ReadChar from a file that does not exist, "
+			<< "filename<" << this->filename_ << ">, directory<" << this->directory_
+			<< ">" << "\n";
+	}
+
+	return is_successful;
+}
 
 /*
  * reads current file instance until the specified delimiter is reached

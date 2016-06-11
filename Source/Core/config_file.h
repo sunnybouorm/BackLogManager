@@ -17,7 +17,6 @@
 #pragma once
 #include "../stdafx.h"
 #include "../File_IO.h"
-#include "core.h"
 
 typedef std::map<std::string, std::string>	StringMap;// key = tag_name, value= tag_value
 
@@ -49,7 +48,9 @@ public:
 	bool Destroy();
 	bool Exists () { return this->config_file_.Exists(); }
 
-	bool InitializeCore(Core &core);
+	bool WriteToHeader(std::string &header_name, std::string &tag_name, std::string &tag_value);
+
+	bool ScanAndCache();//scans config file and stores result in config_cache_
 
 	ConfigFileContainer get_cache() { return this->config_cache_; }
 
@@ -64,6 +65,6 @@ private:
 	bool write_header_end	(const std::string &header_name);
 	bool write_tag(const std::string& tag_name, const std::string &value);
 
+	bool ScanTag(std::string &tag_name);
 	bool ScanHeader(std::string &header_string);
-	bool ScanAndCache();//scans config file and stores result in config_cache_
 };
