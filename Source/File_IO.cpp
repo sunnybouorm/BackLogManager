@@ -192,15 +192,12 @@ bool File::Write(const std::string &text, const StreamposPair &bracket) {//TODO
 	is_successful &= temp.Write(temp_str);
 	temp_str.clear();
 
-	//clear source file
-	this->Clear();
-
-	//copy top portion to source
+	//copy top portion to cleared source file
 	StreamposPair top;
 	top.first = 0;
 	top.second = bracket.first;
 	is_successful &= temp.Read(temp_str, top);
-	is_successful &= this->Write(temp_str);
+	is_successful &= this->Write(temp_str, std::fstream::trunc);
 	temp_str.clear();
 
 	//append text to source
@@ -213,6 +210,8 @@ bool File::Write(const std::string &text, const StreamposPair &bracket) {//TODO
 	is_successful &= temp.Read(temp_str, bottom);
 	is_successful &= this->Write(temp_str);
 	temp_str.clear();
+
+	temp.Destroy();
 
 	return is_successful;
 }
