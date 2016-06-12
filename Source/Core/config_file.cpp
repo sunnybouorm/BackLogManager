@@ -60,15 +60,15 @@ bool ConfigFile::Create() {
 	is_successful  = this->write_header_start("directories");
 
 	tag_name		= "schema filename";
-	tag_value		= "BacklogManager.sql";
+	tag_value		= "schema.sql";//TODO change this
 	is_successful  &= this->write_tag(tag_name, tag_value);
 
 	tag_name		 = "schema directory";
-	tag_value		 = "";
+	tag_value		 = "";//TODO change this
 	is_successful	&= this->write_tag(tag_name,tag_value);
 
 	tag_name		= "database directory";
-	tag_value		= "";
+	tag_value		= "";//TODO change this
 	is_successful  &= this->write_tag(tag_name, tag_value);
 
 	is_successful  &= this->write_header_end  ("directories");

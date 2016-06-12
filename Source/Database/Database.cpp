@@ -85,7 +85,8 @@ Database::Database(const std::string &directory) {
  */
 void Database::SetDirectory(const std::string &directory) {
 	this->db_dir_ = directory;
-	this->db_dir_uri_ = "file:///" + directory;
+	if (directory.empty() == false) { this->db_dir_uri_ = "file:///" + directory; }
+	else { this->db_dir_uri_ = directory; }
 	this->db_file_.set_filename(kDbName);
 	this->db_file_.set_directory(directory);
 }

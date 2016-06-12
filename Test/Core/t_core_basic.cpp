@@ -5,18 +5,8 @@ SCENARIO("A single activity is added, updated and deleted")
 {
 	GIVEN("a clean database") 
 	{
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-		
-
-		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
 
 		WHEN("an activity is added")
 		{
@@ -31,14 +21,14 @@ SCENARIO("A single activity is added, updated and deleted")
 			std::string activity_name = "Movies";
 			std::string activity_id	  = "1";
 
-			column_name		  = "Name";
-			column_data		  = activity_name;
+			column_name		 = "Name";
+			column_data		 = activity_name;
 			
 			row[column_name] = column_data;
 
 			query.table_name = table_name;
 			query.columns	 = row;
-			query.request	 = INSERT;
+			query.request	 = INSERT;			
 
 			creation_is_success = core.SqlRequest(query);
 			row.clear();
@@ -151,17 +141,9 @@ SCENARIO("Multiple activities are added and deleted")
 {
 	GIVEN("a clean database")
 	{
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-		
-		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
+		
 
 		WHEN("multiple activities are added")
 		{
@@ -324,17 +306,8 @@ SCENARIO("A single listing is added and deleted")
 {
 	GIVEN("a clean database")
 	{
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-		
-		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection();	}
-		if (core.database_.is_exist()		== true) { core.database_.Exterminate();		}
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
 
 		QueryContainer	query;
 		std::string column_name, column_data, table_name, title;
@@ -430,18 +403,9 @@ SCENARIO("Multiple listings are added and deleted")
 {
 	GIVEN("a database with multiple activity records")
 	{
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-		
-		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist()    == true) { core.database_.Exterminate(); }
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
-
+		
 		QueryContainer	query;
 		std::string column_name, column_data, table_name, title;
 		std::string activity_name, activity_id, lid;
@@ -647,17 +611,8 @@ SCENARIO("A single listing is updated")
 {
 	GIVEN("a database with a single activity record and a single listing record")
 	{
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-		
-		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist()    == true) { core.database_.Exterminate(); }
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
 
 		QueryContainer	query;
 		std::string column_name, column_data, table_name, title;
@@ -740,17 +695,8 @@ SCENARIO("A single listing is updated")
 SCENARIO("a single user defined field is added, updated and deleted") {
 	GIVEN("a database with a two activity records")
 	{
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-		
-		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
 
 		QueryContainer	query;
 		std::string column_name, column_data, table_name, title;
@@ -920,17 +866,8 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 {
 	GIVEN("a database with a single activity and UDF record")
 	{
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-		
-		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist()		== true) { core.database_.Exterminate(); }
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
 
 		QueryContainer	query;
 		std::string column_name, column_data, table_name, title;
@@ -1082,18 +1019,8 @@ SCENARIO("a single user defined field data entry is added, updated, and deleted"
 
 SCENARIO("A single Listing_UDFentry many to many releationship is added updated and deleted") {
 	GIVEN("a database with Activity,UDF,Listing, and Entry records inserted") {
-
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-		
-		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist()	 == true) { core.database_.Exterminate(); }
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
 
 		QueryContainer	query;
 		std::string column_name, column_data, table_name, title, data, udfid;

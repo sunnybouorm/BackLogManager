@@ -255,3 +255,5 @@ ModelManifest.xml
 /BacklogManager.vcxproj
 /BacklogManager.sln
 /Database/db.db3
+/db.db3
+*.db3-journal

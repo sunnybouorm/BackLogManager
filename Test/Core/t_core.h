@@ -8,4 +8,4 @@
 #include "../t_utility.h"
 
 //constants
-const std::string kdb_dir = "D:\\Development\\Projects\\BacklogManager\\Database\\";
+const std::string kdb_dir = "";

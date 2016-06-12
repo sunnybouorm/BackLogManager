@@ -42,7 +42,11 @@ bool File::Create(const std::string &filename, const std::string &directory) {
 	std::fstream fs;
 	bool is_successful = false;
 	const char* fn = nullptr;
-	std::string path = directory + filename;
+	std::string path;
+
+	if (directory.empty() == false) { path = directory + filename; }
+	else { path = filename; }
+
 	fn = path.c_str();
 
 	int mode = std::fstream::out;
@@ -72,8 +76,10 @@ bool File::Destroy(const std::string &filename, const std::string &directory) {
 	bool is_successful = false;
 
 	std::string temp = directory + filename;
+	if (directory.empty() == true) { temp = filename; }
 	const char* path = (temp).c_str();
 	int status = std::remove(path);
+
 	if (status == 0) {
 		is_successful = true;
 	} else {

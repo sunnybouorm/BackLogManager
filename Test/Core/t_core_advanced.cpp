@@ -3,17 +3,8 @@
 
 SCENARIO("duplicate activity names are inserted") {
 	GIVEN("a clean database") {
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-
-		if (core.database_.IsConnected()	== true) { core.database_.CloseConnection();	}
-		if (core.database_.is_exist()		== true) { core.database_.Exterminate();		}
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
 
 		WHEN("two activities with the same Name attribute are added") {
 			QueryContainer	query;
@@ -68,17 +59,9 @@ SCENARIO("duplicate activity names are inserted") {
 
 SCENARIO("duplicate listing titles are inserted") {
 	GIVEN("a clean database") {
-		std::string sql_filename = "BacklogManager.sql";
-		File sql_file(sql_filename, kdb_dir);
-
 		Core core;
-		core.database_.SetDirectory(kdb_dir);
-
-		if (core.database_.IsConnected() == true) { core.database_.CloseConnection(); }
-		if (core.database_.is_exist() == true) { core.database_.Exterminate(); }
-
 		core.database_.OpenConnection();
-		core.database_.ImportSql(sql_file);
+		
 
 		WHEN("two listing with the same title attribute are added under the same activity") {
 			QueryContainer	query;

@@ -39,6 +39,9 @@ SCENARIO("a fresh config file is cached") {
 				REQUIRE(is_successful == true);
 				REQUIRE(cfg.get_cache().header_map.count("directories") == 1);
 
+				REQUIRE(cfg.get_cache().header_map.at("directories").tag_map.count("schema filename") == 1);
+				REQUIRE(cfg.get_cache().header_map.at("directories").tag_map.at("schema filename") == "schema.sql");
+
 				REQUIRE(cfg.get_cache().header_map.at("directories").tag_map.count("schema directory")	== 1);
 				REQUIRE(cfg.get_cache().header_map.at("directories").tag_map.at("schema directory")		== "");
 
@@ -63,8 +66,8 @@ SCENARIO("a fresh config file is written to and cached") {
 
 		WHEN("the config file is written to and cached") {
 			header_name = "directories";
-			tag_name = "schema directory";
-			tag_value = "D:\\Development\\Projects\\BacklogManager\\Database\\";
+			tag_name	= "schema directory";
+			tag_value	= "";
 
 			REQUIRE(cfg.WriteToHeader(header_name, tag_name, tag_value) == true);
 

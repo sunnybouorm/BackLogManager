@@ -93,21 +93,26 @@ bool Core::InitializeFromConfigFile() {//TODO
 	//set database directory
 	std::string db_dir = this->cfg_.get_tag_value("directories", "database directory");
 	this->database_.SetDirectory(db_dir);
+	this->database_.OpenConnection();
 
 	//set schema directory and import the schema
 	std::string schema_fn, schema_dir;
-	File schema;
 	schema_dir	= this->cfg_.get_tag_value("directories", "schema directory");
 	schema_fn	= this->cfg_.get_tag_value("directories", "schema filename");
-	schema.set_filename (schema_fn);
-	schema.set_directory(schema_dir);
-	
-	this->database_.ImportSql(schema);
+		
+	this->database_.ImportSql(schema_fn, schema_dir);
+	this->database_.CloseConnection();
 
 	return  is_successful;
 }
 
 Core::Core() {
+	this->InitializeFromConfigFile();
+	this->database_.OpenConnection();
+}
+
+Core::~Core() {
+	this->database_.CloseConnection();
 }
 
 /* 
@@ -187,9 +192,10 @@ bool Core::SqlRequest(QueryContainer &query) {
 
 	//select relavent function to handle request
 	if ( (query.table_name == "Activity") && (query.request == INSERT) ) {
-		std::string key_name, key_data;
 
+		std::string key_name, key_data;
 		key_name = "ActivityID";
+
 		int activity_id = this->GenerateUniqueIntId(query.table_name, key_name);
 		key_data = std::to_string(activity_id);
 		query.columns[key_name] = key_data;
@@ -521,29 +527,8 @@ bool Core::UpdateActivity(QueryContainer &query) {
  * Notes:
  * > Requires an open connection to database
  */
-bool Core::AddListing(QueryContainer &query) { //TODO enable foreign key support in sqlite
+bool Core::AddListing(QueryContainer &query) {
 	bool is_successful = false;
-
-	//check that activity ID exists to prevent creation of an orphaned record
-	//std::stringstream ss;
-	//ss  << "SELECT"
-	//	<< " ActivityID FROM "
-	//	<< query.table_name
-	//	<< " WHERE ActivityID="
-	//	<< query.columns["ActivityID"];
-
-	//if (this->database_.SqlCommand(ss.str()) == false) { return is_successful = false; }
-
-	//TableContainer result = this->database_.read_result_buffer();
-	//if(result.empty() == true){
-	//	std::cerr 
-	//		<< "Core Warning: Operation AddListing failed, ActivityID<"
-	//		<< query.columns["ActivityID"]
-	//		<< "> does not exist, aborted operation to prevent the insertion of an"
-	//		<< "orphaned record\n";
-	//	return is_successful = false; 
-	//}
-
 	is_successful = this->Insert(query);
 
 	return is_successful;

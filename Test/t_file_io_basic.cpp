@@ -9,7 +9,7 @@ SCENARIO("A file is created and destroyed using static members")
 	GIVEN("An initialized set of data")
 	{
 		const std::string filename = "test_file.txt";
-		const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
+		const std::string dir = "";
 
 		WHEN("A file is created then destroyed")
 		{
@@ -35,7 +35,7 @@ SCENARIO("A file is created and destroyed using non-static members")
 	GIVEN("An initialized set of data")
 	{
 		const std::string filename = "test_file.txt";
-		const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
+		const std::string dir = "";
 		File file(filename,dir);
 		if (file.Exists() == true) { file.Destroy(); }
 
@@ -62,7 +62,7 @@ SCENARIO("A line of text is written and read from a file")
 	GIVEN("A text file")
 	{
 		std::string fn  = "textFile.txt";
-		std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
+		std::string dir = "";
 		File file(fn,dir);
 		if(file.Exists() == true){ file.Destroy(); }
 		file.Create();
@@ -102,7 +102,7 @@ SCENARIO("Multiple lines of text are written and read from a file")
 	GIVEN("a text file")
 	{
 		std::string fn = "textFile.txt";
-		std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
+		std::string dir = "";
 		File file(fn, dir);
 		if (file.Exists() == true) { file.Destroy(); }
 		
@@ -137,7 +137,7 @@ SCENARIO("A line of text is read and EOF is reached") {
 	GIVEN("a text file")
 	{
 		std::string fn = "textFile.txt";
-		std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
+		std::string dir = "";
 		File file(fn, dir);
 		if (file.Exists() == true) { file.Destroy(); }
 

@@ -17,6 +17,7 @@ class Core {
 
 public:
 	Core();
+	~Core();
 	bool SqlRequest(QueryContainer &query);
 	Database database_;
 	ConfigFile cfg_;

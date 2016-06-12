@@ -5,8 +5,8 @@
 #include "../../Source/stdafx.h"
 #include "t_db_basic.h"
 
-const std::string dir = "D:\\Development\\Projects\\BacklogManager\\unused_test_directory\\";
-const std::string db_dir = "D:\\Development\\Projects\\BacklogManager\\Database\\";
+const std::string dir = "";
+const std::string db_dir = "";
 
 SCENARIO("A connection to the database is established")
 {
@@ -30,10 +30,12 @@ SCENARIO("A connection to the database is established")
 
 				AND_WHEN("An extermination request is made")
 				{
+					REQUIRE(database.is_exist() == true);
 					is_deleted = database.Exterminate();
 					THEN("The database file specified must be deleted")
 					{
 						REQUIRE(is_deleted == true);
+						REQUIRE(database.is_exist() == false);
 					}
 				}
 			}
@@ -160,7 +162,7 @@ SCENARIO("An SQL text file is imported into database")
 		if (database.is_exist()		== true) { database.Exterminate(); }
 		bool status = false;
 
-		std::string filename = "BacklogManager.sql";
+		std::string filename = "schema.sql";
 		File sql_file(filename, db_dir);
 
 		WHEN("An SQL file is imported") 
