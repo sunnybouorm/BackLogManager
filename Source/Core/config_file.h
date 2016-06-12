@@ -69,6 +69,6 @@ private:
 	bool write_header_end	(const std::string &header_name);
 	bool write_tag(const std::string& tag_name, const std::string &value);
 
-	bool ScanTag(std::string &tag_name);
+	std::pair<std::streampos, std::streampos> EncloseTag(const std::string &tag_name);
 	bool ScanHeader(std::string &header_string);
 };

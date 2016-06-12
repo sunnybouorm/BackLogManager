@@ -50,18 +50,18 @@ bool ConfigFile::write_tag(const std::string& tag_name, const std::string &value
 
 bool ConfigFile::Create() {
 	bool is_successful = false;
-	this->config_file_.set_filename(ConfigFile::kfile_name_);
+	this->config_file_.set_filename (ConfigFile::kfile_name_);
 	this->config_file_.set_directory(ConfigFile::kfile_dir_);
 	this->config_file_.Create();
 
 	std::string tag_name, tag_value;
 
 	//Insert default parameters
-	is_successful  = this->write_header_start("directories");
+	is_successful    = this->write_header_start("directories");
 
-	tag_name		= "schema filename";
-	tag_value		= "schema.sql";//TODO change this
-	is_successful  &= this->write_tag(tag_name, tag_value);
+	tag_name		 = "schema filename";
+	tag_value		 = "schema.sql";//TODO change this
+	is_successful   &= this->write_tag(tag_name, tag_value);
 
 	tag_name		 = "schema directory";
 	tag_value		 = "";//TODO change this
@@ -82,26 +82,24 @@ bool ConfigFile::Destroy() {
 	return is_successful;
 }
 
+
+
 /*
- * Read tag name from config file and return it, returns null if no tag name is found
+ * Search for tag name in the config file and set file pointers accordingly.
+ * If tag_name specified is found then streampositions enclosing the desired tag is returned.
+ * Otherwise ipos and opos are set to the last valid tag position near <header_name end> delimiter.
  *
+ * returns a pair of int assigned to NULL if <header end> delimiter is not found, returns stream positions enclosing
+ * desired location otherwise
+ *---------------------------------------------------------------------------------------------------------------------
  * NOTES:
- * > position in file must be between enclosed by header delimiters
+ * > Ensure position in file is enclosed by header delimiters and begins at the start of the first tag just after
+ * <header_name> delimiter
  */
-bool ConfigFile::ScanTag(std::string &tag_name) {//TODO
-	bool is_successful = false;
-	char character;
+std::pair<std::streampos, std::streampos> ConfigFile::EncloseTag(const std::string &tag_name) {//TODO
+	std::pair<std::streampos, std::streampos> bracket;
 
-	do {
-		is_successful = this->config_file_.ReadChar(character);
-
-		if (character == '\n') {
-			//TODO 
-		}
-
-	} while (is_successful == true);
-
-	return is_successful;
+	return bracket;
 }
 
 bool ConfigFile::WriteToHeader(std::string &header_name, std::string &tag_name, std::string &tag_value) {//TODO
@@ -110,7 +108,10 @@ bool ConfigFile::WriteToHeader(std::string &header_name, std::string &tag_name, 
 	std::string cfg_header_name;
 
 	if (this->ScanHeader(cfg_header_name) == false) {
-	//TODO error
+		//locate tag
+		auto bracket = this->EncloseTag(tag_name);
+
+		//write tag to desired location
 	}
 
 	if (cfg_header_name == header_name) {}

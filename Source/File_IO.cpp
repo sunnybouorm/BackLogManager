@@ -91,13 +91,31 @@ bool File::Destroy(const std::string &filename, const std::string &directory) {
 }
 
 bool File::Exists()  { return (File::Exists ( this->filename_, this->directory_)  ); }
-bool File::Create()  { return (File::Create ( this->filename_, this->directory_)  ); }
-bool File::Destroy() { return (File::Destroy( this->filename_, this->directory_)  ); }
+bool File::Destroy() { return (File::Destroy(this->filename_, this->directory_)); }
+bool File::Create()  { 
+	bool is_successful = false;
+	is_successful = File::Create ( this->filename_, this->directory_);
+	if (is_successful == true) { this->SetEofPos(); }
 
-bool File::Write(const std::string &text) {
+	return is_successful;
+}
+
+/*
+ * Writes text to file output pointer opos of current file instance
+ *
+ * text: text to write to current file instance
+ * mode: sets file open and write mode, consult fstream::open, defaults to append
+ *
+ * returns true if operation successful
+ *----------------------------------------------------------------------------------------------------------
+ * Notes:
+ * > File output pointer of current instance opos_ is updated to last output position reached
+ */
+bool File::Write(const std::string &text, int mode) {
 	bool is_successful = false;
 	std::fstream fs;
-	int mode = std::fstream::out | std::fstream::app;
+	mode |= std::fstream::out;
+
 	const char* path = nullptr;
 	std::string temp = (this->directory_) + (this->filename_);
 	path = (temp).c_str();
@@ -105,14 +123,96 @@ bool File::Write(const std::string &text) {
 	if (this->Exists() == true) {
 		fs.open(path, mode);
 		fs << text;
+		this->opos_ = fs.tellp();
 		fs.close();
-		return is_successful = true;
 	} else {
 		std::cerr << "File_io Warning: attempted to write to a file that does not exist, "
 			      << "filename<"  << this->filename_ << ">, " 
 				  << "directory<" << this->directory_ << ">" << "\n";
 		return is_successful = false;
 	}
+
+	if (is_successful == true) { this->SetEofPos(); }
+
+	return is_successful;
+}
+
+bool File::SetEofPos() {
+	bool is_successful = false;
+
+	std::fstream fs;
+	int mode = std::fstream::ate | std::fstream::in;
+
+	const char* path = nullptr;
+	std::string temp = (this->directory_) + (this->filename_);
+	path = (temp).c_str();
+
+	if (this->Exists()) {
+		fs.open(path, mode);
+		this->eof_pos_ = fs.tellg();
+		fs.close();
+	}
+	else {
+		std::cerr << "File_io Warning: attempted to write to a file that does not exist, "
+			<< "filename<" << this->filename_ << ">, "
+			<< "directory<" << this->directory_ << ">" << "\n";
+		return is_successful = false;
+	}
+}
+
+//read from streampos.first to streampos.second
+bool File::Read(std::string &output, const StreamposPair &bracket) {//TODO
+	bool is_successful = false;
+
+	return is_successful;
+}
+
+/*
+* Writes text to file between given output pointer pair enclosing desired location of current file instance
+*
+* text: text to write to current file instance
+* mode: sets file open and write mode, consult fstream::open, defaults to append
+*
+* returns true if operation successful
+*----------------------------------------------------------------------------------------------------------
+* Notes:
+* > File output pointer of current instance opos_ is updated to last output position of bracket
+*/
+bool File::Write(const std::string &text, const StreamposPair &bracket) {//TODO
+	bool is_successful = false;
+	std::string temp_str;
+
+	//create backup copy of source file
+	StreamposPair all;
+	all.first		= 0;
+	all.second		= this->get_eof_pos();
+	is_successful	= this->Read(temp_str, all);
+
+	File temp("temp.temp",this->directory_);
+	is_successful &= temp.Write(temp_str);
+	temp_str.clear();
+
+	//clear source file
+	this->Clear();
+
+	//copy top portion to source
+	StreamposPair top;
+	top.first = 0;
+	top.second = bracket.first;
+	is_successful &= temp.Read(temp_str, top);
+	is_successful &= this->Write(temp_str);
+	temp_str.clear();
+
+	//append text to source
+	this->Write(text);
+
+	//copy bottom portion to source
+	StreamposPair bottom;
+	bottom.first  = bracket.second;
+	bottom.second = temp.get_eof_pos();
+	is_successful &= temp.Read(temp_str, bottom);
+	is_successful &= this->Write(temp_str);
+	temp_str.clear();
 
 	return is_successful;
 }
@@ -319,4 +419,5 @@ bool File::ReadLine(std::string &output) {
 void File::Clear() {
 	this->Destroy();
 	this->Create();
+	this->SetEofPos();
 }
