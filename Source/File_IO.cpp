@@ -163,6 +163,13 @@ bool File::SetEofPos() {
 //read from streampos.first to streampos.second
 bool File::Read(std::string &output, const StreamposPair &bracket) {//TODO
 	bool is_successful = false;
+	this->set_ipos(bracket.first);
+	char c;
+	while (this->get_ipos() != bracket.second) {
+		is_successful = this->ReadChar(c);
+		if (is_successful == false) { return is_successful = false; }
+		output += c;
+	}
 
 	return is_successful;
 }
