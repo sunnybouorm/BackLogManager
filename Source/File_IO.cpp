@@ -170,7 +170,7 @@ bool File::SetEofPos() {
 }
 
 //read from streampos.first to streampos.second
-bool File::Read(std::string &output, const StreamposPair &bracket) {//TODO
+bool File::Read(std::string &output, const StreamposPair &bracket) {
 	bool is_successful = false;
 	this->set_ipos(bracket.first);
 	char c;
@@ -195,7 +195,7 @@ bool File::Read(std::string &output, const StreamposPair &bracket) {//TODO
 * Notes:
 * > File output pointer of current instance opos_ is updated to last output position of bracket
 */
-bool File::Write(const std::string &text, const StreamposPair &bracket) {//TODO
+bool File::Write(const std::string &text, const StreamposPair &bracket) {
 	bool is_successful = false;
 	std::string temp_str;
 
@@ -265,7 +265,7 @@ void File::SetInputFlagsEof() {
  *
  * returns true if operation is successful
  */
-bool File::ReadChar(char &output) {//TODO
+bool File::ReadChar(char &output) {
 	output = NULL;
 	bool is_successful = false;
 	std::fstream fs;
