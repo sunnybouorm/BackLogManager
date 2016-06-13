@@ -128,7 +128,16 @@ bool ConfigFile::EncloseTag(const std::string &tag_name, StreamposPair &bracket)
 	return is_successful = false;
 }
 
-bool ConfigFile::WriteToHeader(std::string &header_name, std::string &tag_name, std::string &tag_value) {//TODO
+/*
+ * Writes tag to specified tag_name and associated tag_value to the specified header_name in config file
+ *
+ * returns true if operation successful
+ * ----------------------------------------------------------------------------------------------------------
+ * Notes:
+ * > function not feature complete, can only write to specified header if its delimiters exist in the config file
+ * attempting to write to a header name that does not exist will result in failure
+ */
+bool ConfigFile::WriteToHeader(std::string &header_name, std::string &tag_name, std::string &tag_value) {
 	std::stringstream ss;
 
 	ss << "Configfile Warning: failed to write tag to header";
