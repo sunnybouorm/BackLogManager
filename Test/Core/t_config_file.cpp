@@ -4,22 +4,24 @@
 SCENARIO("a config file is created and destroyed") {
 	GIVEN("an initialized set of data") {
 		
-		WHEN("a config file is initialized and not destroyed") {
-			ConfigFile file;
+		WHEN("a new config file is initialized and not destroyed") {
+			ConfigFile cfg;
+			cfg.Destroy();
+			cfg.Create();
 			THEN("it must exist") {
-				REQUIRE(file.Exists() == true);
+				REQUIRE(cfg.Exists() == true);
 			}
 		}
 
 		AND_WHEN("the config file is initialized when the file already exists") {
-			ConfigFile file;
+			ConfigFile cfg;
 			THEN("it must exist") {
-				REQUIRE(file.Exists() == true);
+				REQUIRE(cfg.Exists() == true);
 
 				AND_WHEN("the file is destroyed") {
-					file.Destroy();
+					cfg.Destroy();
 					THEN("it must seize to exists") {
-						REQUIRE(file.Exists() == false);
+						REQUIRE(cfg.Exists() == false);
 					}
 				}
 			}
@@ -92,5 +94,6 @@ SCENARIO("a fresh config file is written to and cached") {
 				REQUIRE(result==expected);
 			}
 		}
+		cfg.Destroy();
 	}
 }
