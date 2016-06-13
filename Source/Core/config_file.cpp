@@ -129,15 +129,11 @@ bool ConfigFile::EncloseTag(const std::string &tag_name, StreamposPair &bracket)
 }
 
 /*
- * Writes tag to specified tag_name and associated tag_value to the specified header_name in config file
+ * Writes tag with tag_name and associated tag_value to the specified header in config file
  *
  * returns true if operation successful
- * ----------------------------------------------------------------------------------------------------------
- * Notes:
- * > function not feature complete, can only write to specified header if it is the first occurence and its delimiters
- * exist in the config file attempting to write to a header name that does not exist will result in failure
  */
-bool ConfigFile::WriteToHeader(std::string &header_name, std::string &tag_name, std::string &tag_value) {//TODO
+bool ConfigFile::WriteToHeader(std::string &header_name, std::string &tag_name, std::string &tag_value) {
 	std::stringstream ss;
 
 	ss << "Configfile Warning: failed to write tag to header";
@@ -151,28 +147,38 @@ bool ConfigFile::WriteToHeader(std::string &header_name, std::string &tag_name, 
 	bool is_successful = false;
 
 	std::string cfg_header_name;
-	std::string tag = tag_name + "=" + tag_value + "\n";
+	std::string tag = tag_name + "=" + tag_value + "\n\n";
 	StreamposPair bracket;
 
-	if (this->ScanHeader(cfg_header_name) == false) {
-		std::cerr << err_msg_1 << "\n";
-
-		return is_successful = false;
-	}
-
-	if (cfg_header_name == header_name) {
-		//locate tag
-		is_successful = this->EncloseTag(tag_name, bracket);
-
-		if (is_successful == false) {
-			std::cerr << err_msg_1 << err_msg_2 << "\n";
+	//scan for matching header_name
+	while(this->config_file_.get_iflags().is_good) {
+		if (this->ScanHeader(cfg_header_name) == false) {
+			std::cerr << err_msg_1 << "\n";
 
 			return is_successful = false;
 		}
 
-		//write tag to desired location
-		is_successful &= this->config_file_.Write(tag, bracket);
+		if (cfg_header_name == header_name) {
+			//locate tag
+			is_successful = this->EncloseTag(tag_name, bracket);
+
+			if (is_successful == false) {
+				std::cerr << err_msg_1 << err_msg_2 << "\n";
+
+				return is_successful = false;
+			}
+
+			//write tag to desired location
+			is_successful &= this->config_file_.Write(tag, bracket);
+
+			return is_successful;
+		}
 	}
+
+	//specified header name not found, append a new header name along with specified tag
+	is_successful  = this->write_header_start(header_name);
+	is_successful &= this->write_tag(tag_name, tag_value);
+	is_successful &= this->write_header_end(header_name);
 
 	return is_successful;
 }

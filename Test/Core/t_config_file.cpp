@@ -63,15 +63,15 @@ SCENARIO("a fresh config file is cached") {
 	}
 }
 
-SCENARIO("a fresh config file is written to and cached") {
+SCENARIO("a fresh config file is written to") {
 	GIVEN("an initialized config file") {
 		ConfigFile cfg;
-		cfg.Destroy();
-		cfg.Create();
 
 		std::string header_name, tag_name, tag_value;
 
-		WHEN("the config file is written to and cached") {
+		WHEN("a config file tag is written to an existing header") {
+			cfg.Destroy();
+			cfg.Create();
 			header_name = "directories";
 			tag_name	= "test tag";
 			tag_value	= "test value";
@@ -87,11 +87,45 @@ SCENARIO("a fresh config file is written to and cached") {
 			expected += "schema directory=\n";
 			expected += "database directory=\n";
 			expected += "test tag=test value\n";
+			expected += "\n";
 			expected += "<directories end>";
 			expected += "\n";
 
 			THEN("the data must be mapped correctly") {
 				REQUIRE(result==expected);
+			}
+		}
+
+		WHEN("a config file tag is written to a header that does not exist") {
+			cfg.Destroy();
+			cfg.Create();
+			header_name = "test header";
+			tag_name	= "test tag";
+			tag_value	= "test value";
+
+			REQUIRE(cfg.WriteToHeader(header_name, tag_name, tag_value) == true);
+
+			std::string result = cfg.config_file_.to_string();
+			std::string expected;
+			expected += "\n";
+			expected += "<directories>";
+			expected += "\n\n";
+			expected += "schema filename=schema.sql\n";
+			expected += "schema directory=\n";
+			expected += "database directory=\n";
+			expected += "\n";
+			expected += "<directories end>\n";
+
+			expected += "\n";
+			expected += "<test header>";
+			expected += "\n\n";
+			expected += "test tag=test value\n";
+			expected += "\n";
+			expected += "<test header end>";
+			expected += "\n";
+
+			THEN("the data must be mapped correctly") {
+				REQUIRE(result == expected);
 			}
 		}
 		cfg.Destroy();
