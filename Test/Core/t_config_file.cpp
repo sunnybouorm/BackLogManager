@@ -30,6 +30,8 @@ SCENARIO("a config file is created and destroyed") {
 SCENARIO("a fresh config file is cached") {
 	GIVEN("an initialized config file") {
 		ConfigFile cfg;
+		cfg.Destroy();
+		cfg.Create();
 
 		WHEN("the file is cached") {
 			bool is_successful = false;
@@ -62,17 +64,32 @@ SCENARIO("a fresh config file is cached") {
 SCENARIO("a fresh config file is written to and cached") {
 	GIVEN("an initialized config file") {
 		ConfigFile cfg;
+		cfg.Destroy();
+		cfg.Create();
+
 		std::string header_name, tag_name, tag_value;
 
 		WHEN("the config file is written to and cached") {
 			header_name = "directories";
-			tag_name	= "schema directory";
-			tag_value	= "";
+			tag_name	= "test tag";
+			tag_value	= "test value";
 
 			REQUIRE(cfg.WriteToHeader(header_name, tag_name, tag_value) == true);
 
+			std::string result = cfg.config_file_.to_string();
+			std::string expected;
+			expected += "\n";
+			expected += "<directories>";
+			expected += "\n\n";
+			expected += "schema filename=schema.sql\n";
+			expected += "schema directory=\n";
+			expected += "database directory=\n";
+			expected += "test tag=test value\n";
+			expected += "<directories end>";
+			expected += "\n";
+
 			THEN("the data must be mapped correctly") {
-				REQUIRE(false);
+				REQUIRE(result==expected);
 			}
 		}
 	}

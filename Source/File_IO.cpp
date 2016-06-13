@@ -13,6 +13,9 @@ File::File(const std::string &filename, const std::string &directory) {
 	this->filename_  = filename;
 	this->directory_ = directory;
 	this->ipos_ = 0;
+	if (this->Exists()) { 
+		this->SetEofPos(); 
+	}
 }
 
 /*
@@ -123,17 +126,20 @@ bool File::Write(const std::string &text, int mode) {
 	if (this->Exists() == true) {
 		fs.open(path, mode);
 		fs << text;
+		if (fs.good() == true) { is_successful = true; }
 		this->opos_ = fs.tellp();
 		fs.close();
+
+		is_successful &= this->SetEofPos();
 	} else {
 		std::cerr << "File_io Warning: attempted to write to a file that does not exist, "
-			      << "filename<"  << this->filename_ << ">, " 
+			      << "filename<"  << this->filename_  << ">, " 
 				  << "directory<" << this->directory_ << ">" << "\n";
+
 		return is_successful = false;
 	}
 
 	if (is_successful == true) { this->SetEofPos(); }
-
 	return is_successful;
 }
 
@@ -151,13 +157,16 @@ bool File::SetEofPos() {
 		fs.open(path, mode);
 		this->eof_pos_ = fs.tellg();
 		fs.close();
+		if (fs.good() == true) { return is_successful = true; }
 	}
 	else {
 		std::cerr << "File_io Warning: attempted to write to a file that does not exist, "
-			<< "filename<" << this->filename_ << ">, "
+			<< "filename<"	<< this->filename_	<< ">, "
 			<< "directory<" << this->directory_ << ">" << "\n";
 		return is_successful = false;
 	}
+
+	return is_successful = false;
 }
 
 //read from streampos.first to streampos.second
@@ -165,6 +174,7 @@ bool File::Read(std::string &output, const StreamposPair &bracket) {//TODO
 	bool is_successful = false;
 	this->set_ipos(bracket.first);
 	char c;
+
 	while (this->get_ipos() != bracket.second) {
 		is_successful = this->ReadChar(c);
 		if (is_successful == false) { return is_successful = false; }
@@ -196,7 +206,9 @@ bool File::Write(const std::string &text, const StreamposPair &bracket) {//TODO
 	is_successful	= this->Read(temp_str, all);
 
 	File temp("temp.temp",this->directory_);
+	temp.Create();
 	is_successful &= temp.Write(temp_str);
+
 	temp_str.clear();
 
 	//copy top portion to cleared source file
@@ -426,4 +438,18 @@ void File::Clear() {
 	this->Destroy();
 	this->Create();
 	this->SetEofPos();
+}
+
+/*
+ * stores file contents in output parameter and returns true if operation is succesful
+ */
+std::string File::to_string() {
+	std::string output;
+
+	StreamposPair bracket;
+	bracket.first	= 0;
+	bracket.second	= this->get_eof_pos();
+	this->Read(output, bracket);
+
+	return output;
 }

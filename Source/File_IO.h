@@ -46,6 +46,8 @@ public:
 	bool ReadChar(char &output);
 	bool ReadLine(std::string &output);
 
+	std::string to_string();
+
 	void Clear();//clears file by destroying and recreating it
 
 	IFlags get_iflags() { return this->i_flags_; }

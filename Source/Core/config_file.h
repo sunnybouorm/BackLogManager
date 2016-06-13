@@ -40,6 +40,8 @@ typedef struct ConfigFileContainerStruct
 class ConfigFile {
 
 public:
+	File config_file_;
+
 	static bool ConfigFile::CheckCacheIntegrity(const ConfigFileContainer &cache);
 
 	ConfigFile();
@@ -62,13 +64,12 @@ private:
 	static const std::string kfile_name_;
 	static const std::string kfile_dir_;
 
-	File config_file_;
 	ConfigFileContainer config_cache_;
 
 	bool write_header_start	(const std::string &header_name);
 	bool write_header_end	(const std::string &header_name);
 	bool write_tag(const std::string& tag_name, const std::string &value);
 
-	std::pair<std::streampos, std::streampos> EncloseTag(const std::string &tag_name);
+	bool EncloseTag(const std::string &tag_name, StreamposPair &bracket);
 	bool ScanHeader(std::string &header_string);
 };

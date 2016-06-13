@@ -67,11 +67,11 @@ bool ConfigFile::Create() {
 	tag_value		 = "";//TODO change this
 	is_successful	&= this->write_tag(tag_name,tag_value);
 
-	tag_name		= "database directory";
-	tag_value		= "";//TODO change this
-	is_successful  &= this->write_tag(tag_name, tag_value);
+	tag_name		 = "database directory";
+	tag_value		 = "";//TODO change this
+	is_successful   &= this->write_tag(tag_name, tag_value);
 
-	is_successful  &= this->write_header_end  ("directories");
+	is_successful   &= this->write_header_end  ("directories");
 
 	return is_successful;
 }
@@ -82,45 +82,94 @@ bool ConfigFile::Destroy() {
 	return is_successful;
 }
 
-
-
 /*
  * Search for tag name in the config file and set file pointers accordingly.
- * If tag_name specified is found then streampositions enclosing the desired tag is returned.
+ * If tag_name specified is found then streampositions enclosing the desired tag is stored in bracket.
  * Otherwise ipos and opos are set to the last valid tag position near <header_name end> delimiter.
  *
- * returns a pair of int assigned to NULL if <header end> delimiter is not found, returns stream positions enclosing
- * desired location otherwise
+ * returns true if no errors are encountered
  *---------------------------------------------------------------------------------------------------------------------
  * NOTES:
  * > Ensure position in file is enclosed by header delimiters and begins at the start of the first tag just after
  * <header_name> delimiter
  */
-std::pair<std::streampos, std::streampos> ConfigFile::EncloseTag(const std::string &tag_name) {//TODO
-	std::pair<std::streampos, std::streampos> bracket;
+bool ConfigFile::EncloseTag(const std::string &tag_name, StreamposPair &bracket) {//TODO
+	std::string line_buffer, tag_name_buffer;
 
-	return bracket;
+	bool is_successful	= false;
+	char ignore;
+
+	is_successful  = this->config_file_.ReadChar(ignore);//discard two redundant newline characters
+	is_successful &= this->config_file_.ReadChar(ignore);
+	while (this->config_file_.get_iflags().is_good) {
+
+		bracket.first  = this->config_file_.get_ipos();
+		is_successful &= this->config_file_.ReadLine(line_buffer);
+		bracket.second = this->config_file_.get_ipos();
+
+		if (line_buffer.empty() == true) { //reached end of header, tag_name not found
+			return is_successful; 
+		}
+
+		//check if desired tag is reached
+		for (auto it = line_buffer.begin(); it != line_buffer.end(); ++it) {
+			if (*it == '=') {
+				if (tag_name == tag_name_buffer) {//tag_name found
+					return is_successful;
+				}
+				tag_name_buffer.clear();
+			}
+			else {
+				tag_name_buffer += *it;
+			}
+		}
+	}
+
+	return is_successful = false;
 }
 
 bool ConfigFile::WriteToHeader(std::string &header_name, std::string &tag_name, std::string &tag_value) {//TODO
+	std::stringstream ss;
+
+	ss << "Configfile Warning: failed to write tag to header";
+	std::string err_msg_1 = ss.str();
+	ss.str(std::string());
+
+	ss << ", file format invalid";
+	std::string err_msg_2 = ss.str();
+	ss.str(std::string());
+
 	bool is_successful = false;
 
 	std::string cfg_header_name;
+	std::string tag = tag_name + "=" + tag_value + "\n";
+	StreamposPair bracket;
 
 	if (this->ScanHeader(cfg_header_name) == false) {
-		//locate tag
-		auto bracket = this->EncloseTag(tag_name);
+		std::cerr << err_msg_1 << "\n";
 
-		//write tag to desired location
+		return is_successful = false;
 	}
 
-	if (cfg_header_name == header_name) {}
+	if (cfg_header_name == header_name) {
+		//locate tag
+		is_successful = this->EncloseTag(tag_name, bracket);
+
+		if (is_successful == false) {
+			std::cerr << err_msg_1 << err_msg_2 << "\n";
+
+			return is_successful = false;
+		}
+
+		//write tag to desired location
+		is_successful &= this->config_file_.Write(tag, bracket);
+	}
 
 	return is_successful;
 }
 
 /*
- * Read header title from config file and return it, returns null if no header is found
+ * Read header title from config file and store it in header_string, returns true if no errors are encountered
  */
 bool ConfigFile::ScanHeader(std::string &header_string) {
 	header_string.clear();
